@@ -1,65 +1,150 @@
-# CLAUDE.md
+# Stratify
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+A live digital twin of a car assembly line that keeps working on the stations
+nobody has instrumented.
 
-## What this is
+Built for the Accenture Innovation Challenge 2026, Problem Track 4
+DigitalTwin.ai. Round 1 cleared on the idea. Round 2 is graded on whether the
+mechanism actually works and is validated.
 
-Stratify is a digital twin for a car final-assembly line, built for the Accenture Innovation Challenge 2026 (Problem Track 4, DigitalTwin.ai), Round 2 — a 4-day sprint. The core idea: infer state at uninstrumented ("blind") stations from timing, event, and occupancy signals from neighbouring stations, rather than from buffer pile-up. Automotive final assembly is a coupled conveyor with near-zero WIP between stations, so there's no queue to observe — the earlier buffer-based approach doesn't apply here.
+## The problem we solve
 
-Round 1 was won on the idea; Round 2 is graded on whether the inference mechanism actually works and is validated. Do not claim real-plant validation — the line is simulated. Do not cite Bosch Kaggle accuracy figures (that competition had a row-ID ordering leak).
+Mainstream digital twins assume full sensor coverage. Real plants are a mix of
+new and old equipment, so a meaningful minority of stations have little or no
+sensor data. The twin goes blind precisely where the losses are hardest to see.
+Stratify keeps estimating on those stations and always reports how confident it
+is.
 
-## Current state of the repo
+## The core mechanism, and the objection it answers
 
-Only the frontend shell exists so far, imported from a Bolt.new export (`vite-react-typescript-starter` template). It's a **scripted UI prototype**: `src/useTwinState.ts` plays back a fixed, hardcoded 5-second timeline of state changes (`runIncident()`) with no real inference behind it. This is the demo storyboard, not the mechanism.
+An earlier version of this project claimed a blind station is detectable because
+parts pile up before it and run dry after it. That is wrong for automotive final
+assembly, where stations are coupled on a continuously moving conveyor with
+almost no work in progress between them. There is no queue to observe. Anyone
+with automotive experience will raise this.
 
-Not yet built (per the target architecture below): `src/engine` (the actual inference logic), `ml/` (Python training), `ml/artifacts/`, `docs/assumptions.md`. When these appear, treat them as the source of truth over the current scripted demo.
+We infer from three signal classes instead:
 
-## Commands
+1. Timing. Station entry and exit timestamps per vehicle, from barcode and RFID
+   scans that already exist in the plant's MES. Zero new hardware.
+2. Event. Andon pulls, line stops and cycle stop reason codes. These double as
+   free labelled ground truth for training.
+3. Occupancy. Buffer and queue depth, only where buffers genuinely exist, such
+   as the Painted Body Store and inter-segment decoupling buffers.
 
-```
-npm run dev        # Vite dev server
-npm run build      # production build
-npm run lint       # eslint .
-npm run typecheck  # tsc --noEmit -p tsconfig.app.json
-npm run preview    # preview a production build
-```
+One line: a blind station's state is written in the timing of the parts that
+pass through it.
 
-No test runner is configured yet. Non-negotiable per project rules: engine numbers must be test-first once `src/engine` exists — set up a test runner at that point rather than skipping tests.
+Which of the three classes a station exposes is its observability tier, and the
+tier caps the confidence the twin can reach there. This is a first-class concept
+in the code, not a comment.
 
-## Target architecture (per project spec)
+## Non-negotiables
 
-- `src/engine` — pure TypeScript inference logic, **no React imports**. This is where blind-station state estimates and confidence scores are computed.
-- `ml/` — Python model training.
-- `ml/artifacts/` — trained model outputs, committed as JSON.
-- `docs/assumptions.md` — the sole source of numeric constants (cycle times, takt, throughput rates, confidence values). Currently these numbers live inline in `src/model.ts`; once `docs/assumptions.md` exists, it is authoritative and `src/model.ts` should read from/match it, not the other way around.
+Read only. Stratify recommends and never controls. There is no write path to
+line control anywhere in the codebase and there never will be. This is a
+security and trust feature we actively sell, not a limitation we apologise for.
 
-### Non-negotiables
+Confidence on every estimate. An inferred value is never presented without its
+confidence. The UI must make measured and inferred visually distinguishable at a
+glance.
 
-- Read-only twin: no line control. The UI must never imply Stratify can stop or adjust the physical line — see the `RecommendedAction` copy ("Stratify never stops the line. A person decides.").
-- Every inferred estimate carries a confidence value (see `Station.confidence`, `TagKind: 'MEASURED' | 'INFERRED'`).
-- Abstain below a confidence floor rather than presenting a low-confidence guess as fact.
-- Every prediction gets scored in a trust ledger (not yet implemented).
-- No mock data in anything user-visible once the real engine exists — the current scripted `runIncident()` timeline is a bridge, not the end state.
-- Do not add dependencies without stating the problem solved and the cold-install cost.
-- Never commit dataset files.
+Abstention. Below the confidence floor the twin refuses to estimate and states
+why. Two adjacent blind stations are not separately identifiable from timing
+alone, and saying so is more valuable than guessing.
 
-## Frontend structure
+Every prediction is scored. Predictions append to a trust ledger and are scored
+against what actually happened. We show the false alarm rate rather than hiding
+it. This is our main differentiator and no other team will have it.
 
-- `src/App.tsx` — top-level layout and view switcher (`twin` vs `flow` pipeline view). Renders `StatusBar`, `StationRow`, three side-by-side panels (`ConfidenceRing`, `PredictionPanel`, `EventsFeed`), and `RecommendedAction`.
-- `src/useTwinState.ts` — single stateful hook holding all twin state (`connecting` → `steady` → `incident` phase machine). `runIncident()` is a `setTimeout`-scheduled scripted sequence, not live computation. `reset()` clears timers and returns to steady state.
-- `src/model.ts` — static station config and constants (station order/names, rest cycle times, takt, throughput rates, FTT, S6 confidence values). These numbers are provisional pending `docs/assumptions.md`.
-- `src/types.ts` — shared domain types (`Station`, `BufferState`, `EventLine`, `PredictionState`, `RecommendationState`).
-- `src/components/` — presentational components, each taking state as props (no internal data fetching or global state). Notable: `StationCard`/`StationRow` (per-station display with MEASURED/INFERRED tagging), `ConfidenceRing` (confidence visualization for the blind station), `FlowDiagram` (pipeline view), `Buffer` (inter-station buffer fill indicator).
-- Path alias `@/*` → `src/*` (configured in both `vite.config.ts` and `tsconfig.app.json`). Use `@/...` imports, not deep relative paths.
+Numbers come from docs/assumptions.md. Never from your judgment. If a number you
+need is missing, stop and ask.
 
-## Design system — strict precedence order
+## Architecture
 
-When these conflict, resolve in this order and never silently pick one: **1) `docs/assumptions.md`** (numeric ground truth) **> 2) the per-view design spec** (locked colour tokens, type scale, zero radius, motion rule) **> 3) the design spec's avoid-list**. Third-party craft skills under `.claude/skills` apply only where compatible with all three; if a skill's suggestion conflicts, surface the conflict in one line rather than resolving it silently.
+src/engine/      Pure TypeScript. Line simulation, signal layer, inference,
+                 forward simulation for ripple prediction, defect correlation.
+                 Forbidden from importing React or any UI module, enforced by a
+                 test. This is what makes the logic independently verifiable.
+src/engine/__tests__/
+ml/              Python. Generates training data from the same line logic, fits
+                 the soft sensor and defect models with scikit-learn, validates
+                 on held-out data, exports models to JSON.
+ml/artifacts/    Committed JSON: model parameters and metrics.json. The TS
+                 engine reads these at runtime. Committing them is what makes
+                 the metrics reproducible by a judge who never runs Python.
+docs/            assumptions.md is the source of truth for every number.
 
-Locked tokens (`tailwind.config.js`, `src/index.css`):
-- Colors are functional-state signals, not decoration: `measured` (#3FB38B green), `inferred` (#56B6E0 cyan), `slowing` (#E0A83E amber), `starved` (#E45B4A red). Surfaces are near-black (`bg` #0A0D11, `panel` #10151B). Text uses the `ink-*` scale (primary/secondary/muted/faint).
-- Fonts: IBM Plex Sans (UI), IBM Plex Mono with tabular-nums (all numeric/mono readouts).
-- Near-zero corner radius (`borderRadius: 3` inline, or square) — not the Tailwind default rounded look.
-- Motion rule: animate only on real state change, 150–200ms, ease-out. No entrance, hover, or decorative animation. `prefers-reduced-motion` is already respected globally in `src/index.css`.
+Python trains, TypeScript serves. A parity test asserts both paths produce the
+same output within 1e-6. If they diverge, the demo is lying.
 
-Avoid-list: no Inter/Geist/Space Grotesk, no soft/large border radius, no hover flourishes, no gradients (harsh or otherwise), no emoji, no checkmark bullets, no decorative motion, no Lucide icons, no white backgrounds, no rainbow color, no glass/blur effects, no colored left stripes, no bento grids, no purple-and-black combos, no radial orbs, no dot grids, no sparkle icons, no animated arrows, no neon, no basic pastels.
+## Stack
+
+Whatever Bolt gave us for the app layer, kept unless there is a real reason to
+change. React and TypeScript. No backend, no database, no auth. Judges will not
+log in and a backend is a thing that can break on demo day.
+
+Python for training only, standard library plus numpy, pandas, scikit-learn,
+matplotlib. Gradient boosting on tabular data. No deep learning, it would take
+longer and perform worse here.
+
+## Working rules
+
+Commit at every working state. Four day sprint, small commits are the only undo.
+
+No mock data in anything a user sees. If a value is displayed, it was computed
+by the engine. Round 1 was full of scripted values and every one of them is a
+liability now.
+
+Prefer deleting to carrying. Most of the Round 1 code is throwaway.
+
+Do not add dependencies without telling me what problem it solves and what it
+costs on a cold install.
+
+Write the failing test first for anything in src/engine that produces a number a
+judge will see.
+
+## Skills and precedence
+
+This project has third-party craft skills installed under .claude/skills. Use
+them. They will make the interaction and animation work better than it would
+otherwise be.
+
+But they do not get to override the following, in this order:
+
+1. docs/assumptions.md. Every number. No skill has an opinion about our takt time.
+2. The design spec supplied with each view prompt. The colour tokens, the type
+   scale, the zero radius and the motion rule are locked and validated, and a
+   second person is building a pitch deck against them right now. If a skill
+   suggests a different colour, a softer radius, a hover animation, or a
+   different typeface, that suggestion is out of scope and you say so rather than
+   applying it.
+3. The avoid-list in the design spec. It is a hard exclusion list, not a
+   preference. Notably: no Inter, Geist or Space Grotesk, no soft corner radius,
+   no hover flourishes, no gradients, no emoji, no checkmark bullets, no
+   decorative motion, no Lucide icons, no white backgrounds, no rainbow color,
+   no glass/blur effects, no colored left stripes, no bento grids, no
+   purple-and-black combos, no radial orbs, no dot grids, no sparkle icons, no
+   animated arrows, no neon, no basic pastels.
+
+Where a skill's advice is compatible with all three, apply it freely. Where it
+conflicts, tell me what the skill wanted and what you did instead, in one line.
+Do not silently pick either side.
+
+Motion in particular: skills that specialise in animation will want to add
+transitions. Our rule is that motion only fires when the underlying system state
+actually changed, at 150 to 200ms, ease out. Entrance animations, hover
+transitions and decorative easing are all out. Use the skill's craft to make the
+permitted motion excellent rather than to add more of it.
+
+## What we do not claim
+
+We do not claim validation on real plant data. The line is simulated and the
+README says so plainly in the first section. Overclaiming here is the fastest
+way to lose credibility with judges who know this industry.
+
+We do not quote accuracy figures from the Bosch Kaggle competition as evidence
+this method works. The winning solutions exploited an ordering leak in the row
+IDs rather than physics.
+
+We never commit dataset files. Licences forbid redistribution.
