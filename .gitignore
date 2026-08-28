@@ -9,7 +9,16 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+.next
 *.local
+
+# python / ml
+ml/.venv
+__pycache__
+*.pyc
+
+# never commit dataset files
+*.csv
 
 .vscode/*
 !.vscode/extensions.json
