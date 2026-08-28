@@ -24,5 +24,36 @@ export default tseslint.config(
         { allowConstantExport: true },
       ],
     },
+  },
+  {
+    // src/engine is pure TypeScript: the line simulation and inference layer.
+    // It must stay importable from a Python script or a test runner with no
+    // React/UI dependency in the graph. Enforced here, not by memory.
+    files: ['src/engine/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: [
+                'react',
+                'react/*',
+                'react-dom',
+                'react-dom/*',
+                'next',
+                'next/*',
+                '**/components/**',
+                '**/components',
+                '**/ui/**',
+                '**/ui',
+              ],
+              message:
+                'src/engine is pure TypeScript and must not import React, Next.js, or any UI/components module.',
+            },
+          ],
+        },
+      ],
+    },
   }
 );
