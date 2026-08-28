@@ -62,4 +62,4 @@ Locked tokens (`tailwind.config.js`, `src/index.css`):
 - Near-zero corner radius (`borderRadius: 3` inline, or square) — not the Tailwind default rounded look.
 - Motion rule: animate only on real state change, 150–200ms, ease-out. No entrance, hover, or decorative animation. `prefers-reduced-motion` is already respected globally in `src/index.css`.
 
-Avoid-list: no Inter/Geist/Space Grotesk, no soft/large border radius, no hover flourishes, no gradients, no emoji, no checkmark bullets, no decorative motion.
+Avoid-list: no Inter/Geist/Space Grotesk, no soft/large border radius, no hover flourishes, no gradients (harsh or otherwise), no emoji, no checkmark bullets, no decorative motion, no Lucide icons, no white backgrounds, no rainbow color, no glass/blur effects, no colored left stripes, no bento grids, no purple-and-black combos, no radial orbs, no dot grids, no sparkle icons, no animated arrows, no neon, no basic pastels.
