@@ -40,7 +40,6 @@ export const FTT_INCIDENT = 94.8;
 
 export const S6_CONFIDENCE_REST = 72;
 export const S6_CONFIDENCE_INCIDENT = 86;
-export const S6_CONFIDENCE_WITH_SENSOR = 97;
 
 export const S6_CYCLE_INCIDENT = 80;
 export const STARVE_MINUTES = 7;
