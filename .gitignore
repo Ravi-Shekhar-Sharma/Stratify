@@ -20,6 +20,9 @@ __pycache__
 # never commit dataset files
 *.csv
 
+# generated debug/inspection output (e.g. signals:shift), not build artifacts
+/out/
+
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -30,3 +33,4 @@ __pycache__
 *.sln
 *.sw?
 .env
+out/

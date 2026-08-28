@@ -55,5 +55,31 @@ export default tseslint.config(
         },
       ],
     },
+  },
+  {
+    // The inference layer reads only observable signals — it must be
+    // structurally incapable of reading ground truth. Enforced here, not by
+    // code review: importing groundTruth.ts (or anything re-exporting it)
+    // from src/engine/inference is a lint error, in any import form.
+    files: ['src/engine/inference/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: [
+                '**/groundTruth',
+                '**/groundTruth.ts',
+                '**/groundTruth/**',
+                '**/signals/groundTruth*',
+              ],
+              message:
+                'src/engine/inference must not import groundTruth.ts. Take an ObservableStream (from src/engine/signals/observable) as input instead.',
+            },
+          ],
+        },
+      ],
+    },
   }
 );
