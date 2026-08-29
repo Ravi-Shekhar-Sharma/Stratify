@@ -498,3 +498,58 @@ worth restating here because they came from real investigation:
    was real but partly a thin-sample artifact (n=72); the larger,
    fixed-severity tracking set answers the tracking question directly
    rather than through R² on a small, noisy sample.
+
+## TypeScript inference and the parity test
+
+The app does not call Python at runtime and never will (see the top-level
+`CLAUDE.md`: "Python for training only"). `src/engine/inference/softSensor.ts`
+reads `ml/artifacts/soft_sensor.json` directly (a bundled JSON import — the
+~940KB artifact ships in the app bundle, no backend) and reimplements the
+same math `ml/model.py` uses to score it: the three-tree-ensemble walk for
+the point estimate and the [q10, q90] interval, the interval-width raw
+confidence score, and the isotonic calibration map applied on top of it.
+Every exported function in that file names its `ml/model.py` counterpart in
+a comment, so the two can be diffed by eye.
+
+**Why a parity test, and why it must cover confidence, not just cycle
+time**: the app displays two numbers per blind/partial station — the
+predicted cycle time and its confidence — and both come from this
+TypeScript path, while every number in `ml/README.md` and
+`ml/artifacts/metrics.json` comes from the Python path scoring the same
+artifact. Two independent reimplementations of the same tree-walk and
+isotonic-interpolation math *can* drift — a transcription slip, an
+off-by-one in the tree traversal, a `<=` vs `<` — and if only cycle time
+were checked, a bug isolated to the confidence path (e.g. in
+`applyIsotonic`) would ship undetected: the demo would show a confidence
+number the trust ledger's own metrics file doesn't back up, which is
+exactly the credibility failure this project's confidence-first design
+exists to prevent.
+
+`ml/export_parity_fixture.py` freezes the reference: a fixed, deterministic
+set of *real* feature vectors, pulled from `validate.csv` (one row per
+target station, plus a `downstreamStarved=1` case and a
+`trueIncidentActive=1` case), together with Python's own predicted cycle
+time, interval, raw confidence, and calibrated confidence for each —
+written to the **committed** `ml/artifacts/parity_fixture.json` (unlike
+`ml/data/*.csv`, which is gitignored). `src/engine/inference/__tests__/parity.test.ts`
+recomputes the same five values in TypeScript for each fixture case and
+asserts all five agree with Python to within 1e-6 — cycle time and
+calibrated confidence are the two the app actually renders; interval
+bounds and raw confidence are checked too since a divergence there would
+still be a real bug even though the app doesn't show them directly. The
+test reads only the two committed JSON files; it needs neither Python nor
+`ml/data/validate.csv` to run, so it runs the same way locally and in CI.
+
+Re-run `ml/export_parity_fixture.py` whenever `soft_sensor.json` is
+retrained (its cases are frozen predictions *for that specific artifact* —
+retraining and not refreshing the fixture would make the test compare the
+new artifact against a stale one's expected outputs) or if the feature
+schema changes. It is not part of the normal `generate.py` → `train.py` →
+`validate.py` loop.
+
+Wired into `npm test` (`vitest.config.ts`'s `include` already covers
+`src/engine/**/*.test.ts`, so no extra config was needed) and into
+`.github/workflows/ci.yml`, which runs lint, typecheck, and the full test
+suite — including this one — on every push and pull request against
+`main`. The workflow has no Python step: it only needs the two committed
+JSON files under `ml/artifacts/`.

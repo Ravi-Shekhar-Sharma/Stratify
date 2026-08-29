@@ -1,71 +1,84 @@
-import { ArrowRight, Gauge, UserPlus, ShieldAlert } from 'lucide-react';
-import type { RecommendationState } from '@/types';
+import type { Recommendation } from '@/twinTypes';
 
 interface Props {
-  reco: RecommendationState;
+  recommendation: Recommendation;
 }
 
-export function RecommendedAction({ reco }: Props) {
-  const hasActions = reco.actions.length > 0;
-  return (
-    <div
-      className={`border bg-panel px-5 py-4 transition-colors duration-300 ${
-        hasActions ? 'border-slowing/40' : 'border-line'
-      }`}
-      style={{ borderRadius: 3 }}
-    >
-      <div className="flex items-center gap-2.5">
-        <ShieldAlert
-          className={`h-5 w-5 ${hasActions ? 'text-slowing' : 'text-ink-secondary'}`}
-          strokeWidth={2}
-        />
-        <h3 className="text-[12px] font-bold uppercase tracking-[0.18em] text-ink-primary">
-          Recommended Action
-        </h3>
-        {!hasActions && (
+/**
+ * Exactly one recommendation, never a list — a supervisor with a line
+ * running does not read a list. If more than one station needs attention,
+ * this still shows only the single worst one (see
+ * useEngineTwin.ts's computeRecommendation); the events feed carries the
+ * rest.
+ */
+export function RecommendedAction({ recommendation }: Props) {
+  if (recommendation.kind === 'nominal') {
+    return (
+      <div className="border border-line bg-panel px-5 py-4" style={{ borderRadius: 0 }}>
+        <div className="flex items-center gap-2.5">
+          <span className="h-2 w-2 bg-measured" />
+          <h3 className="text-[12px] font-bold uppercase tracking-[0.18em] text-ink-primary">Recommended Action</h3>
           <span className="ml-auto font-mono text-[10px] uppercase tracking-wider text-ink-secondary">
             line nominal
           </span>
-        )}
-      </div>
-
-      {hasActions ? (
-        <div className="mt-3 grid gap-2.5 md:grid-cols-2">
-          {reco.actions.map((a, i) => (
-            <div
-              key={i}
-              className="flex items-start gap-3 border border-line bg-panel-raised px-3.5 py-3"
-              style={{ borderRadius: 3 }}
-            >
-              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center border border-slowing/40 bg-slowing/10" style={{ borderRadius: 2 }}>
-                {i === 0 ? (
-                  <UserPlus className="h-3.5 w-3.5 text-slowing" />
-                ) : (
-                  <Gauge className="h-3.5 w-3.5 text-slowing" />
-                )}
-              </span>
-              <div className="flex flex-col">
-                <span className="font-mono text-[9px] uppercase tracking-wider text-ink-secondary">
-                  {`A${i + 1}`}
-                </span>
-                <span className="flex items-center gap-1.5 text-[13px] font-semibold leading-snug text-ink-primary">
-                  <ArrowRight className="h-3.5 w-3.5 shrink-0 text-slowing" />
-                  {a}
-                </span>
-              </div>
-            </div>
-          ))}
         </div>
-      ) : (
         <p className="mt-2.5 text-[12.5px] text-ink-secondary">
-          No action required. All stations within takt.
+          No action required. All measured and inferred cycle times are within takt.
         </p>
-      )}
-
-      <div className="mt-3 flex items-center gap-2 border-t border-line-soft pt-2.5">
-        <span className="h-1.5 w-1.5 rounded-full bg-ink-secondary" />
-        <p className="text-[11px] italic text-ink-secondary">{reco.note}</p>
       </div>
+    );
+  }
+
+  if (recommendation.kind === 'degrading') {
+    const overPct = (recommendation.cycleSeconds / recommendation.nominalCycleSeconds - 1) * 100;
+    const action =
+      recommendation.basis === 'inferred' && recommendation.confidence !== undefined
+        ? `Move one operator to ${recommendation.stationId}. Adding a cycle sensor there would raise achievable confidence from ${(
+            recommendation.confidence * 100
+          ).toFixed(0)}% to ${(recommendation.confidenceCeiling * 100).toFixed(0)}%.`
+        : `Move one operator to ${recommendation.stationId} to restore takt.`;
+
+    return (
+      <div className="border border-slowing/40 bg-panel px-5 py-4" style={{ borderRadius: 0 }}>
+        <div className="flex items-center gap-2.5">
+          <span className="h-2 w-2 bg-slowing" />
+          <h3 className="text-[12px] font-bold uppercase tracking-[0.18em] text-ink-primary">Recommended Action</h3>
+        </div>
+        <div className="mt-3 border border-line bg-panel-raised px-3.5 py-3" style={{ borderRadius: 0 }}>
+          <span className="font-mono text-[9px] uppercase tracking-wider text-ink-secondary">
+            {recommendation.stationId} · {recommendation.stationName} · +{overPct.toFixed(0)}% over nominal
+          </span>
+          <p className="mt-1 text-[13px] font-semibold leading-snug text-ink-primary">{action}</p>
+        </div>
+        <Note />
+      </div>
+    );
+  }
+
+  return (
+    <div className="border border-line-soft bg-panel px-5 py-4" style={{ borderRadius: 0 }}>
+      <div className="flex items-center gap-2.5">
+        <span className="h-2 w-2 bg-ink-muted" />
+        <h3 className="text-[12px] font-bold uppercase tracking-[0.18em] text-ink-primary">Recommended Action</h3>
+      </div>
+      <div className="mt-3 border border-line bg-panel-raised px-3.5 py-3" style={{ borderRadius: 0 }}>
+        <span className="font-mono text-[9px] uppercase tracking-wider text-ink-secondary">
+          {recommendation.stationId} · {recommendation.stationName} · abstained
+        </span>
+        <p className="mt-1 text-[13px] font-semibold leading-snug text-ink-primary">
+          {recommendation.reason} Add direct instrumentation at {recommendation.stationId} to restore an estimate.
+        </p>
+      </div>
+      <Note />
+    </div>
+  );
+}
+
+function Note() {
+  return (
+    <div className="mt-3 flex items-center gap-2 border-t border-line-soft pt-2.5">
+      <span className="h-1.5 w-1.5 rounded-full bg-ink-secondary" />
+      <p className="text-[11px] italic text-ink-secondary">Stratify never stops the line. A person decides.</p>
     </div>
   );
 }

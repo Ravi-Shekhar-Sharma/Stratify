@@ -56,6 +56,11 @@ export type ObservableSignal = BlindObservable | PartialObservable | SensoredObs
 export interface ObservableTick {
   tick: number;
   stations: ObservableSignal[];
+  /** Named-buffer fill levels, keyed by buffer id (see topology.ts). This is
+   *  the "Occupancy" signal class from docs/assumptions.md — buffer/queue
+   *  depth is real, in-plant-obtainable data "only where buffers exist," not
+   *  a hidden quantity, so it belongs on the observable side of the line. */
+  bufferLevels: Record<string, number>;
 }
 
 export type ObservableStream = ObservableTick[];
@@ -117,7 +122,7 @@ function deriveSignal(gt: StationGroundTruth): ObservableSignal {
 }
 
 function deriveObservableTick(gt: GroundTruthTick): ObservableTick {
-  return { tick: gt.tick, stations: gt.stations.map(deriveSignal) };
+  return { tick: gt.tick, stations: gt.stations.map(deriveSignal), bufferLevels: gt.bufferLevels };
 }
 
 export function deriveObservableStream(stream: GroundTruthStream): ObservableStream {

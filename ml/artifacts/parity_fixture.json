@@ -1,0 +1,355 @@
+{
+  "sourceArtifact": "ml/artifacts/soft_sensor.json",
+  "sourceData": "ml/data/validate.csv (seeds 100000..100014)",
+  "tolerance": 1e-06,
+  "cases": [
+    {
+      "description": "first P7 row in validate.csv",
+      "stationId": "P7",
+      "tier": "partial",
+      "features": {
+        "stationIndexInLine": 18.0,
+        "isPartialTier": 1.0,
+        "upstreamDwellSeconds": 55.0,
+        "upstreamTransitSeconds": 0.0,
+        "downstreamDwellSeconds": 53.0,
+        "downstreamTransitSeconds": 0.0,
+        "targetAndon": 1.0,
+        "targetBlocked": 0.0,
+        "upstreamAndon": 1.0,
+        "upstreamBlocked": 0.0,
+        "downstreamAndon": 0.0,
+        "downstreamBlocked": 0.0,
+        "downstreamStarved": 0.0,
+        "bufferLevelAtEntry": -1.0,
+        "targetProcessValue": 0.959194886945188
+      },
+      "expected": {
+        "cycleTimeSeconds": 53.87350033172016,
+        "intervalLowSeconds": 51.79825172958671,
+        "intervalHighSeconds": 56.0610344566744,
+        "rawConfidence": 0.07198167769530861,
+        "confidence": 0.5582542261752047
+      }
+    },
+    {
+      "description": "first P8 row in validate.csv",
+      "stationId": "P8",
+      "tier": "partial",
+      "features": {
+        "stationIndexInLine": 19.0,
+        "isPartialTier": 1.0,
+        "upstreamDwellSeconds": 57.0,
+        "upstreamTransitSeconds": 0.0,
+        "downstreamDwellSeconds": 54.0,
+        "downstreamTransitSeconds": 0.0,
+        "targetAndon": 0.0,
+        "targetBlocked": 0.0,
+        "upstreamAndon": 1.0,
+        "upstreamBlocked": 0.0,
+        "downstreamAndon": 0.0,
+        "downstreamBlocked": 0.0,
+        "downstreamStarved": 0.0,
+        "bufferLevelAtEntry": -1.0,
+        "targetProcessValue": 1.0249389276281
+      },
+      "expected": {
+        "cycleTimeSeconds": 54.058705363770024,
+        "intervalLowSeconds": 51.899837864367775,
+        "intervalHighSeconds": 56.19992511261335,
+        "rawConfidence": 0.04428625620642603,
+        "confidence": 0.5582542261752047
+      }
+    },
+    {
+      "description": "first S11 row in validate.csv",
+      "stationId": "S11",
+      "tier": "blind",
+      "features": {
+        "stationIndexInLine": 30.0,
+        "isPartialTier": 0.0,
+        "upstreamDwellSeconds": 53.0,
+        "upstreamTransitSeconds": 0.0,
+        "downstreamDwellSeconds": 53.0,
+        "downstreamTransitSeconds": 0.0,
+        "targetAndon": 0.0,
+        "targetBlocked": 0.0,
+        "upstreamAndon": 0.0,
+        "upstreamBlocked": 0.0,
+        "downstreamAndon": 0.0,
+        "downstreamBlocked": 0.0,
+        "downstreamStarved": 0.0,
+        "bufferLevelAtEntry": -1.0,
+        "targetProcessValue": -1.0
+      },
+      "expected": {
+        "cycleTimeSeconds": 53.90799950652669,
+        "intervalLowSeconds": 51.76621755085471,
+        "intervalHighSeconds": 56.10165276387584,
+        "rawConfidence": 0.018043410759093638,
+        "confidence": 0.5582542261752047
+      }
+    },
+    {
+      "description": "first S14 row in validate.csv",
+      "stationId": "S14",
+      "tier": "blind",
+      "features": {
+        "stationIndexInLine": 33.0,
+        "isPartialTier": 0.0,
+        "upstreamDwellSeconds": 55.0,
+        "upstreamTransitSeconds": 0.0,
+        "downstreamDwellSeconds": 54.0,
+        "downstreamTransitSeconds": 0.0,
+        "targetAndon": 1.0,
+        "targetBlocked": 0.0,
+        "upstreamAndon": 1.0,
+        "upstreamBlocked": 0.0,
+        "downstreamAndon": 0.0,
+        "downstreamBlocked": 0.0,
+        "downstreamStarved": 0.0,
+        "bufferLevelAtEntry": -1.0,
+        "targetProcessValue": -1.0
+      },
+      "expected": {
+        "cycleTimeSeconds": 53.89280361961901,
+        "intervalLowSeconds": 51.79825172958671,
+        "intervalHighSeconds": 56.09342977848045,
+        "rawConfidence": 0.047930917523659,
+        "confidence": 0.5582542261752047
+      }
+    },
+    {
+      "description": "first S17 row in validate.csv",
+      "stationId": "S17",
+      "tier": "blind",
+      "features": {
+        "stationIndexInLine": 36.0,
+        "isPartialTier": 0.0,
+        "upstreamDwellSeconds": 55.0,
+        "upstreamTransitSeconds": 0.0,
+        "downstreamDwellSeconds": 54.0,
+        "downstreamTransitSeconds": 0.0,
+        "targetAndon": 1.0,
+        "targetBlocked": 0.0,
+        "upstreamAndon": 1.0,
+        "upstreamBlocked": 0.0,
+        "downstreamAndon": 0.0,
+        "downstreamBlocked": 0.0,
+        "downstreamStarved": 0.0,
+        "bufferLevelAtEntry": -1.0,
+        "targetProcessValue": -1.0
+      },
+      "expected": {
+        "cycleTimeSeconds": 53.89280361961901,
+        "intervalLowSeconds": 51.79825172958671,
+        "intervalHighSeconds": 56.09342977848045,
+        "rawConfidence": 0.047930917523659,
+        "confidence": 0.5582542261752047
+      }
+    },
+    {
+      "description": "first S19 row in validate.csv",
+      "stationId": "S19",
+      "tier": "blind",
+      "features": {
+        "stationIndexInLine": 38.0,
+        "isPartialTier": 0.0,
+        "upstreamDwellSeconds": 54.0,
+        "upstreamTransitSeconds": 0.0,
+        "downstreamDwellSeconds": 55.0,
+        "downstreamTransitSeconds": 0.0,
+        "targetAndon": 0.0,
+        "targetBlocked": 0.0,
+        "upstreamAndon": 0.0,
+        "upstreamBlocked": 0.0,
+        "downstreamAndon": 1.0,
+        "downstreamBlocked": 0.0,
+        "downstreamStarved": 0.0,
+        "bufferLevelAtEntry": -1.0,
+        "targetProcessValue": -1.0
+      },
+      "expected": {
+        "cycleTimeSeconds": 53.85716333381733,
+        "intervalLowSeconds": 51.78422243013856,
+        "intervalHighSeconds": 56.07262549454425,
+        "rawConfidence": 0.052960764983251175,
+        "confidence": 0.5582542261752047
+      }
+    },
+    {
+      "description": "first S21 row in validate.csv",
+      "stationId": "S21",
+      "tier": "partial",
+      "features": {
+        "stationIndexInLine": 40.0,
+        "isPartialTier": 1.0,
+        "upstreamDwellSeconds": 55.0,
+        "upstreamTransitSeconds": 0.0,
+        "downstreamDwellSeconds": 53.0,
+        "downstreamTransitSeconds": 0.0,
+        "targetAndon": 1.0,
+        "targetBlocked": 0.0,
+        "upstreamAndon": 1.0,
+        "upstreamBlocked": 0.0,
+        "downstreamAndon": 0.0,
+        "downstreamBlocked": 0.0,
+        "downstreamStarved": 0.0,
+        "bufferLevelAtEntry": -1.0,
+        "targetProcessValue": 0.9691906395182014
+      },
+      "expected": {
+        "cycleTimeSeconds": 53.90507013939583,
+        "intervalLowSeconds": 51.79825172958671,
+        "intervalHighSeconds": 56.097424676533855,
+        "rawConfidence": 0.04496504684739607,
+        "confidence": 0.5582542261752047
+      }
+    },
+    {
+      "description": "first S3 row in validate.csv",
+      "stationId": "S3",
+      "tier": "blind",
+      "features": {
+        "stationIndexInLine": 22.0,
+        "isPartialTier": 0.0,
+        "upstreamDwellSeconds": 56.0,
+        "upstreamTransitSeconds": 0.0,
+        "downstreamDwellSeconds": 54.0,
+        "downstreamTransitSeconds": 0.0,
+        "targetAndon": 0.0,
+        "targetBlocked": 0.0,
+        "upstreamAndon": 1.0,
+        "upstreamBlocked": 0.0,
+        "downstreamAndon": 0.0,
+        "downstreamBlocked": 0.0,
+        "downstreamStarved": 0.0,
+        "bufferLevelAtEntry": -1.0,
+        "targetProcessValue": -1.0
+      },
+      "expected": {
+        "cycleTimeSeconds": 54.03998834366784,
+        "intervalLowSeconds": 51.83863811097222,
+        "intervalHighSeconds": 56.13504806506112,
+        "rawConfidence": 0.04701633310988353,
+        "confidence": 0.5582542261752047
+      }
+    },
+    {
+      "description": "first S6 row in validate.csv",
+      "stationId": "S6",
+      "tier": "blind",
+      "features": {
+        "stationIndexInLine": 25.0,
+        "isPartialTier": 0.0,
+        "upstreamDwellSeconds": 54.0,
+        "upstreamTransitSeconds": 0.0,
+        "downstreamDwellSeconds": 53.0,
+        "downstreamTransitSeconds": 0.0,
+        "targetAndon": 1.0,
+        "targetBlocked": 0.0,
+        "upstreamAndon": 0.0,
+        "upstreamBlocked": 0.0,
+        "downstreamAndon": 0.0,
+        "downstreamBlocked": 0.0,
+        "downstreamStarved": 0.0,
+        "bufferLevelAtEntry": -1.0,
+        "targetProcessValue": -1.0
+      },
+      "expected": {
+        "cycleTimeSeconds": 53.7713945448765,
+        "intervalLowSeconds": 51.760291951304026,
+        "intervalHighSeconds": 55.97697812894402,
+        "rawConfidence": 0.10620442942917484,
+        "confidence": 0.5698640138724104
+      }
+    },
+    {
+      "description": "first S8 row in validate.csv",
+      "stationId": "S8",
+      "tier": "partial",
+      "features": {
+        "stationIndexInLine": 27.0,
+        "isPartialTier": 1.0,
+        "upstreamDwellSeconds": 53.0,
+        "upstreamTransitSeconds": 0.0,
+        "downstreamDwellSeconds": 53.0,
+        "downstreamTransitSeconds": 0.0,
+        "targetAndon": 1.0,
+        "targetBlocked": 0.0,
+        "upstreamAndon": 0.0,
+        "upstreamBlocked": 0.0,
+        "downstreamAndon": 0.0,
+        "downstreamBlocked": 0.0,
+        "downstreamStarved": 0.0,
+        "bufferLevelAtEntry": -1.0,
+        "targetProcessValue": 0.9803207083791494
+      },
+      "expected": {
+        "cycleTimeSeconds": 53.78967674886394,
+        "intervalLowSeconds": 51.73134079187682,
+        "intervalHighSeconds": 56.00253485801037,
+        "rawConfidence": 0.06573697670651556,
+        "confidence": 0.5582542261752047
+      }
+    },
+    {
+      "description": "first downstreamStarved=1 row in validate.csv",
+      "stationId": "S8",
+      "tier": "partial",
+      "features": {
+        "stationIndexInLine": 27.0,
+        "isPartialTier": 1.0,
+        "upstreamDwellSeconds": 66.0,
+        "upstreamTransitSeconds": 0.0,
+        "downstreamDwellSeconds": 55.0,
+        "downstreamTransitSeconds": 0.0,
+        "targetAndon": 1.0,
+        "targetBlocked": 0.0,
+        "upstreamAndon": 0.0,
+        "upstreamBlocked": 1.0,
+        "downstreamAndon": 1.0,
+        "downstreamBlocked": 0.0,
+        "downstreamStarved": 1.0,
+        "bufferLevelAtEntry": -1.0,
+        "targetProcessValue": 1.000541425198317
+      },
+      "expected": {
+        "cycleTimeSeconds": 65.49321934032679,
+        "intervalLowSeconds": 62.77970483675121,
+        "intervalHighSeconds": 64.96997753021652,
+        "rawConfidence": 0.9,
+        "confidence": 0.8084600760456274
+      }
+    },
+    {
+      "description": "first trueIncidentActive=1 row in validate.csv",
+      "stationId": "S8",
+      "tier": "partial",
+      "features": {
+        "stationIndexInLine": 27.0,
+        "isPartialTier": 1.0,
+        "upstreamDwellSeconds": 65.0,
+        "upstreamTransitSeconds": 0.0,
+        "downstreamDwellSeconds": 53.0,
+        "downstreamTransitSeconds": 0.0,
+        "targetAndon": 1.0,
+        "targetBlocked": 0.0,
+        "upstreamAndon": 0.0,
+        "upstreamBlocked": 1.0,
+        "downstreamAndon": 0.0,
+        "downstreamBlocked": 0.0,
+        "downstreamStarved": 0.0,
+        "bufferLevelAtEntry": -1.0,
+        "targetProcessValue": 0.9709004447981716
+      },
+      "expected": {
+        "cycleTimeSeconds": 63.92320860325045,
+        "intervalLowSeconds": 62.21384163524293,
+        "intervalHighSeconds": 65.84455759311037,
+        "rawConfidence": 0.5412372810197018,
+        "confidence": 0.7307615029134017
+      }
+    }
+  ]
+}

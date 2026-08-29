@@ -1,0 +1,31 @@
+name: CI
+
+# Lint, typecheck, and test the TypeScript app on every push and PR.
+#
+# No Python step here on purpose: ml/artifacts/ (soft_sensor.json,
+# parity_fixture.json) are committed JSON, and the parity test
+# (src/engine/inference/__tests__/parity.test.ts) reads them directly - it
+# needs neither Python nor ml/data/*.csv (gitignored, never committed) to
+# run. If ml/artifacts/*.json is ever regenerated, that happens locally via
+# ml/train.py / ml/export_parity_fixture.py and the resulting JSON is
+# committed like any other source change.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test

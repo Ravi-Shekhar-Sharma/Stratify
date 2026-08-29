@@ -11,7 +11,7 @@ export function Skeleton() {
           Stratify
         </div>
         <div className="font-mono text-[11px] tabular-nums text-ink-secondary">
-          CONNECTING · Line A
+          CONNECTING · 42-station twin
         </div>
       </div>
 
