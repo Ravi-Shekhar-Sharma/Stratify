@@ -57,6 +57,14 @@ export interface TrainingRow {
   stationIndexInLine: number;
   vehicleId: number;
   entryTick: number;
+  /** The target visit's own exit tick — NOT reconstructible from entryTick
+   *  + trueCycleSeconds, because the simulation resamples cycle-time jitter
+   *  every tick while a station is occupied, so actual dwell can differ
+   *  from the entry-tick cycle-time reading. Needed downstream (evidence
+   *  metrics) to compute when a prediction actually becomes available to a
+   *  live system: max(this visit's exit, the downstream visit's exit) —
+   *  see src/engine/ml/computeAlertColumn.ts. */
+  exitTick: number;
   nominalCycleSeconds: number;
   upstreamDwellSeconds: number;
   upstreamTransitSeconds: number;
@@ -265,6 +273,7 @@ function exportShift(
         stationIndexInLine: idx,
         vehicleId: visit.vehicleId,
         entryTick: visit.entryTick,
+        exitTick: visit.exitTick,
         nominalCycleSeconds,
         upstreamDwellSeconds: up.exitTick - up.entryTick,
         upstreamTransitSeconds: visit.entryTick - up.exitTick,
@@ -300,6 +309,7 @@ const CSV_COLUMNS: (keyof TrainingRow)[] = [
   'stationIndexInLine',
   'vehicleId',
   'entryTick',
+  'exitTick',
   'nominalCycleSeconds',
   'upstreamDwellSeconds',
   'upstreamTransitSeconds',

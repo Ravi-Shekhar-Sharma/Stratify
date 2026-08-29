@@ -15,6 +15,7 @@ import pandas as pd
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PRINT_ML_CONSTANTS = REPO_ROOT / "src" / "engine" / "ml" / "printMlConstants.ts"
+COMPUTE_ALERT_COLUMN = REPO_ROOT / "src" / "engine" / "ml" / "computeAlertColumn.ts"
 
 
 @lru_cache(maxsize=1)
@@ -31,6 +32,48 @@ def ml_constants() -> dict:
     if result.returncode != 0:
         raise RuntimeError(f"printMlConstants.ts failed: {result.stderr}")
     return json.loads(result.stdout)
+
+
+def compute_alert_column(csv_path: Path, out_path: Path) -> pd.DataFrame:
+    """Runs src/engine/ml/computeAlertColumn.ts against csv_path and returns
+    its output. This is the ONLY place "is this row alerting" is computed
+    for the offline evidence pipeline — never re-derived in Python — so it
+    is structurally unable to drift from what the live UI's classifyStation
+    (src/engine/inference/stationDisplay.ts) does: both call
+    resolveAlertSequence from the same TypeScript module
+    (src/engine/inference/alertSignal.ts), walking the same trained
+    artifact via predictSoftSensor. Output columns: shiftSeed, stationId,
+    vehicleId, entryTick (join keys back onto csv_path's own rows),
+    predictedCycleSeconds, availableTick (see that file's docstring for why
+    this differs from entryTick), and alertActive (0/1, debounced per
+    ALERT_MIN_HOLD)."""
+    result = subprocess.run(
+        ["npx", "tsx", str(COMPUTE_ALERT_COLUMN), "--csv", str(csv_path), "--out", str(out_path)],
+        cwd=REPO_ROOT, capture_output=True, text=True, shell=(sys.platform == "win32"),
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"computeAlertColumn.ts failed: {result.stderr}")
+    return pd.read_csv(out_path)
+
+
+def merge_alert_column(meta: pd.DataFrame, alert_df: pd.DataFrame) -> pd.DataFrame:
+    """Joins the unified alert column (see compute_alert_column) onto meta
+    by (shiftSeed, stationId, vehicleId) — unique together, since a given
+    vehicle visits a given station at most once. Fails loudly on any
+    unmatched row rather than silently dropping or NaN-filling one."""
+    merged = meta.merge(
+        alert_df[["shiftSeed", "stationId", "vehicleId", "predictedCycleSeconds", "availableTick", "alertActive"]],
+        on=["shiftSeed", "stationId", "vehicleId"],
+        how="left",
+        validate="one_to_one",
+    )
+    if merged["alertActive"].isna().any():
+        raise RuntimeError(
+            f"{int(merged['alertActive'].isna().sum())} rows failed to match the unified alert column - "
+            "the CSV passed to compute_alert_column must be the exact same file this meta came from."
+        )
+    merged["alertActive"] = merged["alertActive"].astype(bool)
+    return merged
 
 FEATURES = [
     "stationIndexInLine",

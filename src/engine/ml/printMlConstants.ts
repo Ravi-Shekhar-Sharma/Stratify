@@ -16,11 +16,18 @@ import {
   S6_DEGRADED_CYCLE_SECONDS,
 } from '../assumptions';
 import { TAKT_SECONDS } from '../stations';
+import { ALERT_MIN_HOLD } from '../inference/alertSignal';
 
 console.log(
   JSON.stringify({
     cycleTimeJitterFraction: CYCLE_TIME_JITTER_FRACTION,
     alertMultiplier: ALERT_MULTIPLIER,
+    // Debounce on the alert signal itself (src/engine/inference/alertSignal.ts)
+    // — the SAME constant the live UI's classifyStation uses. Printed here
+    // so ml/validate.py can report it, not so Python can recompute the
+    // alert with it: the actual debounce logic runs in TypeScript (see
+    // src/engine/ml/computeAlertColumn.ts), never reimplemented in Python.
+    alertMinHold: ALERT_MIN_HOLD,
     marginalSeverityMultiplierRange: MARGINAL_SEVERITY_MULTIPLIER_RANGE,
     easySeverityMultiplierRange: EASY_SEVERITY_MULTIPLIER_RANGE,
     taktSeconds: TAKT_SECONDS,

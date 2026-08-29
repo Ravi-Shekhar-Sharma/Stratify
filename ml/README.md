@@ -407,7 +407,9 @@ every one — these are now provably genuine, causal, incident-induced
 starvations of a station that was actually running.
 
 **Effect on lead time, per the instruction to report whichever outcome
-the data supports:**
+the data supports (this paragraph describes what `metrics.json` now calls
+`physicalHeadroom` — see "Deliverable vs. physical headroom" below for why
+that name changed and what replaced it as the headline number):**
 - **Easy band: fully resolved, and it was in fact a warmup transient.**
   Every one of the 164 evidence-set easy-band runs now fires a causal
   alert (fire rate 1.0) with a **positive** lead time — n=164,
@@ -437,6 +439,80 @@ also carries `backgroundStarvationRate` (0/200 in this run) and, per band,
 mutually exclusive outcomes instead of one fire/no-fire split, so "no
 qualifying starvation" is never silently folded into "never fired" or
 counted as a negative lead time against a default tick.
+
+### Deliverable vs. physical headroom — reconciling the evidence with the live UI
+
+The 476s/1,279s medians above are real, but they were computed a way a
+live, no-look-ahead system cannot reproduce: `predictedCycleSeconds >
+threshold`, checked at `entryTick`, with no debounce. Two problems with
+using that as a product claim, both found by directly comparing this
+pipeline's output against the running browser app rather than assuming
+they agreed:
+
+1. **A prediction isn't available at entryTick.** It needs the downstream
+   neighbour's dwell (`downstreamDwellSeconds`/`downstreamTransitSeconds`
+   are model features), so a live system cannot compute it until that
+   downstream visit has itself completed. Measured directly:
+   `availableTick` (exitTick + downstreamTransitSeconds +
+   downstreamDwellSeconds) lags entryTick by **104-216s** (median ~110s)
+   across validate.csv's rows.
+2. **A single-visit threshold crossing is not what the live UI shows.**
+   The browser's Degrading tile used to gate on confidence-hysteresis
+   (fixed earlier this session — see the app-side changelog), and even
+   after that fix, showing Degrading on one noisy crossing would flicker.
+   `src/engine/inference/alertSignal.ts`'s `resolveAlertSequence` +
+   `ALERT_MIN_HOLD=2` debounces it — the exact same function the live UI's
+   `classifyStation` calls.
+
+Both are now computed in exactly ONE place — `src/engine/ml/computeAlertColumn.ts`,
+a TypeScript CLI `ml/validate.py` invokes via subprocess (the same pattern
+`printMlConstants.ts` already used to bridge a constant into Python; see
+`model.py`'s `compute_alert_column`/`merge_alert_column`). Python never
+recomputes `predicted > threshold` itself for these metrics anymore — it
+reads the `alertActive`/`availableTick` columns this script produces and
+aggregates on top of them. This is what makes the live UI and this
+evidence pipeline structurally unable to disagree about what counts as an
+alert: there is exactly one implementation, imported by both.
+
+`compute_s6_s9_lead_time` now returns two sibling results instead of one:
+
+- **`deliverable`** — alert tick = `availableTick`, "fired" = the unified,
+  debounced `alertActive`. This is what the product can actually warn a
+  person with, and is the number that belongs on a deck.
+- **`physicalHeadroom`** — the original computation, byte-for-byte
+  unchanged (confirmed: median 476s/1,279s, identical to the numbers
+  above). Real and useful as an upper bound on how much physical time
+  exists in the process, but never achievable live — kept as a separate,
+  clearly labeled line specifically so it can't be quoted as the former.
+
+**Measured result (same evidence.csv, same artifact, no retrain):**
+
+| | physicalHeadroom (old) | deliverable (new) |
+|---|---|---|
+| Easy median | 476s | **237.5s** |
+| Easy range | [256s, 1,119s] | [-2s, 927s] |
+| Easy fire rate | 1.0 (164/164) | 1.0 (164/164) |
+| Marginal median | 1,279s | **963s** |
+| Marginal range | [-16,238s, 2,320s] | [-9,363s, 1,841s] |
+| Marginal fire rate | 0.860 (111/136 causal) | **0.699 (93/136 causal)** |
+
+The easy band's deliverable median (237.5s) is lower than a rough
+back-of-envelope guess might expect, and honestly reported as such rather
+than adjusted — it reflects the real ~110-260s availability lag plus the
+2-visit debounce eating into a lead time that was only ever ~7-19 minutes
+to begin with. The marginal band's fire rate drop (0.860 → 0.699) is the
+more consequential finding: 22 more marginal-severity runs (41 vs 19 under
+the old definition) now correctly show as **never producing a causal,
+deliverable warning at all** — a real recall cost of debouncing +
+availability lag on already-borderline incidents, not a bug to paper over.
+
+`alertMetricsByBand`'s precision/recall/falseAlarmRate (on `validate.csv`)
+were also switched from Python's own `y_pred > threshold` check to this
+same unified column — easy: precision 0.790 (was computed slightly
+differently as ~0.774-0.813 before this change, undebounced), recall
+0.994; marginal: precision 0.870, recall 0.548, both essentially unchanged
+from before since validate.csv's rows are evaluated well after each
+incident's onset, where the debounce has already settled.
 
 **S6 tracking** (`compute_s6_tracking`), from `tracking.csv` (150 shifts,
 fixed at the canonical degraded cycle so results aren't averaged across a
@@ -478,20 +554,22 @@ worth restating here because they came from real investigation:
    positives are rare. Marginal-band recall is 0.55 — the model misses
    nearly half of near-threshold incidents.
 4. S6→S9 lead time, after diagnosing and correctly implementing causal
-   pairing (proven not to have been mispairing before — see above), then
-   finding and fixing a separate warmup-transient bug (see "The
-   warmup-transient bug" above): easy band now fires causally 100% of the
-   time with an **entirely positive** lead time (median 476s, range
-   [256s, 1,119s]) — the earlier negative worst case there was a genuine
-   simulation initial-condition bug (buffers pre-filled at steady state
-   from tick 0 while the discrete vehicle chain starts empty), not a
-   detection limitation, and it is gone now that the bug is fixed.
-   Marginal band fires causally 82% (111/136; 19 never alert, a real
-   recall failure; 6 more fire with no causal starvation within the
-   horizon) and the fired-and-causal cases range from +2,320s down to
-   **-16,238s** — a genuine, surviving near-threshold detection weakness
-   that persists after both correct causal pairing and the settle-period
-   fix, and is reported as such, not filtered away.
+   pairing, fixing a warmup-transient bug, and — most recently —
+   reconciling the alert definition itself with the live UI's (see
+   "Deliverable vs. physical headroom" above): the number that matters is
+   now **`deliverable`**, not the `physicalHeadroom` figure this bullet
+   used to report as the headline. Easy band: fires causally 100% of the
+   time, median **237.5s** lead (down from physicalHeadroom's 476s — the
+   difference is a real ~110-260s prediction-availability lag plus a
+   2-visit debounce, not a regression). Marginal band: fires causally
+   **69.9%** of the time (down from physicalHeadroom's 86.0% — 22 more
+   runs now honestly show as never producing a deliverable warning at all),
+   and the fired-and-causal cases range from +1,841s down to **-9,363s**
+   (median 963s) — still a genuine, surviving near-threshold detection
+   weakness, now measured on the definition that's actually achievable.
+   `physicalHeadroom` (476s/1,279s medians) is retained in `metrics.json`
+   as a separate, clearly labeled upper bound — real, but not a product
+   claim.
 5. S6 does track its own degradation once a visit lands during it — MAE
    drops from 2.08s (first affected visit) to ~1.1-1.4s (every visit
    after), matching the noise floor. The earlier "low R² at S6" finding
