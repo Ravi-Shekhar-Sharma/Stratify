@@ -28,9 +28,9 @@ python ml/validate.py    # ~2-3 min — writes ml/artifacts/{metrics.json,calibr
 Each script fails loudly and tells you what to run first if its input is
 missing.
 
-## Five disjoint data splits — what each is for and why it can't double up
+## Six disjoint data splits — what each is for and why it can't double up
 
-`ml/generate.py` produces five CSVs, each from its own seed range, with an
+`ml/generate.py` produces six CSVs, each from its own seed range, with an
 overlap check that raises if any two ranges intersect:
 
 | Split | Seeds | Used for |
@@ -40,11 +40,95 @@ overlap check that raises if any two ranges intersect:
 | `validate.csv` | 100,000..100,014 | the untouched split every reported metric (baselines, skill, R², regime decomposition, per-band alert metrics, reliability diagram) is computed from |
 | `evidence.csv` | 900,000..900,299 (300 shifts) | S6-forced every shift, random marginal/easy severity — the only source for the S9-starvation lead-time metric, since that metric is only meaningful for incidents inside the trim segment feeding the trim-to-chassis buffer |
 | `tracking.csv` | 950,000..950,149 (150 shifts) | S6-forced every shift, FIXED at the canonical degraded cycle (not a random severity) — measures whether predictions converge to the true value across successive visits after onset, without averaging across a mix of severities |
+| `baseline.csv` | 990,000..990,199 (200 shifts) | `incidentRate=0`, no incident ever, anywhere — establishes the background/spontaneous S9-starvation rate (0/200 in this run), so an incident-set starvation can be judged causal vs. coincidental |
 
 A three-way split (train/calibrate/validate) is the standard reason for a
 calibration split existing at all: fitting the calibration map on the same
 data used to fit the point/quantile models would let it absorb training-set
 overfitting instead of measuring real generalization.
+
+## Verifying a data-pipeline bug's blast radius
+
+An import-time side effect (a stray top-level `main()` call in
+`src/engine/ml/exportTrainingRows.ts`, since fixed with a proper
+`pathToFileURL`-based main-module guard) once silently re-ran the
+exporter with its own default CLI args whenever another script imported
+`incidentsForShift` from it. The defaults hardcode `--out ml/data/train.csv`
+(see `parseArgs` in that file), so the *only* file that default invocation
+could ever have overwritten is `train.csv` — confirmed structurally (the
+default `out` has no code path to any other filename) and empirically, by
+regenerating **every** split from its documented seed range and comparing
+row count + SHA-256 against the on-disk file the current `metrics.json`
+was computed from:
+
+| Split | Result |
+|---|---|
+| `train.csv` | byte-identical (this session's fixed regeneration) |
+| `evidence.csv` | byte-identical |
+| `baseline.csv` | byte-identical |
+| `calibrate.csv` | **differed** — stale, unrelated to the bug |
+| `validate.csv` | **differed** — stale, unrelated to the bug |
+| `tracking.csv` | **differed** — stale, unrelated to the bug |
+
+The three differing splits were not touched by the corruption bug — they
+differed because they predated the settle-period fix (see "The
+warmup-transient bug" below) and were never regenerated afterward, while
+`evidence.csv` and `train.csv` had been. `baseline.csv` is unaffected by
+that fix by construction (`incidentRate=0` means the settle floor on
+incident-injection tick never matters), which is itself a useful sanity
+check that the diff tool was comparing the right thing. All three stale
+splits were regenerated and `ml/validate.py` was re-run; every number in
+this file reflects that final, fully-current-on-every-split run. (`calibrate.csv`
+is only ever read by `ml/train.py` to fit the isotonic map baked into
+`soft_sensor.json` — `ml/validate.py` never reads it directly — so its
+staleness had no effect on any number reported here; it was still
+regenerated for the next time someone runs `ml/train.py`. `soft_sensor.json`
+itself was not touched at any point in this exercise.)
+
+**Follow-up correction**: the paragraph above says `soft_sensor.json` was
+never touched — true for the verification exercise itself, but it left a
+real provenance gap: the committed artifact's isotonic calibration map was
+still fit on the *stale, pre-settle-fix* `calibrate.csv`, even after every
+other split and every reported metric had moved to post-fix data. A
+clean checkout running `ml/generate.py` → `ml/train.py` on that state
+would not have reproduced the committed artifact. This has since been
+closed — see "Retraining after the stale-split fix" below.
+
+## Retraining after the stale-split fix
+
+`ml/train.py` was re-run once all six splits verified against the
+post-settle-fix code (`train.csv` and `calibrate.csv` are its only
+inputs), so both the base model and the isotonic calibration map are now
+fit on current data. All three export parity self-checks
+(point/q10/q90 trees and the isotonic map) passed at exactly `0.00e+00`
+max diff, same as every prior run.
+
+**Byte-reproducibility, checked, not assumed**: ran `ml/train.py` twice
+in a row from the same on-disk `train.csv`/`calibrate.csv` with no code
+changes between runs. The two `soft_sensor.json` outputs are
+**byte-identical** (`sha256`: `dc34a18c5241da6774955326cfeee31538e416b895173bcb48d5c2d1164bbf6f`
+both times). This is expected, not lucky: `GradientBoostingRegressor` is
+fit with a fixed `random_state=1` for all three models (point, q10, q90),
+`IsotonicRegression` has no internal randomness, and the JSON export walks
+each fitted tree's arrays and Python's dict/list ordering deterministically
+— there is no source of run-to-run nondeterminism anywhere in this
+pipeline as currently written. A clean checkout that regenerates
+`train.csv`/`calibrate.csv` from the committed seeds and re-runs
+`ml/train.py` will reproduce the committed `soft_sensor.json` exactly.
+
+`ml/validate.py` was then re-run against the freshly-fit artifact and
+(now-verified-fresh) `validate.csv`, including a freshly-rendered
+`calibration.png` using the freshly-fit calibration map rather than the
+stale one. The numbers moved only slightly from the last report (R² 0.866
+→ 0.867, nominal-baseline skill unchanged at 0.304, easy/marginal-band
+lead times unchanged since they depend only on `evidence.csv`, which
+hadn't changed) — consistent with this being provenance hygiene (matching
+the model's calibration fit to the data it's now scored against), not a
+retune. The one double-digit move, per-station skill/R² at P8 (R² 0.08 →
+0.17) is a real, visible change, but within the range already flagged
+above as "genuine, unexplained station-level weakness" on a thin,
+incident-coverage-limited slice — not a new finding, and not the kind of
+across-the-board shift a bad refit would produce.
 
 ## Why TypeScript generates the data
 
@@ -192,7 +276,7 @@ implementation would produce) is reported alongside in
 comparison — in this run the corrected version turns out very slightly
 *harder* to beat (55 is worse than 54 at predicting S6's actual
 54-centred steady state), not easier, so the fix moved skill very slightly
-up (0.304 → 0.314 overall), the opposite of the "inflation" direction one
+up (0.292 → 0.304 overall), the opposite of the "inflation" direction one
 might expect — an honest, checkable result of the file and the simulation
 disagreeing about one number, not a mistake in either baseline
 computation. (b) predicts the same station's immediately preceding visit
@@ -211,8 +295,8 @@ near-zero R² (0.03–0.04) reflects the split's random assignment, not
 necessarily worse model skill there. `metrics.json`'s
 `baselines.incidentRowsByStation` and `labelStdByStation` make this
 checkable directly rather than asserted. Not every low score is explained
-this way, though — P8 (728 incident rows) and S6 (72 rows) have real
-coverage and still show modest R² (0.08, 0.19); that is a genuine,
+this way, though — P8 (688 incident rows) and S6 (71 rows) have real
+coverage and still show modest R² (0.17, 0.19); that is a genuine,
 unexplained station-level weakness, not a coverage artifact.
 
 **Regime decomposition** (`compute_regime_decomposition`): held-out split
@@ -232,26 +316,127 @@ the boundary. Precision/recall/false-alarm-rate reported separately per
 band on `validate.csv`.
 
 **S6→S9 lead time** (`compute_s6_s9_lead_time`), the headline evidence
-number: from `evidence.csv` only (S6-forced every shift, 300 shifts). For
-each shift with an incident: find the first S6 visit where the model's
-alert is a true positive, find S9's first starved tick (ground truth, from
-the trim-to-chassis buffer emptying — see `src/engine/simulation.ts`), and
-report `starvation_tick - alert_tick`. **Conditioned on a warning having
-fired at all** — a run where the alert never fires is a recall failure,
-already counted in the alert metrics, and is **excluded from this
-distribution entirely**, never differenced against a default/fallback
-tick. `metrics.json`'s `runsIncludedFired` / `runsExcludedNeverFired` /
-`warningFireRate` per band make this conditioning checkable directly, not
-asserted. **Not clamped to be non-negative** — a negative value means
-starvation was already underway before the model caught it, and that does
-happen (see the metrics for exactly how often and by how much — the
-marginal band's worst case is over 4 hours late). Split by severity band,
-each with one fully worked example (alert tick, predicted value,
-threshold, starvation tick, difference) printed and written to
-`metrics.json`. This redefinition replaced an earlier version of this
-pipeline that reported "0.0s lead time" — which was actually detection
-latency (time from a visit occurring to the model flagging it), not
-time-to-the-event-it-predicts, and was labelled incorrectly as "lead time."
+number: from `evidence.csv` (S6-forced every shift, 300 shifts). For each
+shift with an incident: find the first S6 visit where the model's alert is
+a true positive, and pair it with the first S9 starvation **causally
+attributable to that incident** — at or after the exact injection tick
+(`incidentAtTick`), within `2x` this run's own analytically expected drain
+time (`expected_drain_seconds`, `docs/assumptions.md`'s own derivation
+generalised to any degraded cycle — not a single fixed horizon, since
+marginal severities drain far slower than the canonical 415s case and a
+fixed cutoff would wrongly exclude their genuine starvations).
+
+**This replaced a version that only ever recorded the single first-ever
+starvation per shift** (the simulation's own `'starved'` event fires once,
+guarded by an "already reported" check — see `src/engine/ml/visits.ts`'s
+sibling logic in `exportTrainingRows.ts`), which could in principle pair a
+run's real incident to an earlier, unrelated starvation. Before rewriting
+the pairing, this was diagnosed directly rather than assumed: for the 10
+most-negative runs across both bands (`diagnose_worst_runs`, printed by
+`validate.py`), every single paired starvation was confirmed to occur
+*after* its incident's exact injection tick, and `baseline.csv` (200
+shifts, `incidentRate=0`) showed **zero** spontaneous starvations — so
+there was no mispairing to fix. The rewrite (exact onset, per-run causal
+horizon, every starvation tick considered via
+`s9StarvationTicksAll`) is applied anyway because it's the structurally
+correct way to compute this and is what makes the "not mispaired" finding
+checkable rather than asserted — and it does correctly reclassify 6
+marginal-band runs from "counted as fired" to "fired, no starvation within
+the causal horizon."
+
+**The negative lead times are real, and now decomposed into two distinct,
+honest phenomena** — `detectionLagFromOnsetSeconds` (alert tick - onset)
+and `drainTimeFromOnsetSeconds` (starvation tick - onset), so
+`leadTimeSeconds = drainTime - detectionLag` is visible as a difference of
+two independently-meaningful numbers, not one opaque figure.
+
+### The warmup-transient bug (found, diagnosed, and fixed)
+
+Before the fix below, the easy band's worst cases were negative
+(worst -1,026s), and the explanation offered for them was "a
+detection-latency floor: S6 is the line's 26th of 42 stations, so no
+vehicle can reach it before ~tick 1,350." That explanation was internally
+contradictory — several of those same runs showed **S9** (downstream of
+S6) starving as early as tick 411, which is physically impossible if S9
+had never been fed a vehicle. Resolved with data, not narrative, via
+`src/engine/ml/diagnoseStarvationTiming.ts`, a one-off diagnostic that
+reconstructs the exact incident and ground-truth stream for named seeds
+(reusing `incidentsForShift` directly, so there is no second,
+drifting reimplementation) and prints per-tick occupancy and buffer level
+at both the onset and starvation ticks.
+
+**The simulation's initial condition, stated plainly: it is inconsistent
+between its two subsystems.** The discrete station/vehicle chain starts
+**empty** at tick 0 and fills up one admission per takt (54s) — the first
+vehicle does not physically reach S6 (station 26 of 42) until roughly tick
+1,350-1,400. The named buffers (Painted Body Store, trim-to-chassis —
+the S8→S9 buffer) do **not** follow that rule: `simulation.ts` initializes
+`bufferLevels` to each buffer's `nominalFill` (its steady-state value)
+from tick 0 — `bufferLevels = new Map(NAMED_BUFFERS.map((b) => [b.id,
+b.nominalFill]))`. So for the first ~1,350 ticks of every shift, the
+buffer's rate-based math is running against a *pre-filled* steady-state
+number while the discrete chain feeding it is still physically empty.
+
+Diagnosing the pre-fix worst-case easy-band seeds
+(900275, 900219, 900253, 900015, 900227) against this directly answered
+every question needed to settle it: at both the onset tick and the
+starvation tick, `S6.occupied=false` and `S9.occupied=false` for all five;
+`S9 ever occupied before starvation` was `false` for all five; the buffer
+level was ~2.5 (nominal) at onset, draining by simulated rate math alone
+to exactly 0.000 at the starvation tick, with no vehicle ever having
+reached either station in between. **These were warmup transients, not
+incident consequences** — an incident injected early enough could
+mathematically drain a buffer that was never really "full" of anything,
+before the part of the line that's supposed to keep it fed had even
+started running.
+
+**Fix**: incidents are no longer eligible to be injected before the line
+has plausibly reached steady state. `SETTLE_TICKS = (S9's station index +
+1) * TAKT_SECONDS` = `(28 + 1) * 54` = **1,566 ticks** — the tick by which
+the first vehicle has cleared S9 and the trim-to-chassis buffer's
+rate-based math is operating on a genuinely fed line, not a mathematical
+fiction. `atTick` for every incident is now drawn from
+`[SETTLE_TICKS, SHIFT_SECONDS - 3600)` instead of `[0, SHIFT_SECONDS -
+3600)`; the pre-existing RNG draw order for severity and station targeting
+was preserved exactly so this is the only thing that changed about which
+incidents get generated. Re-running the same diagnostic against the
+post-fix worst-case seeds confirms the fix: all five now show
+`S6.occupied=true` and `S9.occupied=true` already at onset (buffer level
+~2.6, i.e. nominal), and `S9 ever occupied before starvation=true` for
+every one — these are now provably genuine, causal, incident-induced
+starvations of a station that was actually running.
+
+**Effect on lead time, per the instruction to report whichever outcome
+the data supports:**
+- **Easy band: fully resolved, and it was in fact a warmup transient.**
+  Every one of the 164 evidence-set easy-band runs now fires a causal
+  alert (fire rate 1.0) with a **positive** lead time — n=164,
+  median 476s, range **[256s, 1,119s]**. The pre-fix negative worst case
+  is gone because its cause (a buffer draining before the line was
+  populated) no longer exists.
+- **Marginal band: not a transient — a real, surviving near-threshold
+  detection weakness, reported as such rather than fixed away.** 111 of
+  136 runs fire a causal alert (19 never fire; 6 fire with no causal
+  starvation inside the horizon); of those 111, lead time ranges from
+  +2,320s down to **-16,238s** (median 1,279s) — slightly *more* extreme
+  than the pre-fix worst case (-15,110s), which is expected once warmup
+  artifacts stop diluting the true near-threshold cases and confirms this
+  negative tail isn't a settle-period artifact in disguise. The worked
+  worst case still shows a physically ordinary drain time
+  (`drainTimeFromOnsetSeconds`) against a very long
+  `detectionLagFromOnsetSeconds` — predictions sitting right at the alert
+  threshold can take a long time to cross it convincingly. This persists
+  after both correct causal pairing and the settle-period fix, and is
+  reported exactly as instructed: left in, stated as the limit, not
+  filtered away.
+
+Split by severity band, each with one fully worked example. `metrics.json`
+also carries `backgroundStarvationRate` (0/200 in this run) and, per band,
+`runsWithCausalStarvationAndAlert` / `runsAlertFiredNoCausalStarvation` /
+`runsAlertNeverFired` / `runsOnlyNonCausalStarvationExcluded` — four
+mutually exclusive outcomes instead of one fire/no-fire split, so "no
+qualifying starvation" is never silently folded into "never fired" or
+counted as a negative lead time against a default tick.
 
 **S6 tracking** (`compute_s6_tracking`), from `tracking.csv` (150 shifts,
 fixed at the canonical degraded cycle so results aren't averaged across a
@@ -260,10 +445,10 @@ after the true cycle time changed, 1 = the next, ...) rather than by
 simulation tick — the model produces one prediction per station visit, not
 per second, so "per tick" is reinterpreted as "per successive visit since
 onset" and stated as such. Answers "does the prediction track the true
-degradation" directly: MAE at visit 0 (3.85s) is markedly worse than every
-subsequent visit (~1.2-1.4s, matching the steady-state noise floor) — the
+degradation" directly: MAE at visit 0 (2.08s) is markedly worse than every
+subsequent visit (~1.1-1.4s, matching the steady-state noise floor) — the
 model needs roughly one visit to catch up after onset, then tracks
-closely. **R² on this set's incident-only rows is negative (-0.79) and
+closely. **R² on this set's incident-only rows is negative (-0.64) and
 that is expected, not contradictory**: `tracking.csv`'s incident rows are
 all the same fixed severity by construction, so the true label's variance
 within that subset is just jitter noise (std ~1.27s) — there is almost no
@@ -292,14 +477,23 @@ worth restating here because they came from real investigation:
    a low false-alarm *rate* (0.3%) can still mean mediocre precision when
    positives are rare. Marginal-band recall is 0.55 — the model misses
    nearly half of near-threshold incidents.
-4. S6→S9 lead time, conditioned on a warning firing: easy band fires
-   100% of the time (median +470s) but still has a negative worst case
-   (-1026s). Marginal band only fires 87% of the time (18 of 136 runs
-   never alert at all, a real recall failure) and among those that do
-   fire, the range is enormous — median +1287s but as bad as -15,110s
-   (over 4 hours late) in the worst observed case.
+4. S6→S9 lead time, after diagnosing and correctly implementing causal
+   pairing (proven not to have been mispairing before — see above), then
+   finding and fixing a separate warmup-transient bug (see "The
+   warmup-transient bug" above): easy band now fires causally 100% of the
+   time with an **entirely positive** lead time (median 476s, range
+   [256s, 1,119s]) — the earlier negative worst case there was a genuine
+   simulation initial-condition bug (buffers pre-filled at steady state
+   from tick 0 while the discrete vehicle chain starts empty), not a
+   detection limitation, and it is gone now that the bug is fixed.
+   Marginal band fires causally 82% (111/136; 19 never alert, a real
+   recall failure; 6 more fire with no causal starvation within the
+   horizon) and the fired-and-causal cases range from +2,320s down to
+   **-16,238s** — a genuine, surviving near-threshold detection weakness
+   that persists after both correct causal pairing and the settle-period
+   fix, and is reported as such, not filtered away.
 5. S6 does track its own degradation once a visit lands during it — MAE
-   drops from 3.85s (first affected visit) to ~1.2-1.4s (every visit
+   drops from 2.08s (first affected visit) to ~1.1-1.4s (every visit
    after), matching the noise floor. The earlier "low R² at S6" finding
    was real but partly a thin-sample artifact (n=72); the larger,
    fixed-severity tracking set answers the tracking question directly

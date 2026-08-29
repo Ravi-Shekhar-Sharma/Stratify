@@ -22,10 +22,11 @@
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { buildGroundTruthStream } from '../signals/groundTruth';
 import { extractVisits, type Visit } from './visits';
 import { STATIONS, TAKT_SECONDS } from '../stations';
-import { NAMED_BUFFERS } from '../topology';
+import { NAMED_BUFFERS, TRIM_CHASSIS_BUFFER } from '../topology';
 import {
   SHIFT_SECONDS,
   MARGINAL_SEVERITY_MULTIPLIER_RANGE,
@@ -86,9 +87,23 @@ export interface TrainingRow {
    *  (marginal's top with jitter can exceed easy's bottom without jitter). */
   severityBand: 'none' | 'marginal' | 'easy';
   /** Shift-level: tick S9 first starved this shift, or '' if it never did.
-   *  Broadcast onto every row of the shift so Python can compute alert ->
-   *  starvation lead time without a second file. */
+   *  Kept for backward compatibility — equals the first entry of
+   *  s9StarvationTicksAll. Broadcast onto every row of the shift. */
   s9StarvedTick: number | '';
+  /** Shift-level: EVERY tick the trim-to-chassis buffer transitioned from
+   *  above zero to at-or-below zero this shift (semicolon-joined, empty if
+   *  never), scanned directly from the per-tick buffer level rather than
+   *  the simulation's 'starved' event — that event only ever fires once
+   *  per shift (guarded by an "already reported" check), so it cannot
+   *  distinguish a spontaneous pre-incident jitter-driven dip from a later,
+   *  genuinely incident-caused starvation. This can. */
+  s9StarvationTicksAll: string;
+  /** Shift-level: the exact tick the incident was injected, or '' if none.
+   *  Precise (not approximated from the first affected visit's entryTick,
+   *  which lags onset by however long it takes a vehicle to reach the
+   *  station) — needed to test whether a starvation happened causally
+   *  after onset, not just after the first visible visit. */
+  incidentAtTick: number | '';
   /** 0 for the first visit at this station where trueIncidentActive first
    *  becomes 1, 1 for the next, etc. — lets Python analyze how predictions
    *  converge across successive visits after a degradation starts, without
@@ -101,6 +116,22 @@ export interface TrainingRow {
 export type SeverityBand = 'none' | 'marginal' | 'easy';
 
 /**
+ * Settle period: the earliest tick an incident may be injected. The
+ * discrete station chain starts empty and fills up one station per takt,
+ * but the two named buffers initialize at their nominal fill from tick 0
+ * regardless — so before the first vehicle has actually cleared S9, the
+ * trim-to-chassis buffer's rate-based level is draining against a
+ * downstream consumer (S9) that has never yet processed anything real.
+ * An incident injected in that window can walk the buffer to zero purely
+ * as a warmup artifact, with S6 and S9 both still unoccupied when it
+ * happens — confirmed directly via src/engine/ml/diagnoseStarvationTiming.ts
+ * before this fix was written, not assumed. S9 is the relevant station
+ * (not S6): it's the buffer's consumer, and clearing it is what brings the
+ * discrete chain and the buffer's continuous abstraction into agreement.
+ */
+const SETTLE_TICKS = (STATION_INDEX.get('S9')! + 1) * TAKT_SECONDS;
+
+/**
  * Deterministic, seed-derived incident schedule. Three outcomes per shift:
  * no incident (steady state), a "marginal" incident at 1.10x-1.25x nominal
  * (the honest test — close enough to normal jitter that separating it from
@@ -108,7 +139,8 @@ export type SeverityBand = 'none' | 'marginal' | 'easy';
  * 1.3x-2.0x (clearly separable). `incidentRate` is P(any incident); within
  * that, marginal vs easy is a fair coin flip, so the default incidentRate
  * of 2/3 gives roughly equal thirds across all three outcomes. A random
- * tick with enough runway left in the shift to observe its effect.
+ * tick no earlier than SETTLE_TICKS (see its doc comment) and with enough
+ * runway left in the shift to observe its effect.
  *
  * `forceStationId` overrides the random station pick (used to build a
  * dedicated S6-only evidence set for the S9-starvation lead-time metric —
@@ -121,7 +153,7 @@ export type SeverityBand = 'none' | 'marginal' | 'easy';
  * so per-visit convergence can be measured cleanly across many runs of the
  * SAME severity rather than averaged across a mix).
  */
-function incidentsForShift(
+export function incidentsForShift(
   seed: number,
   forceStationId?: string,
   incidentRate = 2 / 3,
@@ -143,7 +175,9 @@ function incidentsForShift(
   const multiplier = isMarginal
     ? marginalLo + rng() * (marginalHi - marginalLo)
     : easyLo + rng() * (easyHi - easyLo);
-  const atTick = Math.floor(rng() * (SHIFT_SECONDS - 3600)); // leave >=1hr runway
+  // Never before SETTLE_TICKS (see its doc comment) and leave >=1hr runway
+  // at the end of the shift to observe the incident's effect.
+  const atTick = SETTLE_TICKS + Math.floor(rng() * (SHIFT_SECONDS - 3600 - SETTLE_TICKS));
 
   if (forceCycleSeconds !== undefined) {
     const band: SeverityBand = forceCycleSeconds / nominal >= EASY_SEVERITY_MULTIPLIER_RANGE[0]
@@ -180,18 +214,22 @@ function exportShift(
   const bufferLevelAt = new Map<number, Record<string, number>>();
   for (const tick of gt) bufferLevelAt.set(tick.tick, tick.bufferLevels);
 
-  // S9's first starved tick this shift, if any — scan its own event stream.
-  let s9StarvedTick: number | '' = '';
-  outer: for (const tick of gt) {
-    for (const s of tick.stations) {
-      if (s.stationId === 'S9' && s.events.some((e) => e.kind === 'starved')) {
-        s9StarvedTick = tick.tick;
-        break outer;
-      }
-    }
+  // Every tick the trim-to-chassis buffer crosses from >0 to <=0 this
+  // shift — not just the first (see the TrainingRow doc comment on why
+  // the simulation's own 'starved' event can't be used for this).
+  const starvationOnsetTicks: number[] = [];
+  let wasStarved = false;
+  for (const tick of gt) {
+    const level = tick.bufferLevels[TRIM_CHASSIS_BUFFER.id];
+    const isStarved = level <= 0;
+    if (isStarved && !wasStarved) starvationOnsetTicks.push(tick.tick);
+    wasStarved = isStarved;
   }
+  const s9StarvationTicksAll = starvationOnsetTicks.join(';');
+  const s9StarvedTick: number | '' = starvationOnsetTicks.length > 0 ? starvationOnsetTicks[0] : '';
 
   const incident = incidents[0];
+  const incidentAtTick: number | '' = incident ? incident.atTick : '';
 
   const rows: TrainingRow[] = [];
 
@@ -244,6 +282,8 @@ function exportShift(
         trueIncidentActive,
         severityBand: rowSeverityBand,
         s9StarvedTick,
+        s9StarvationTicksAll,
+        incidentAtTick,
         visitIndexSinceIncident,
         trueCycleSeconds: visit.trueCycleSeconds,
       });
@@ -277,6 +317,8 @@ const CSV_COLUMNS: (keyof TrainingRow)[] = [
   'trueIncidentActive',
   'severityBand',
   's9StarvedTick',
+  's9StarvationTicksAll',
+  'incidentAtTick',
   'visitIndexSinceIncident',
   'trueCycleSeconds',
 ];
@@ -336,4 +378,11 @@ function main() {
   console.log(`Every target station's nominalCycleSeconds is takt (${TAKT_SECONDS}s) in this topology.`);
 }
 
-main();
+// Only run the CLI when this file is executed directly (npx tsx
+// exportTrainingRows.ts ...) — NOT when another script imports
+// incidentsForShift or other exports from it. Before this guard existed,
+// importing this module (e.g. from diagnoseStarvationTiming.ts) silently
+// re-ran the CLI with its own default args and overwrote ml/data/train.csv
+// as a side effect — a real incident during this session, not hypothetical.
+const isMainModule = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isMainModule) main();

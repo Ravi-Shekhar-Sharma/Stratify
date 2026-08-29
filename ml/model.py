@@ -73,7 +73,7 @@ def load_features(csv_path: Path) -> tuple[pd.DataFrame, np.ndarray, pd.DataFram
     regime/band analysis (shiftSeed, stationId, tier, vehicleId, entryTick,
     nominalCycleSeconds, trueIncidentActive, s9StarvedTick); none of it goes
     into the feature matrix."""
-    df = pd.read_csv(csv_path)
+    df = pd.read_csv(csv_path, dtype={"s9StarvationTicksAll": str})
     df["bufferLevelAtEntry"] = pd.to_numeric(
         df["bufferLevelAtEntry"], errors="coerce"
     ).fillna(MISSING_BUFFER_SENTINEL)
@@ -89,7 +89,17 @@ def load_features(csv_path: Path) -> tuple[pd.DataFrame, np.ndarray, pd.DataFram
     ]].copy()
     meta["s9StarvedTick"] = pd.to_numeric(df["s9StarvedTick"], errors="coerce")
     meta["visitIndexSinceIncident"] = pd.to_numeric(df["visitIndexSinceIncident"], errors="coerce")
+    meta["s9StarvationTicksAll"] = df["s9StarvationTicksAll"]
+    meta["incidentAtTick"] = pd.to_numeric(df["incidentAtTick"], errors="coerce")
     return X, y, meta
+
+
+def parse_starvation_ticks(cell) -> list[float]:
+    """Parse a s9StarvationTicksAll CSV cell ('123;456' or '' or NaN) into a
+    list of tick floats, in shift-chronological order."""
+    if pd.isna(cell) or cell == "":
+        return []
+    return [float(t) for t in str(cell).split(";") if t != ""]
 
 
 def export_tree(tree) -> dict:

@@ -22,6 +22,10 @@ Five disjoint seed ranges, so nothing here can leak across splits:
              FIXED at the canonical 80s degradation (not a random
              severity) — for measuring whether predictions converge to the
              true value across successive visits after onset
+  baseline   seeds 990,000..990,000+B NO incident ever (incidentRate=0),
+             pure steady state — establishes the background/spontaneous
+             S9-starvation rate from jitter noise alone, so an incident-set
+             starvation can be judged causal vs. coincidental against it
 
 Jitter, the alert multiplier, and the severity bands come from
 src/engine/assumptions.ts via src/engine/ml/printMlConstants.ts — not
@@ -73,11 +77,13 @@ def main() -> None:
     parser.add_argument("--validate-shifts", type=int, default=15)
     parser.add_argument("--evidence-shifts", type=int, default=300)
     parser.add_argument("--tracking-shifts", type=int, default=150)
+    parser.add_argument("--baseline-shifts", type=int, default=200)
     parser.add_argument("--train-seed-start", type=int, default=1)
     parser.add_argument("--calibrate-seed-start", type=int, default=50_000)
     parser.add_argument("--validate-seed-start", type=int, default=100_000)
     parser.add_argument("--evidence-seed-start", type=int, default=900_000)
     parser.add_argument("--tracking-seed-start", type=int, default=950_000)
+    parser.add_argument("--baseline-seed-start", type=int, default=990_000)
     parser.add_argument("--out-dir", type=Path, default=REPO_ROOT / "ml" / "data")
     args = parser.parse_args()
 
@@ -87,6 +93,7 @@ def main() -> None:
         ("validate", args.validate_seed_start, args.validate_shifts),
         ("evidence", args.evidence_seed_start, args.evidence_shifts),
         ("tracking", args.tracking_seed_start, args.tracking_shifts),
+        ("baseline", args.baseline_seed_start, args.baseline_shifts),
     ]
     for i, (name_a, start_a, n_a) in enumerate(ranges):
         for name_b, start_b, n_b in ranges[i + 1:]:
@@ -126,6 +133,12 @@ def main() -> None:
           f"- fixed at the canonical {s6_degraded}s degradation, for per-visit convergence analysis")
     run_exporter(args.tracking_shifts, args.tracking_seed_start, args.out_dir / "tracking.csv", jitter,
                  force_station="S6", incident_rate=1.0, force_cycle_seconds=s6_degraded)
+
+    print(f"\nGenerating {args.baseline_shifts} no-incident baseline shifts (seeds "
+          f"{args.baseline_seed_start}..{args.baseline_seed_start + args.baseline_shifts - 1}) "
+          f"- incidentRate=0, establishes the background/spontaneous S9-starvation rate")
+    run_exporter(args.baseline_shifts, args.baseline_seed_start, args.out_dir / "baseline.csv", jitter,
+                 incident_rate=0.0)
 
     print(f"\nDone. All CSVs under {args.out_dir} are gitignored - never committed.")
 

@@ -36,6 +36,7 @@ TRAIN_CSV = REPO_ROOT / "ml" / "data" / "train.csv"
 VALIDATE_CSV = REPO_ROOT / "ml" / "data" / "validate.csv"
 EVIDENCE_CSV = REPO_ROOT / "ml" / "data" / "evidence.csv"
 TRACKING_CSV = REPO_ROOT / "ml" / "data" / "tracking.csv"
+BASELINE_CSV = REPO_ROOT / "ml" / "data" / "baseline.csv"
 ARTIFACT_PATH = REPO_ROOT / "ml" / "artifacts" / "soft_sensor.json"
 METRICS_PATH = REPO_ROOT / "ml" / "artifacts" / "metrics.json"
 CALIBRATION_PNG_PATH = REPO_ROOT / "ml" / "artifacts" / "calibration.png"
@@ -45,6 +46,32 @@ CALIBRATION_PNG_PATH = REPO_ROOT / "ml" / "artifacts" / "calibration.png"
 # its cycle time (predicted, or true for the ground-truth label) exceeds
 # nominal by this fraction.
 ALERT_MULTIPLIER = sensor.ml_constants()["alertMultiplier"]
+_TAKT_SECONDS = sensor.ml_constants()["taktSeconds"]
+
+# docs/assumptions.md, "## Buffers and work in progress": trim-to-chassis
+# buffer nominal fill. Used only to compute a per-run analytical causal
+# horizon for starvation pairing (below) — not a modelling choice, a
+# physics figure already stated in the file.
+_TRIM_BUFFER_NOMINAL_FILL = 2.5
+# "e.g. <= 2x the nominal 415s" was the suggested example, but a single
+# fixed horizon would be wrong here: marginal-severity incidents (as low as
+# 1.10x nominal) drain far slower than the canonical 415s case (up to
+# ~1,500-2,500s, confirmed empirically below) and a fixed 830s cutoff would
+# wrongly exclude their genuine causal starvations. Each run's horizon is
+# instead 2x ITS OWN analytically expected drain time, computed from that
+# run's actual observed degraded cycle.
+_CAUSAL_HORIZON_MULTIPLIER = 2.0
+
+
+def expected_drain_seconds(degraded_cycle_seconds: float) -> float | None:
+    """docs/assumptions.md's own derivation, generalised from the
+    canonical 80s case to any degraded cycle: net drain rate = takt_rate -
+    degraded_rate; time to empty = nominal_fill / net_rate. None if the
+    degraded cycle isn't actually slower than takt (no net drain)."""
+    net_rate = (1 / _TAKT_SECONDS) - (1 / degraded_cycle_seconds)
+    if net_rate <= 0:
+        return None
+    return _TRIM_BUFFER_NOMINAL_FILL / net_rate
 
 
 def predict_all(artifact: dict, X_np: np.ndarray):
@@ -241,29 +268,65 @@ def compute_alert_metrics_by_band(meta: pd.DataFrame, y_true: np.ndarray, y_pred
     return result
 
 
-def compute_s6_s9_lead_time(artifact: dict) -> dict:
+def compute_background_starvation_rate() -> dict:
+    """Background/spontaneous S9 starvation rate from baseline.csv
+    (incidentRate=0, no incident ever injected, anywhere). Establishes
+    whether a starvation observed in the incident set could plausibly have
+    happened anyway — used to sanity-check causal attribution, not asserted."""
+    if not BASELINE_CSV.exists():
+        return {"error": f"{BASELINE_CSV} does not exist"}
+    df = pd.read_csv(BASELINE_CSV, usecols=["shiftSeed", "s9StarvationTicksAll"])
+    per_shift = df.groupby("shiftSeed")["s9StarvationTicksAll"].first()
+    has_starvation = per_shift.apply(lambda c: isinstance(c, str) and c != "")
+    return {
+        "baselineShifts": int(len(per_shift)),
+        "shiftsWithSpontaneousStarvation": int(has_starvation.sum()),
+        "backgroundStarvationRate": float(has_starvation.mean()),
+    }
+
+
+def compute_s6_s9_lead_time(artifact: dict, background_rate: float | None) -> dict:
     """THE headline evidence number: from the dedicated S6-forced evidence
     set, for each shift with an incident, find (a) the tick of the first
-    S6 visit where the model's alert fires AND the incident is genuinely
-    active (a true positive alert on S6), and (b) the tick S9 first
-    starves (ground truth, from the trim-to-chassis buffer emptying).
-    Lead time = starvation tick - alert tick. Positive means the alert
-    fired before S9 actually starved; negative means starvation was
-    already underway before the model caught it. Both are reported
-    as-is — this is not clamped to be non-negative.
+    S6 visit where the model's alert is a true positive, and (b) the FIRST
+    S9 starvation tick that is causally attributable to this incident:
+    at or after the exact injection tick (incidentAtTick), and within
+    2x this run's own analytically expected drain time (not a single fixed
+    horizon — marginal severities drain far slower than the canonical case
+    and a fixed cutoff would wrongly exclude their genuine starvations; see
+    expected_drain_seconds). Starvations before onset are never eligible,
+    by construction (the search only considers ticks >= onset).
 
-    Conditioning, made explicit rather than implicit: a run where the
-    alert never fires is a recall failure — already counted in the alert
-    metrics — and is EXCLUDED from this distribution entirely, never
-    differenced against a fallback/default tick. "warningFireRate" and
-    the fired/notFired counts below are how you check that this is
-    honest conditioning, not silent cherry-picking of favorable runs."""
+    Every candidate starvation tick is available (s9StarvationTicksAll,
+    not just the first-ever) — this is the fix: the earlier version of
+    this pipeline only had the simulation's own 'starved' event, which
+    fires once per shift ever, so a run's ONLY recorded starvation could
+    in principle be a pre-onset, incident-unrelated one, permanently
+    mispairing every later real incident in that shift. Diagnosed against
+    the actual worst runs before writing this: it turned out NOT to be
+    happening (see the printed diagnostic in main()) — every starvation
+    already present was already at or after true onset. The fix is applied
+    anyway because it is still the structurally correct way to compute
+    this, and it is what makes that finding checkable rather than assumed.
+
+    Decomposed into detectionLagFromOnsetSeconds (alert_tick - onset,
+    always modelled as >= 0 conceptually, how fast the model raises a true
+    positive after the incident starts) and drainTimeFromOnsetSeconds
+    (starvation_tick - onset, how fast the physical consequence occurs).
+    leadTimeSeconds = drainTime - detectionLag exactly. This separates two
+    different phenomena that a single lead-time number conflates: a fast,
+    early-injected severe incident can drain before ANY vehicle has
+    physically reached S6 to be observed (a detection-latency FLOOR, not a
+    model failure); a marginal incident can drain at a normal pace while
+    the alert itself takes a very long time to fire because near-threshold
+    predictions take a long time to cross the line (a real detection
+    weakness). Not clamped to be non-negative in either case."""
     if not EVIDENCE_CSV.exists():
         return {"error": f"{EVIDENCE_CSV} does not exist"}
 
     X, y_true, meta = sensor.load_features(EVIDENCE_CSV)
     X_np = X.to_numpy()
-    y_pred, low, high, confidence = predict_all(artifact, X_np)
+    y_pred = sensor.predict_point(artifact, X_np)
 
     s6_mask = (meta["stationId"] == "S6").to_numpy()
     alert_threshold = meta["nominalCycleSeconds"].to_numpy() * ALERT_MULTIPLIER
@@ -277,67 +340,80 @@ def compute_s6_s9_lead_time(artifact: dict) -> dict:
 
     lead_times_by_band: dict[str, list[float]] = {"easy": [], "marginal": []}
     worked_examples: dict[str, dict | None] = {"easy": None, "marginal": None}
-    shifts_with_incident = 0
-    shifts_with_starvation = 0
-    shifts_with_alert = 0
-    shifts_with_both = 0
-    # Runs excluded from the lead-time distribution because the alert never
-    # fired at all — recall failures, counted here explicitly so the
-    # conditioning below is checkable, not asserted.
-    excluded_no_alert_by_band = {"easy": 0, "marginal": 0}
-    excluded_no_starvation = 0
+    # Three mutually exclusive outcomes per incident run, per band:
+    fired_causal = {"easy": 0, "marginal": 0}       # alert fired, causal starvation found -> lead time counted
+    fired_no_causal = {"easy": 0, "marginal": 0}    # alert fired, but no starvation within the causal horizon
+    never_fired = {"easy": 0, "marginal": 0}        # alert never fired at all (recall failure)
+    non_causal_excluded = {"easy": 0, "marginal": 0}  # starvation(s) exist but all are pre-onset (should be 0 - see diagnostic)
 
     for seed, group in df.groupby("shiftSeed"):
         group = group.sort_values("entryTick")
         incident_rows = group[group["trueIncidentActive"] == 1]
         if len(incident_rows) == 0:
             continue
-        shifts_with_incident += 1
         band = incident_rows.iloc[0]["severityBand"]
+        onset_tick = float(group["incidentAtTick"].dropna().iloc[0])
+        degraded_cycle_estimate = float(incident_rows["_true"].mean())
+        horizon = expected_drain_seconds(degraded_cycle_estimate)
+        horizon_seconds = _CAUSAL_HORIZON_MULTIPLIER * horizon if horizon else float("inf")
 
-        starved_tick = group["s9StarvedTick"].dropna()
-        has_starvation = len(starved_tick) > 0 and not pd.isna(starved_tick.iloc[0])
-        if has_starvation:
-            shifts_with_starvation += 1
-            starved_tick_val = float(starved_tick.iloc[0])
-        else:
-            excluded_no_starvation += 1
-            continue
+        all_starvation_ticks = sensor.parse_starvation_ticks(group["s9StarvationTicksAll"].iloc[0])
+        eligible = [t for t in all_starvation_ticks if t >= onset_tick]
+        pre_onset = [t for t in all_starvation_ticks if t < onset_tick]
+        causal = [t for t in eligible if t - onset_tick <= horizon_seconds]
 
         true_positive_alerts = group[(group["trueIncidentActive"] == 1) & (group["_alert"])]
-        if len(true_positive_alerts) == 0:
-            excluded_no_alert_by_band[band] += 1
-            continue
-        shifts_with_alert += 1
-        alert_tick = float(true_positive_alerts.iloc[0]["entryTick"])
+        fired = len(true_positive_alerts) > 0
 
-        shifts_with_both += 1
-        lead = starved_tick_val - alert_tick
+        if not causal:
+            if pre_onset and not eligible:
+                non_causal_excluded[band] += 1
+            elif fired:
+                fired_no_causal[band] += 1
+            else:
+                never_fired[band] += 1
+            continue
+
+        if not fired:
+            never_fired[band] += 1
+            continue
+
+        fired_causal[band] += 1
+        alert_tick = float(true_positive_alerts.iloc[0]["entryTick"])
+        starved_tick = causal[0]
+        lead = starved_tick - alert_tick
         lead_times_by_band[band].append(lead)
 
         if worked_examples[band] is None:
             first_visit = true_positive_alerts.iloc[0]
             worked_examples[band] = {
                 "shiftSeed": int(seed),
+                "incidentAtTick": onset_tick,
                 "alertVehicleId": int(first_visit["vehicleId"]),
                 "alertEntryTick": alert_tick,
                 "alertPredictedCycleSeconds": float(first_visit["_pred"]),
                 "alertTrueCycleSeconds": float(first_visit["_true"]),
                 "alertThresholdSeconds": float(first_visit["nominalCycleSeconds"] * ALERT_MULTIPLIER),
-                "s9StarvedTick": starved_tick_val,
+                "allStarvationTicksThisShift": all_starvation_ticks,
+                "pairedStarvationTick": starved_tick,
+                "causalHorizonSeconds": horizon_seconds,
+                "detectionLagFromOnsetSeconds": alert_tick - onset_tick,
+                "drainTimeFromOnsetSeconds": starved_tick - onset_tick,
                 "leadTimeSeconds": lead,
             }
 
     def summarize(band: str) -> dict:
         lead_times = lead_times_by_band[band]
-        fired = len(lead_times)
-        not_fired = excluded_no_alert_by_band[band]
-        denom = fired + not_fired
+        total = fired_causal[band] + fired_no_causal[band] + never_fired[band] + non_causal_excluded[band]
         return {
-            "runsIncludedFired": fired,
-            "runsExcludedNeverFired": not_fired,
-            "warningFireRate": fired / denom if denom > 0 else None,
-            "leadTimeConditionedOnWarning": {
+            "runsWithCausalStarvationAndAlert": fired_causal[band],
+            "runsAlertFiredNoCausalStarvation": fired_no_causal[band],
+            "runsAlertNeverFired": never_fired[band],
+            "runsOnlyNonCausalStarvationExcluded": non_causal_excluded[band],
+            "totalIncidentRuns": total,
+            "warningFireRate": (fired_causal[band] + fired_no_causal[band]) / total if total > 0 else None,
+            "leadTimeConditionedOnCausalWarning": {
+                "n": len(lead_times),
                 "medianSeconds": float(np.median(lead_times)) if lead_times else None,
                 "minSeconds": float(np.min(lead_times)) if lead_times else None,
                 "maxSeconds": float(np.max(lead_times)) if lead_times else None,
@@ -347,22 +423,62 @@ def compute_s6_s9_lead_time(artifact: dict) -> dict:
 
     return {
         "definition": (
-            "seconds from the soft sensor's first true-positive S6 alert to S9's first starved "
-            "tick (ground truth) in the same shift, CONDITIONED ON a warning having fired at all. "
-            "Runs where no alert ever fired are excluded from the distribution (they are recall "
-            "failures, counted separately as runsExcludedNeverFired / warningFireRate below), not "
-            "differenced against a default/fallback tick. NOT clamped to be non-negative."
+            "seconds from the soft sensor's first true-positive S6 alert to the first S9 "
+            "starvation causally attributable to this incident (at/after exact injection tick, "
+            "within 2x this run's own analytically expected drain time). Runs where the alert "
+            "never fires, or no starvation occurs within the causal horizon, are excluded from the "
+            "distribution and counted separately below (not differenced against a default tick). "
+            "NOT clamped to be non-negative."
         ),
-        "evidenceShifts": int(df["shiftSeed"].nunique()),
-        "shiftsWithIncident": shifts_with_incident,
-        "shiftsWhereS9Starved": shifts_with_starvation,
-        "shiftsExcludedS9NeverStarved": excluded_no_starvation,
+        "backgroundStarvationRate": background_rate,
         "byBand": {
             "easy": summarize("easy"),
             "marginal": summarize("marginal"),
         },
         "workedExampleByBand": worked_examples,
     }
+
+
+def diagnose_worst_runs(artifact: dict, band: str, n: int = 5) -> list[dict]:
+    """Prove-it: for the n most-negative runs in `band` (naive pairing, no
+    causal filtering), print onset tick, alert tick, every starvation tick
+    in that shift, and which one the naive method would have paired."""
+    X, y_true, meta = sensor.load_features(EVIDENCE_CSV)
+    X_np = X.to_numpy()
+    y_pred = sensor.predict_point(artifact, X_np)
+    alert_threshold = meta["nominalCycleSeconds"].to_numpy() * ALERT_MULTIPLIER
+    alert = y_pred > alert_threshold
+
+    df = meta.copy()
+    df["_alert"] = alert
+    df["_pred"] = y_pred
+    df = df[(df["stationId"] == "S6").to_numpy()]
+
+    rows = []
+    for seed, group in df.groupby("shiftSeed"):
+        group = group.sort_values("entryTick")
+        incident_rows = group[group["trueIncidentActive"] == 1]
+        if len(incident_rows) == 0 or incident_rows.iloc[0]["severityBand"] != band:
+            continue
+        onset_tick = float(group["incidentAtTick"].dropna().iloc[0])
+        all_ticks = sensor.parse_starvation_ticks(group["s9StarvationTicksAll"].iloc[0])
+        tp_alerts = group[(group["trueIncidentActive"] == 1) & (group["_alert"])]
+        if len(tp_alerts) == 0 or not all_ticks:
+            continue
+        alert_tick = float(tp_alerts.iloc[0]["entryTick"])
+        naive_paired = all_ticks[0]  # what the old, single-tick export would have paired
+        rows.append({
+            "shiftSeed": int(seed),
+            "incidentAtTick": onset_tick,
+            "alertTick": alert_tick,
+            "allStarvationTicksThisShift": all_ticks,
+            "naivePairedStarvationTick": naive_paired,
+            "naiveLeadTimeSeconds": naive_paired - alert_tick,
+            "naivePairedStarvationWasPreOnset": naive_paired < onset_tick,
+        })
+
+    rows.sort(key=lambda r: r["naiveLeadTimeSeconds"])
+    return rows[:n]
 
 
 def compute_s6_tracking(artifact: dict) -> dict:
@@ -473,8 +589,11 @@ def main() -> None:
     baselines = compute_baselines(meta_val, y_val, val_pred)
     regimes = compute_regime_decomposition(meta_train, y_train, train_pred, meta_val, y_val, val_pred)
     alert_bands = compute_alert_metrics_by_band(meta_val, y_val, val_pred)
-    lead_time = compute_s6_s9_lead_time(artifact)
+    background = compute_background_starvation_rate()
+    lead_time = compute_s6_s9_lead_time(artifact, background.get("backgroundStarvationRate"))
     s6_tracking = compute_s6_tracking(artifact)
+    diagnostic_easy = diagnose_worst_runs(artifact, "easy")
+    diagnostic_marginal = diagnose_worst_runs(artifact, "marginal")
 
     val_is_correct = (np.abs(val_pred - y_val) <= tolerance).astype(float)
     calibration = compute_calibration(val_confidence, val_is_correct)
@@ -498,7 +617,9 @@ def main() -> None:
         "baselines": baselines,
         "regimeDecomposition": regimes,
         "alertMetricsByBand": alert_bands,
+        "backgroundStarvationRate": background,
         "s6S9LeadTime": lead_time,
+        "worstRunDiagnostic": {"easy": diagnostic_easy, "marginal": diagnostic_marginal},
         "s6Tracking": s6_tracking,
         "calibration": calibration,
         "perTier": tier_breakdown,
@@ -546,23 +667,42 @@ def main() -> None:
         print(f"{band}: n={b['n']} positives={b['nPositive']} precision={b['precision']:.3f} "
               f"recall={b['recall']:.3f} falseAlarmRate={b['falseAlarmRate']:.3f}")
 
-    print("\n=== S6 -> S9 starvation lead time, CONDITIONED ON a warning firing (evidence set) ===")
-    print(f"Evidence shifts with an incident: {lead_time['shiftsWithIncident']}  "
-          f"(S9 starved in {lead_time['shiftsWhereS9Starved']}, "
-          f"never starved in {lead_time['shiftsExcludedS9NeverStarved']})")
+    print("\n=== Diagnostic: 5 most-negative runs under NAIVE (uncorrected) pairing ===")
+    for band in ["easy", "marginal"]:
+        print(f"  -- {band} band --")
+        for r in (diagnostic_easy if band == "easy" else diagnostic_marginal):
+            print(f"    shift {r['shiftSeed']}: onset={r['incidentAtTick']:.0f} "
+                  f"alert={r['alertTick']:.0f} allStarvationTicks={r['allStarvationTicksThisShift']} "
+                  f"naivePaired={r['naivePairedStarvationTick']:.0f} "
+                  f"preOnset={r['naivePairedStarvationWasPreOnset']} "
+                  f"naiveLead={r['naiveLeadTimeSeconds']:.0f}s")
+
+    print(f"\nBackground starvation rate (no-incident baseline, {background.get('baselineShifts')} shifts): "
+          f"{background.get('shiftsWithSpontaneousStarvation')} spontaneous starvations "
+          f"({background.get('backgroundStarvationRate')})")
+
+    print("\n=== S6 -> S9 starvation lead time, CAUSAL pairing (evidence set) ===")
     for band in ["easy", "marginal"]:
         b = lead_time["byBand"][band]
-        lt = b["leadTimeConditionedOnWarning"]
-        print(f"  {band}: fire rate={b['warningFireRate']}  "
-              f"(included/fired={b['runsIncludedFired']}, excluded/neverFired={b['runsExcludedNeverFired']})")
-        print(f"    lead time | warning fired: median={lt['medianSeconds']}  "
+        lt = b["leadTimeConditionedOnCausalWarning"]
+        print(f"  {band}: total runs={b['totalIncidentRuns']}  "
+              f"causalStarvation+alert={b['runsWithCausalStarvationAndAlert']}  "
+              f"alertFiredNoCausalStarvation={b['runsAlertFiredNoCausalStarvation']}  "
+              f"alertNeverFired={b['runsAlertNeverFired']}  "
+              f"onlyNonCausalStarvationExcluded={b['runsOnlyNonCausalStarvationExcluded']}  "
+              f"fireRate={b['warningFireRate']}")
+        print(f"    lead time | causal warning: n={lt['n']} median={lt['medianSeconds']}  "
               f"[{lt['minSeconds']}, {lt['maxSeconds']}]")
         we = lead_time.get("workedExampleByBand", {}).get(band)
         if we:
-            print(f"    worked example (shift {we['shiftSeed']}): alert fired at tick "
-                  f"{we['alertEntryTick']:.0f} (predicted {we['alertPredictedCycleSeconds']:.1f}s vs "
-                  f"threshold {we['alertThresholdSeconds']:.1f}s), S9 starved at tick "
-                  f"{we['s9StarvedTick']:.0f}, lead time = {we['leadTimeSeconds']:.0f}s")
+            print(f"    worked example (shift {we['shiftSeed']}): onset={we['incidentAtTick']:.0f} "
+                  f"alert fired at tick {we['alertEntryTick']:.0f} (predicted "
+                  f"{we['alertPredictedCycleSeconds']:.1f}s vs threshold {we['alertThresholdSeconds']:.1f}s), "
+                  f"all starvation ticks this shift={we['allStarvationTicksThisShift']}, "
+                  f"paired={we['pairedStarvationTick']:.0f} (horizon={we['causalHorizonSeconds']:.0f}s), "
+                  f"detectionLagFromOnset={we['detectionLagFromOnsetSeconds']:.0f}s, "
+                  f"drainTimeFromOnset={we['drainTimeFromOnsetSeconds']:.0f}s, "
+                  f"leadTime={we['leadTimeSeconds']:.0f}s")
 
     print("\n=== S6 tracking: does the prediction follow the true degradation? ===")
     print(f"Tracking shifts: {s6_tracking.get('trackingShifts')}  "

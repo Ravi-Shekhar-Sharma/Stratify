@@ -1,513 +1,516 @@
 {
-  "validationRows": 61816,
-  "trainRows": 247521,
+  "validationRows": 62155,
+  "trainRows": 248589,
   "validationShiftSeeds": [
     100000,
     100014
   ],
-  "calibrationToleranceSeconds": 1.5174199540248712,
+  "calibrationToleranceSeconds": 1.5018821641855555,
   "calibrationToleranceDerivation": "1 standard deviation of residuals on the calibration split",
   "baselines": {
     "r2CaveatNote": "R2 and skill score per station are only meaningful where the held-out split actually contains incident-affected rows for that station (see incidentRowsByStation / labelStdByStation below) - a station with zero incident rows in this split has no non-jitter variance to explain, so a near-zero R2 there reflects the split's random incident assignment, not necessarily worse model skill at that station.",
     "incidentRowsByStation": {
-      "P7": 162,
-      "P8": 728,
+      "P7": 154,
+      "P8": 688,
       "S11": 0,
       "S14": 0,
       "S17": 0,
-      "S19": 299,
-      "S21": 605,
-      "S3": 192,
-      "S6": 72,
-      "S8": 279
+      "S19": 282,
+      "S21": 571,
+      "S3": 181,
+      "S6": 71,
+      "S8": 264
     },
     "labelStdByStation": {
-      "P7": 2.3458273034025567,
-      "P8": 2.1803497068426223,
-      "S11": 1.5097734733916677,
-      "S14": 1.5153388813745714,
-      "S17": 1.5133980241311966,
-      "S19": 2.705445365647594,
-      "S21": 9.098436486481628,
-      "S3": 8.558552578361232,
-      "S6": 1.6664927178058877,
-      "S8": 2.7990814536919353
+      "P7": 2.3067084831417737,
+      "P8": 2.149572210206718,
+      "S11": 1.5176600637096398,
+      "S14": 1.5108498151157026,
+      "S17": 1.5216907985310115,
+      "S19": 2.6618657111860307,
+      "S21": 8.808125206832937,
+      "S3": 8.292039380516274,
+      "S6": 1.6540898676259699,
+      "S8": 2.7438325250862046
     },
     "nominalCycleBaseline": {
       "description": "predicts each station's own nominal cycle time as stated in docs/assumptions.md (S6=55s from the demo-incident table, every other target station=54s/takt, the file's only other stated timing figure) - per-station, not a single global constant",
       "maeSeconds": {
-        "overallSeconds": 1.886374609833874,
+        "overallSeconds": 1.8569653207277883,
         "byGroupSeconds": {
-          "P7": 1.573770400871319,
-          "P8": 1.7040170318206926,
-          "S11": 1.3111695344633103,
-          "S14": 1.3240369966853431,
-          "S17": 1.3219610445040462,
-          "S19": 1.7672925415862364,
-          "S21": 3.6738853938112643,
-          "S3": 2.7672631814213724,
-          "S6": 1.6763811412155936,
-          "S8": 1.7710672013062898
+          "P7": 1.5534133482802417,
+          "P8": 1.6850674942996133,
+          "S11": 1.318051087297822,
+          "S14": 1.3221210010778353,
+          "S17": 1.3343682590657109,
+          "S19": 1.7437984460726117,
+          "S21": 3.5307912919914655,
+          "S3": 2.6777680667786234,
+          "S6": 1.6894357556276227,
+          "S8": 1.739911665763521
         }
       },
       "skillScore": {
-        "overall": 0.3143594638115075,
-        "P7": 0.1934006167784449,
-        "P8": 0.18177927572169417,
-        "S11": 0.031155881085840997,
-        "S14": 0.03320817239279561,
-        "S17": 0.035963617065778775,
-        "S19": 0.2881142082092515,
-        "S21": 0.6510156345921371,
-        "S3": 0.5096012590854984,
-        "S6": 0.23470346553786103,
-        "S8": 0.2878919868408242
+        "overall": 0.30372190793366693,
+        "P7": 0.1883488328694879,
+        "P8": 0.1877450555714506,
+        "S11": 0.03047530184661551,
+        "S14": 0.03502302387879597,
+        "S17": 0.03864775807020171,
+        "S19": 0.2744841532555333,
+        "S21": 0.6303857389812739,
+        "S3": 0.4890002632129311,
+        "S6": 0.24906921903531987,
+        "S8": 0.2791789224433975
       },
       "naiveGlobal54Comparison": {
         "description": "what this baseline would report if it incorrectly used the simulation's internal 54s for S6 too, instead of the assumptions file's stated 55s - kept for comparison, not used for the reported skill score",
-        "maeSecondsOverall": 1.8572251810315017,
-        "skillScoreOverall": 0.3035982323799227
+        "maeSecondsOverall": 1.8254923999631183,
+        "skillScoreOverall": 0.29171752751432256
       }
     },
     "previousVisitBaseline": {
       "description": "predicts the same station's immediately preceding observed visit within the same shift",
-      "rowCoverage": 0.9975734437686036,
+      "rowCoverage": 0.9975866784651275,
       "rowCoverageNote": "fraction of held-out rows with a previous visit at the same station in the same shift; the rest have no defined prediction under this baseline and are excluded from it",
-      "maeSecondsOverall": 1.730131111377591,
+      "maeSecondsOverall": 1.7337321769709286,
       "maeSecondsByStation": {
-        "P7": 1.7236533821333582,
-        "P8": 1.6422665490158286,
-        "S11": 1.7473380649089116,
-        "S14": 1.7464452604551914,
-        "S17": 1.732835929587134,
-        "S19": 1.7346689105125388,
-        "S21": 1.7359093919892232,
-        "S3": 1.7462226393173848,
-        "S6": 1.7585445847572387,
-        "S8": 1.7354864620174701
+        "P7": 1.7175505078454083,
+        "P8": 1.6549640750634753,
+        "S11": 1.7704989826969726,
+        "S14": 1.7417163213241336,
+        "S17": 1.74276041706639,
+        "S19": 1.7401542502525253,
+        "S21": 1.7470934259433761,
+        "S3": 1.7532939943066592,
+        "S6": 1.7426496798343278,
+        "S8": 1.7291978767227165
       },
-      "modelMaeOnSameSubsetSeconds": 1.293095289559549,
+      "modelMaeOnSameSubsetSeconds": 1.292685342888026,
       "skillScore": {
-        "overall": 0.25260271833968617,
-        "P7": 0.2642216921442099,
-        "P8": 0.15085354142725504,
-        "S11": 0.2730907966620607,
-        "S14": 0.26688507113178195,
-        "S17": 0.2648826779595148,
-        "S19": 0.27541453107296465,
-        "S21": 0.2613247218302317,
-        "S3": 0.22273075383780438,
-        "S6": 0.2707706315822884,
-        "S8": 0.2733250841925502
+        "overall": 0.2543915605543371,
+        "P7": 0.26658509609058323,
+        "P8": 0.17285492665038915,
+        "S11": 0.2783140494948836,
+        "S14": 0.267343817238637,
+        "S17": 0.26425143800206774,
+        "S19": 0.27364263703735225,
+        "S21": 0.25291168341814774,
+        "S3": 0.2194248667519234,
+        "S6": 0.2723323626961216,
+        "S8": 0.2747565639019439
       }
     },
     "r2": {
-      "overall": 0.8727827129327623,
+      "overall": 0.8673269885969555,
       "byStation": {
-        "P7": 0.5981472252101077,
-        "P8": 0.08094294631858456,
-        "S11": 0.03307656280447002,
-        "S14": 0.02566385747986999,
-        "S17": 0.033837824622135027,
-        "S19": 0.7023124309455424,
-        "S21": 0.9726323338828072,
-        "S3": 0.9628739554882131,
-        "S6": 0.1894228251703043,
-        "S8": 0.7189645309840655
+        "P7": 0.5890462699397401,
+        "P8": 0.16976368811310372,
+        "S11": 0.03342005986656049,
+        "S14": 0.026378329647149257,
+        "S17": 0.03673731969359584,
+        "S19": 0.6899455782765043,
+        "S21": 0.9697762819577331,
+        "S3": 0.958993246151459,
+        "S6": 0.1932231262181503,
+        "S8": 0.7098729626486427
       }
     }
   },
   "regimeDecomposition": {
     "trainMae": {
-      "overallSeconds": 1.253155048914545,
+      "overallSeconds": 1.252941383272361,
       "byGroupSeconds": {
-        "P7": 1.2441582734199808,
-        "P8": 1.2328481814897647,
-        "S11": 1.2414121616958809,
-        "S14": 1.2511985921535325,
-        "S17": 1.2614720453843435,
-        "S19": 1.2768731237738946,
-        "S21": 1.2667181583347253,
-        "S3": 1.2599257471465717,
-        "S6": 1.2410009675217315,
-        "S8": 1.2574760361900017
+        "P7": 1.2409209469061853,
+        "P8": 1.2343561776042893,
+        "S11": 1.244742814739103,
+        "S14": 1.2544056977987144,
+        "S17": 1.2581530926329434,
+        "S19": 1.2742297945488545,
+        "S21": 1.2669825564938872,
+        "S3": 1.2541734448581958,
+        "S6": 1.2415472468690245,
+        "S8": 1.2614830043183378
       }
     },
     "heldOutMae": {
-      "overallSeconds": 1.2933748989388558,
+      "overallSeconds": 1.2929642705496907,
       "byGroupSeconds": {
-        "P7": 1.2694022346751455,
-        "P8": 1.394262049958896,
-        "S11": 1.270318892364194,
-        "S14": 1.280068147844977,
-        "S17": 1.2744185437236257,
-        "S19": 1.2581104502930023,
-        "S21": 1.2821285627404406,
-        "S3": 1.357062379948099,
-        "S6": 1.2829286778099793,
-        "S8": 1.261191145893604
+        "P7": 1.260829757167775,
+        "P8": 1.3687044039406875,
+        "S11": 1.277883082563161,
+        "S14": 1.2758163256864286,
+        "S17": 1.282797917412783,
+        "S19": 1.2651534061540561,
+        "S21": 1.3050308142007787,
+        "S3": 1.3683387773006948,
+        "S6": 1.2686493113631052,
+        "S8": 1.2541650017689645
       }
     },
     "heldOutByRegime": {
       "steadyState": {
-        "overallSeconds": 1.2984833853955209,
+        "overallSeconds": 1.2941643678210082,
         "byStationSeconds": {
-          "P7": 1.2812931947023813,
-          "P8": 1.4747008667334982,
-          "S11": 1.270318892364194,
-          "S14": 1.280068147844977,
-          "S17": 1.2744185437236257,
-          "S19": 1.2809396289350528,
-          "S21": 1.2990488050039721,
-          "S3": 1.2713545885796051,
-          "S6": 1.2873909341555811,
-          "S8": 1.2791197128582381
+          "P7": 1.2718430317708336,
+          "P8": 1.4399585544567621,
+          "S11": 1.277883082563161,
+          "S14": 1.2758163256864286,
+          "S17": 1.282797917412783,
+          "S19": 1.281641467110166,
+          "S21": 1.3068512591539934,
+          "S3": 1.272454609283349,
+          "S6": 1.2733363557254864,
+          "S8": 1.2709708059755453
         },
-        "n": 59479
+        "n": 59944
       },
       "incidentTracking": {
-        "overallSeconds": 1.163358781713354,
+        "overallSeconds": 1.2604275763697468,
         "byStationSeconds": {
-          "P7": 0.8165915407984816,
-          "P8": 0.776717342605528,
-          "S19": 0.8186296734915268,
-          "S21": 1.130489631248097,
-          "S3": 4.072035229443832,
-          "S6": 0.9010339055655526,
-          "S8": 0.8803215530642621
+          "P7": 0.8166515197677879,
+          "P8": 0.782100467133935,
+          "S19": 0.9256279807209733,
+          "S21": 1.2875245738538397,
+          "S3": 4.613567579920909,
+          "S6": 0.8595561576493375,
+          "S8": 0.8737427065472694
         },
-        "n": 2337
+        "n": 2211
       }
     }
   },
   "alertMetricsByBand": {
     "alertMultiplier": 1.15,
     "easy": {
-      "n": 60031,
-      "nPositive": 552,
-      "precision": 0.7818696883852692,
+      "n": 60465,
+      "nPositive": 521,
+      "precision": 0.8127925117004681,
       "recall": 1.0,
-      "falseAlarmRate": 0.0025891491114511003
+      "falseAlarmRate": 0.002001868410516482
     },
     "marginal": {
-      "n": 61264,
-      "nPositive": 1785,
-      "precision": 0.8646748681898067,
-      "recall": 0.5512605042016807,
-      "falseAlarmRate": 0.0025891491114511003
+      "n": 61634,
+      "nPositive": 1690,
+      "precision": 0.8861480075901328,
+      "recall": 0.5526627218934911,
+      "falseAlarmRate": 0.002001868410516482
     },
     "falseAlarmRateDefinition": "FP / (FP + TN) at visit level, TN/FP measured against steady-state (severityBand='none') rows"
   },
+  "backgroundStarvationRate": {
+    "baselineShifts": 200,
+    "shiftsWithSpontaneousStarvation": 0,
+    "backgroundStarvationRate": 0.0
+  },
   "s6S9LeadTime": {
-    "definition": "seconds from the soft sensor's first true-positive S6 alert to S9's first starved tick (ground truth) in the same shift, CONDITIONED ON a warning having fired at all. Runs where no alert ever fired are excluded from the distribution (they are recall failures, counted separately as runsExcludedNeverFired / warningFireRate below), not differenced against a default/fallback tick. NOT clamped to be non-negative.",
-    "evidenceShifts": 300,
-    "shiftsWithIncident": 300,
-    "shiftsWhereS9Starved": 300,
-    "shiftsExcludedS9NeverStarved": 0,
+    "definition": "seconds from the soft sensor's first true-positive S6 alert to the first S9 starvation causally attributable to this incident (at/after exact injection tick, within 2x this run's own analytically expected drain time). Runs where the alert never fires, or no starvation occurs within the causal horizon, are excluded from the distribution and counted separately below (not differenced against a default tick). NOT clamped to be non-negative.",
+    "backgroundStarvationRate": 0.0,
     "byBand": {
       "easy": {
-        "runsIncludedFired": 164,
-        "runsExcludedNeverFired": 0,
+        "runsWithCausalStarvationAndAlert": 164,
+        "runsAlertFiredNoCausalStarvation": 0,
+        "runsAlertNeverFired": 0,
+        "runsOnlyNonCausalStarvationExcluded": 0,
+        "totalIncidentRuns": 164,
         "warningFireRate": 1.0,
-        "leadTimeConditionedOnWarning": {
-          "medianSeconds": 470.0,
-          "minSeconds": -1026.0,
-          "maxSeconds": 1121.0,
+        "leadTimeConditionedOnCausalWarning": {
+          "n": 164,
+          "medianSeconds": 476.0,
+          "minSeconds": 256.0,
+          "maxSeconds": 1119.0,
           "allSeconds": [
-            413.0,
-            744.0,
-            713.0,
-            407.0,
-            977.0,
-            404.0,
-            -379.0,
+            414.0,
+            759.0,
+            706.0,
             438.0,
-            610.0,
-            358.0,
-            440.0,
-            436.0,
-            647.0,
-            264.0,
-            278.0,
-            284.0,
-            571.0,
-            470.0,
-            535.0,
-            605.0,
-            433.0,
-            747.0,
-            379.0,
-            377.0,
-            361.0,
-            307.0,
-            405.0,
-            525.0,
-            500.0,
-            688.0,
-            348.0,
-            551.0,
-            436.0,
-            617.0,
-            500.0,
-            339.0,
-            529.0,
-            491.0,
-            1092.0,
-            424.0,
-            539.0,
-            498.0,
-            456.0,
-            554.0,
-            689.0,
-            512.0,
-            328.0,
-            352.0,
-            329.0,
-            286.0,
-            552.0,
-            927.0,
-            662.0,
-            668.0,
-            323.0,
-            460.0,
-            590.0,
-            603.0,
-            432.0,
-            466.0,
-            534.0,
-            655.0,
-            547.0,
-            690.0,
-            730.0,
-            315.0,
-            320.0,
-            389.0,
-            676.0,
+            972.0,
+            438.0,
             731.0,
-            280.0,
-            926.0,
-            317.0,
-            356.0,
-            761.0,
-            291.0,
-            269.0,
-            385.0,
+            456.0,
+            581.0,
+            355.0,
+            433.0,
+            458.0,
+            643.0,
+            327.0,
+            335.0,
+            289.0,
+            592.0,
             473.0,
-            701.0,
-            472.0,
-            489.0,
-            432.0,
-            496.0,
-            474.0,
-            285.0,
-            470.0,
-            371.0,
-            930.0,
-            404.0,
-            708.0,
-            269.0,
-            422.0,
-            454.0,
-            463.0,
-            711.0,
-            419.0,
-            290.0,
-            473.0,
-            453.0,
-            539.0,
-            732.0,
-            234.0,
-            703.0,
-            538.0,
-            337.0,
-            485.0,
-            637.0,
-            481.0,
-            424.0,
-            747.0,
-            1121.0,
-            -1006.0,
-            342.0,
-            965.0,
-            312.0,
-            -228.0,
             534.0,
-            441.0,
-            919.0,
-            591.0,
-            390.0,
-            291.0,
-            799.0,
-            550.0,
-            602.0,
-            412.0,
-            252.0,
-            422.0,
-            916.0,
-            391.0,
-            287.0,
-            392.0,
-            619.0,
-            391.0,
-            333.0,
-            -404.0,
-            646.0,
-            484.0,
-            367.0,
-            756.0,
-            980.0,
-            470.0,
-            477.0,
-            350.0,
-            413.0,
-            504.0,
-            445.0,
-            -1026.0,
-            517.0,
-            471.0,
-            336.0,
             585.0,
-            403.0,
-            745.0,
-            671.0,
-            407.0,
-            590.0,
-            307.0,
-            387.0,
-            843.0,
-            321.0,
+            417.0,
+            801.0,
+            373.0,
+            409.0,
+            339.0,
+            285.0,
+            447.0,
+            535.0,
+            551.0,
+            719.0,
+            340.0,
+            555.0,
+            420.0,
+            612.0,
+            488.0,
+            296.0,
+            535.0,
+            501.0,
+            1089.0,
+            428.0,
+            547.0,
+            507.0,
+            482.0,
+            570.0,
+            728.0,
+            498.0,
+            361.0,
+            370.0,
+            328.0,
+            256.0,
+            563.0,
+            906.0,
+            608.0,
+            640.0,
+            315.0,
+            493.0,
+            632.0,
+            579.0,
+            457.0,
+            488.0,
+            528.0,
+            642.0,
+            557.0,
+            711.0,
+            739.0,
+            350.0,
+            369.0,
+            382.0,
+            688.0,
+            737.0,
+            328.0,
+            881.0,
+            294.0,
+            386.0,
+            760.0,
+            310.0,
+            284.0,
+            436.0,
+            466.0,
+            738.0,
+            431.0,
+            489.0,
+            455.0,
+            521.0,
+            484.0,
+            291.0,
+            464.0,
+            374.0,
+            916.0,
+            377.0,
+            722.0,
+            316.0,
+            706.0,
+            467.0,
+            451.0,
+            754.0,
             465.0,
-            769.0
+            315.0,
+            490.0,
+            479.0,
+            529.0,
+            791.0,
+            262.0,
+            762.0,
+            580.0,
+            326.0,
+            495.0,
+            642.0,
+            473.0,
+            412.0,
+            758.0,
+            1119.0,
+            343.0,
+            374.0,
+            953.0,
+            332.0,
+            460.0,
+            525.0,
+            456.0,
+            944.0,
+            603.0,
+            431.0,
+            312.0,
+            758.0,
+            594.0,
+            635.0,
+            448.0,
+            286.0,
+            413.0,
+            895.0,
+            450.0,
+            308.0,
+            396.0,
+            617.0,
+            412.0,
+            319.0,
+            279.0,
+            668.0,
+            470.0,
+            376.0,
+            777.0,
+            941.0,
+            449.0,
+            479.0,
+            362.0,
+            440.0,
+            541.0,
+            407.0,
+            262.0,
+            530.0,
+            470.0,
+            347.0,
+            558.0,
+            448.0,
+            766.0,
+            714.0,
+            412.0,
+            643.0,
+            305.0,
+            400.0,
+            881.0,
+            353.0,
+            486.0,
+            813.0
           ]
         }
       },
       "marginal": {
-        "runsIncludedFired": 118,
-        "runsExcludedNeverFired": 18,
-        "warningFireRate": 0.8676470588235294,
-        "leadTimeConditionedOnWarning": {
-          "medianSeconds": 1286.5,
-          "minSeconds": -15110.0,
-          "maxSeconds": 2732.0,
+        "runsWithCausalStarvationAndAlert": 111,
+        "runsAlertFiredNoCausalStarvation": 6,
+        "runsAlertNeverFired": 19,
+        "runsOnlyNonCausalStarvationExcluded": 0,
+        "totalIncidentRuns": 136,
+        "warningFireRate": 0.8602941176470589,
+        "leadTimeConditionedOnCausalWarning": {
+          "n": 111,
+          "medianSeconds": 1279.0,
+          "minSeconds": -16238.0,
+          "maxSeconds": 2320.0,
           "allSeconds": [
-            -300.0,
-            2732.0,
-            1485.0,
-            1692.0,
-            -1874.0,
-            -5143.0,
-            -2661.0,
-            177.0,
-            1748.0,
-            1050.0,
-            691.0,
-            1003.0,
-            1289.0,
-            -2611.0,
-            858.0,
-            1353.0,
-            1062.0,
-            -1444.0,
-            1185.0,
-            392.0,
-            745.0,
-            1216.0,
-            1269.0,
-            901.0,
-            1330.0,
-            616.0,
-            1439.0,
-            1335.0,
-            -1525.0,
-            1729.0,
-            957.0,
-            -434.0,
-            1154.0,
-            1927.0,
-            922.0,
-            1572.0,
-            1300.0,
-            1221.0,
-            1981.0,
-            740.0,
-            1984.0,
-            2049.0,
-            1611.0,
-            1679.0,
-            1072.0,
-            1622.0,
-            1262.0,
-            1576.0,
-            1391.0,
-            953.0,
-            -329.0,
-            1284.0,
-            2088.0,
-            1299.0,
             2160.0,
-            1945.0,
-            1306.0,
-            946.0,
-            1380.0,
-            1258.0,
-            1878.0,
-            1032.0,
-            465.0,
-            -10443.0,
-            2721.0,
-            1087.0,
-            964.0,
-            1480.0,
-            1078.0,
-            1637.0,
-            1550.0,
+            1442.0,
+            1752.0,
+            -242.0,
+            -16238.0,
+            920.0,
+            526.0,
+            1702.0,
+            1147.0,
+            463.0,
+            919.0,
+            1339.0,
+            -1107.0,
+            954.0,
+            977.0,
+            1109.0,
+            -601.0,
+            1202.0,
+            -68.0,
+            1582.0,
+            1232.0,
+            1251.0,
+            932.0,
+            1311.0,
+            317.0,
+            1445.0,
+            1331.0,
+            2307.0,
+            1587.0,
+            1000.0,
+            930.0,
+            -1859.0,
+            1856.0,
+            1066.0,
+            1589.0,
+            1434.0,
+            1262.0,
+            1279.0,
+            -82.0,
+            818.0,
+            1585.0,
+            1091.0,
+            1515.0,
             1551.0,
-            1977.0,
-            1161.0,
-            1470.0,
-            2069.0,
-            1660.0,
-            1240.0,
-            1376.0,
-            1614.0,
-            2018.0,
-            2060.0,
-            -15110.0,
-            1198.0,
-            1242.0,
-            1347.0,
-            1389.0,
-            1039.0,
-            2043.0,
-            1465.0,
-            1197.0,
-            1264.0,
-            -742.0,
-            1670.0,
-            1859.0,
-            1336.0,
-            1166.0,
-            1811.0,
-            805.0,
-            859.0,
-            1127.0,
-            963.0,
-            1533.0,
-            996.0,
-            1422.0,
+            1392.0,
+            947.0,
+            799.0,
+            1312.0,
+            1926.0,
+            1428.0,
+            1815.0,
+            1233.0,
+            1046.0,
+            1491.0,
+            1248.0,
+            2064.0,
+            1055.0,
+            -1685.0,
+            -14965.0,
             1475.0,
-            1540.0,
-            671.0,
-            2122.0,
-            1324.0,
+            1564.0,
+            1482.0,
+            1107.0,
+            1898.0,
+            1548.0,
+            1513.0,
+            1896.0,
+            1245.0,
+            1500.0,
+            1013.0,
+            1236.0,
+            1487.0,
+            1627.0,
+            2022.0,
+            2053.0,
+            -13589.0,
+            1234.0,
+            983.0,
+            1366.0,
+            -10944.0,
+            1258.0,
+            1788.0,
+            1501.0,
+            1372.0,
+            1258.0,
+            1304.0,
+            1538.0,
+            1640.0,
             1349.0,
-            1488.0,
-            2308.0,
-            1097.0,
-            1099.0,
-            1079.0,
-            2503.0,
-            1184.0
+            1275.0,
+            1681.0,
+            -7573.0,
+            916.0,
+            1151.0,
+            1394.0,
+            1525.0,
+            1043.0,
+            1440.0,
+            1447.0,
+            1588.0,
+            -177.0,
+            1801.0,
+            1340.0,
+            1385.0,
+            1773.0,
+            827.0,
+            1149.0,
+            1118.0,
+            1095.0,
+            2320.0,
+            1221.0
           ]
         }
       }
@@ -515,2292 +518,2373 @@
     "workedExampleByBand": {
       "easy": {
         "shiftSeed": 900001,
-        "alertVehicleId": 353,
-        "alertEntryTick": 21054.0,
-        "alertPredictedCycleSeconds": 99.35238060520439,
-        "alertTrueCycleSeconds": 107.97813933067955,
+        "incidentAtTick": 21141.0,
+        "alertVehicleId": 356,
+        "alertEntryTick": 21216.0,
+        "alertPredictedCycleSeconds": 97.58970560868467,
+        "alertTrueCycleSeconds": 102.60538881744723,
         "alertThresholdSeconds": 62.099999999999994,
-        "s9StarvedTick": 21467.0,
-        "leadTimeSeconds": 413.0
+        "allStarvationTicksThisShift": [
+          21630.0
+        ],
+        "pairedStarvationTick": 21630.0,
+        "causalHorizonSeconds": 565.113650946394,
+        "detectionLagFromOnsetSeconds": 75.0,
+        "drainTimeFromOnsetSeconds": 489.0,
+        "leadTimeSeconds": 414.0
       },
       "marginal": {
         "shiftSeed": 900000,
-        "alertVehicleId": 343,
-        "alertEntryTick": 20725.0,
-        "alertPredictedCycleSeconds": 62.63404147808993,
-        "alertTrueCycleSeconds": 60.89713849581312,
+        "incidentAtTick": 17932.0,
+        "alertVehicleId": 310,
+        "alertEntryTick": 18678.0,
+        "alertPredictedCycleSeconds": 62.66267498192478,
+        "alertTrueCycleSeconds": 59.28707893399987,
         "alertThresholdSeconds": 62.099999999999994,
-        "s9StarvedTick": 20425.0,
-        "leadTimeSeconds": -300.0
+        "allStarvationTicksThisShift": [
+          20838.0
+        ],
+        "pairedStarvationTick": 20838.0,
+        "causalHorizonSeconds": 2932.218167733088,
+        "detectionLagFromOnsetSeconds": 746.0,
+        "drainTimeFromOnsetSeconds": 2906.0,
+        "leadTimeSeconds": 2160.0
       }
     }
   },
+  "worstRunDiagnostic": {
+    "easy": [
+      {
+        "shiftSeed": 900113,
+        "incidentAtTick": 5323.0,
+        "alertTick": 5422.0,
+        "allStarvationTicksThisShift": [
+          5678.0
+        ],
+        "naivePairedStarvationTick": 5678.0,
+        "naiveLeadTimeSeconds": 256.0,
+        "naivePairedStarvationWasPreOnset": false
+      },
+      {
+        "shiftSeed": 900205,
+        "incidentAtTick": 5345.0,
+        "alertTick": 5431.0,
+        "allStarvationTicksThisShift": [
+          5693.0
+        ],
+        "naivePairedStarvationTick": 5693.0,
+        "naiveLeadTimeSeconds": 262.0,
+        "naivePairedStarvationWasPreOnset": false
+      },
+      {
+        "shiftSeed": 900275,
+        "incidentAtTick": 1645.0,
+        "alertTick": 1726.0,
+        "allStarvationTicksThisShift": [
+          1988.0
+        ],
+        "naivePairedStarvationTick": 1988.0,
+        "naiveLeadTimeSeconds": 262.0,
+        "naivePairedStarvationWasPreOnset": false
+      },
+      {
+        "shiftSeed": 900253,
+        "incidentAtTick": 2202.0,
+        "alertTick": 2296.0,
+        "allStarvationTicksThisShift": [
+          2575.0
+        ],
+        "naivePairedStarvationTick": 2575.0,
+        "naiveLeadTimeSeconds": 279.0,
+        "naivePairedStarvationWasPreOnset": false
+      },
+      {
+        "shiftSeed": 900158,
+        "incidentAtTick": 6983.0,
+        "alertTick": 7058.0,
+        "allStarvationTicksThisShift": [
+          7342.0
+        ],
+        "naivePairedStarvationTick": 7342.0,
+        "naiveLeadTimeSeconds": 284.0,
+        "naivePairedStarvationWasPreOnset": false
+      }
+    ],
+    "marginal": [
+      {
+        "shiftSeed": 900012,
+        "incidentAtTick": 8297.0,
+        "alertTick": 26802.0,
+        "allStarvationTicksThisShift": [
+          10564.0
+        ],
+        "naivePairedStarvationTick": 10564.0,
+        "naiveLeadTimeSeconds": -16238.0,
+        "naivePairedStarvationWasPreOnset": false
+      },
+      {
+        "shiftSeed": 900141,
+        "incidentAtTick": 2382.0,
+        "alertTick": 19298.0,
+        "allStarvationTicksThisShift": [
+          4333.0
+        ],
+        "naivePairedStarvationTick": 4333.0,
+        "naiveLeadTimeSeconds": -14965.0,
+        "naivePairedStarvationWasPreOnset": false
+      },
+      {
+        "shiftSeed": 900201,
+        "incidentAtTick": 3489.0,
+        "alertTick": 19157.0,
+        "allStarvationTicksThisShift": [
+          5568.0
+        ],
+        "naivePairedStarvationTick": 5568.0,
+        "naiveLeadTimeSeconds": -13589.0,
+        "naivePairedStarvationWasPreOnset": false
+      },
+      {
+        "shiftSeed": 900209,
+        "incidentAtTick": 6507.0,
+        "alertTick": 19691.0,
+        "allStarvationTicksThisShift": [
+          8747.0
+        ],
+        "naivePairedStarvationTick": 8747.0,
+        "naiveLeadTimeSeconds": -10944.0,
+        "naivePairedStarvationWasPreOnset": false
+      },
+      {
+        "shiftSeed": 900252,
+        "incidentAtTick": 8113.0,
+        "alertTick": 17976.0,
+        "allStarvationTicksThisShift": [
+          10403.0
+        ],
+        "naivePairedStarvationTick": 10403.0,
+        "naiveLeadTimeSeconds": -7573.0,
+        "naivePairedStarvationWasPreOnset": false
+      }
+    ]
+  },
   "s6Tracking": {
     "trackingShifts": 150,
-    "forcedDegradedCycleSeconds": 76.94694279506803,
-    "steadyStateMaeSeconds": 1.2241656584369551,
-    "overallIncidentTrackingMaeSeconds": 1.3098292645194063,
+    "forcedDegradedCycleSeconds": 76.2637774515897,
+    "steadyStateMaeSeconds": 1.224527347751589,
+    "overallIncidentTrackingMaeSeconds": 1.2560970270306735,
     "byVisitIndexSinceIncident": [
       {
         "visitIndexSinceIncident": 0,
         "n": 150,
-        "meanPredictedCycleSeconds": 74.31709517583542,
-        "meanTrueCycleSeconds": 77.68001704532654,
-        "maeSeconds": 3.846289405107522
+        "meanPredictedCycleSeconds": 76.18141099957165,
+        "meanTrueCycleSeconds": 77.69513574672241,
+        "maeSeconds": 2.076980698796747
       },
       {
         "visitIndexSinceIncident": 1,
         "n": 150,
-        "meanPredictedCycleSeconds": 76.91929549911353,
-        "meanTrueCycleSeconds": 77.5168663205579,
-        "maeSeconds": 1.6127215812162887
+        "meanPredictedCycleSeconds": 77.1421961611915,
+        "meanTrueCycleSeconds": 77.53393567231794,
+        "maeSeconds": 1.1283319450363702
       },
       {
         "visitIndexSinceIncident": 2,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.18808073720555,
-        "meanTrueCycleSeconds": 77.45280178645005,
-        "maeSeconds": 1.3122893501470552
+        "meanPredictedCycleSeconds": 76.98003823080015,
+        "meanTrueCycleSeconds": 77.61347533694158,
+        "maeSeconds": 1.2387628852055559
       },
       {
         "visitIndexSinceIncident": 3,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.51066797707502,
-        "meanTrueCycleSeconds": 77.60786505150298,
-        "maeSeconds": 1.3309197493620923
+        "meanPredictedCycleSeconds": 77.0162897530201,
+        "meanTrueCycleSeconds": 77.48967517357319,
+        "maeSeconds": 1.2339731326941634
       },
       {
         "visitIndexSinceIncident": 4,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.63295909626972,
-        "meanTrueCycleSeconds": 77.53572418787827,
-        "maeSeconds": 1.3244162689640384
+        "meanPredictedCycleSeconds": 77.01003997833946,
+        "meanTrueCycleSeconds": 77.64236242772391,
+        "maeSeconds": 1.3338050204742722
       },
       {
         "visitIndexSinceIncident": 5,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.49093241933835,
-        "meanTrueCycleSeconds": 77.57374958752344,
-        "maeSeconds": 1.3099160159009988
+        "meanPredictedCycleSeconds": 77.17239152659107,
+        "meanTrueCycleSeconds": 77.60273168198765,
+        "maeSeconds": 1.2093249180282233
       },
       {
         "visitIndexSinceIncident": 6,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.38815840337524,
-        "meanTrueCycleSeconds": 77.65276279442013,
-        "maeSeconds": 1.248192948131014
+        "meanPredictedCycleSeconds": 77.31826361750153,
+        "meanTrueCycleSeconds": 77.82482019091645,
+        "maeSeconds": 1.287686872287601
       },
       {
         "visitIndexSinceIncident": 7,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.38691508453009,
-        "meanTrueCycleSeconds": 77.57492839201043,
-        "maeSeconds": 1.3685230894089129
+        "meanPredictedCycleSeconds": 77.50524876903388,
+        "meanTrueCycleSeconds": 77.73425341118127,
+        "maeSeconds": 1.1906553203706423
       },
       {
         "visitIndexSinceIncident": 8,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.48259520276403,
-        "meanTrueCycleSeconds": 77.58340010532488,
-        "maeSeconds": 1.3624433957395077
+        "meanPredictedCycleSeconds": 77.34188688328268,
+        "meanTrueCycleSeconds": 77.98305617332458,
+        "maeSeconds": 1.1732875662322828
       },
       {
         "visitIndexSinceIncident": 9,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.645989239053,
-        "meanTrueCycleSeconds": 77.75096387289464,
-        "maeSeconds": 1.2039632843701709
+        "meanPredictedCycleSeconds": 77.35423944542795,
+        "meanTrueCycleSeconds": 77.57730656505873,
+        "maeSeconds": 1.2824400493109585
       },
       {
         "visitIndexSinceIncident": 10,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.59188805207799,
-        "meanTrueCycleSeconds": 77.60605357310425,
-        "maeSeconds": 1.351600841205021
+        "meanPredictedCycleSeconds": 77.10660420419269,
+        "meanTrueCycleSeconds": 77.74777186545234,
+        "maeSeconds": 1.270776996536302
       },
       {
         "visitIndexSinceIncident": 11,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.44564994818275,
-        "meanTrueCycleSeconds": 77.65393836637338,
-        "maeSeconds": 1.1794842956338105
+        "meanPredictedCycleSeconds": 77.21559290508706,
+        "meanTrueCycleSeconds": 77.58477374951045,
+        "maeSeconds": 1.2546348839285815
       },
       {
         "visitIndexSinceIncident": 12,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.32703854347602,
-        "meanTrueCycleSeconds": 77.47524502585331,
-        "maeSeconds": 1.3933095152393309
+        "meanPredictedCycleSeconds": 77.28235059156125,
+        "meanTrueCycleSeconds": 77.7243519356226,
+        "maeSeconds": 1.09826046295001
       },
       {
         "visitIndexSinceIncident": 13,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.57851571797183,
-        "meanTrueCycleSeconds": 77.53578181138883,
-        "maeSeconds": 1.3412174706647946
+        "meanPredictedCycleSeconds": 77.29137553058592,
+        "meanTrueCycleSeconds": 77.70668452255428,
+        "maeSeconds": 1.3485199790811058
       },
       {
         "visitIndexSinceIncident": 14,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.86224595739174,
-        "meanTrueCycleSeconds": 77.84979257681718,
-        "maeSeconds": 1.2201623412645992
+        "meanPredictedCycleSeconds": 77.28894875219574,
+        "meanTrueCycleSeconds": 77.58754536175479,
+        "maeSeconds": 1.2725717516016168
       },
       {
         "visitIndexSinceIncident": 15,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.44394103091439,
-        "meanTrueCycleSeconds": 77.65919885205726,
-        "maeSeconds": 1.1493576249528863
+        "meanPredictedCycleSeconds": 77.38169315118914,
+        "meanTrueCycleSeconds": 77.51226070335755,
+        "maeSeconds": 1.2172970350399597
       },
       {
         "visitIndexSinceIncident": 16,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.38121599156362,
-        "meanTrueCycleSeconds": 77.66681854156157,
-        "maeSeconds": 1.266120496465357
+        "meanPredictedCycleSeconds": 77.08218599233682,
+        "meanTrueCycleSeconds": 77.61277009980132,
+        "maeSeconds": 1.2987557209525669
       },
       {
         "visitIndexSinceIncident": 17,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.54439577474884,
-        "meanTrueCycleSeconds": 77.59593551720182,
-        "maeSeconds": 1.3404806908715576
+        "meanPredictedCycleSeconds": 77.11466171426883,
+        "meanTrueCycleSeconds": 77.61614770816018,
+        "maeSeconds": 1.2317741818794608
       },
       {
         "visitIndexSinceIncident": 18,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.44851496811573,
-        "meanTrueCycleSeconds": 77.60779633191724,
-        "maeSeconds": 1.3560483583231704
+        "meanPredictedCycleSeconds": 77.22972361848448,
+        "meanTrueCycleSeconds": 77.40272654857486,
+        "maeSeconds": 1.0880287366283066
       },
       {
         "visitIndexSinceIncident": 19,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.57899567743623,
-        "meanTrueCycleSeconds": 77.80177520436546,
-        "maeSeconds": 1.301288624095608
+        "meanPredictedCycleSeconds": 77.2402816617,
+        "meanTrueCycleSeconds": 77.6190180324763,
+        "maeSeconds": 1.1584463606458686
       },
       {
         "visitIndexSinceIncident": 20,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.31532217302214,
-        "meanTrueCycleSeconds": 77.71899314373732,
-        "maeSeconds": 1.2223693522688943
+        "meanPredictedCycleSeconds": 77.13573594321805,
+        "meanTrueCycleSeconds": 77.6128710881869,
+        "maeSeconds": 1.3319371190257474
       },
       {
         "visitIndexSinceIncident": 21,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.39219538922457,
-        "meanTrueCycleSeconds": 77.52128680908432,
-        "maeSeconds": 1.3831493191339863
+        "meanPredictedCycleSeconds": 77.04437032337572,
+        "meanTrueCycleSeconds": 77.6430971846978,
+        "maeSeconds": 1.406862404860766
       },
       {
         "visitIndexSinceIncident": 22,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.34088634537441,
-        "meanTrueCycleSeconds": 77.64014806774755,
-        "maeSeconds": 1.2469406197954536
+        "meanPredictedCycleSeconds": 77.01411745266289,
+        "meanTrueCycleSeconds": 77.48712667206924,
+        "maeSeconds": 1.2708735114738716
       },
       {
         "visitIndexSinceIncident": 23,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.44512051032397,
-        "meanTrueCycleSeconds": 77.73173917176823,
-        "maeSeconds": 1.138312949830431
+        "meanPredictedCycleSeconds": 77.27740740613035,
+        "meanTrueCycleSeconds": 77.60797805168977,
+        "maeSeconds": 1.3032648846729102
       },
       {
         "visitIndexSinceIncident": 24,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.67511484197023,
-        "meanTrueCycleSeconds": 77.74997878177713,
-        "maeSeconds": 1.1483664011034416
+        "meanPredictedCycleSeconds": 77.1006991101548,
+        "meanTrueCycleSeconds": 77.47846643730998,
+        "maeSeconds": 1.2818532007190961
       },
       {
         "visitIndexSinceIncident": 25,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.6670413327109,
-        "meanTrueCycleSeconds": 77.87780096085122,
-        "maeSeconds": 1.245642747236695
+        "meanPredictedCycleSeconds": 77.34637388663515,
+        "meanTrueCycleSeconds": 77.49450063041101,
+        "maeSeconds": 1.340211922986403
       },
       {
         "visitIndexSinceIncident": 26,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.60359749755939,
-        "meanTrueCycleSeconds": 77.60855984117836,
-        "maeSeconds": 1.3581780727694226
+        "meanPredictedCycleSeconds": 77.21257191886099,
+        "meanTrueCycleSeconds": 77.64514562974374,
+        "maeSeconds": 1.2346904560282934
       },
       {
         "visitIndexSinceIncident": 27,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.23281461479371,
-        "meanTrueCycleSeconds": 77.63777757403751,
-        "maeSeconds": 1.3034164109483053
+        "meanPredictedCycleSeconds": 77.37171980418708,
+        "meanTrueCycleSeconds": 77.75183037894467,
+        "maeSeconds": 1.184537457620396
       },
       {
         "visitIndexSinceIncident": 28,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.47807730633373,
-        "meanTrueCycleSeconds": 77.5799050773556,
-        "maeSeconds": 1.2918403034807384
+        "meanPredictedCycleSeconds": 77.17420206523877,
+        "meanTrueCycleSeconds": 77.72347603005667,
+        "maeSeconds": 1.3629303915187316
       },
       {
         "visitIndexSinceIncident": 29,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.55184733428274,
-        "meanTrueCycleSeconds": 77.62590560195346,
-        "maeSeconds": 1.2200816429322088
+        "meanPredictedCycleSeconds": 77.17252813185307,
+        "meanTrueCycleSeconds": 77.64921767787386,
+        "maeSeconds": 1.2471698570922185
       },
       {
         "visitIndexSinceIncident": 30,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.82269222196318,
-        "meanTrueCycleSeconds": 77.72238214233269,
-        "maeSeconds": 1.3783499158267076
+        "meanPredictedCycleSeconds": 77.34018540015228,
+        "meanTrueCycleSeconds": 77.72428733440736,
+        "maeSeconds": 1.1776795412032102
       },
       {
         "visitIndexSinceIncident": 31,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.47506231521406,
-        "meanTrueCycleSeconds": 77.65835277616978,
-        "maeSeconds": 1.4318294078684508
+        "meanPredictedCycleSeconds": 77.14605690803013,
+        "meanTrueCycleSeconds": 77.61105427416662,
+        "maeSeconds": 1.286805048404123
       },
       {
         "visitIndexSinceIncident": 32,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.61361783490383,
-        "meanTrueCycleSeconds": 77.69036051549017,
-        "maeSeconds": 1.2642422946357557
+        "meanPredictedCycleSeconds": 77.26401457557698,
+        "meanTrueCycleSeconds": 77.64190024690082,
+        "maeSeconds": 1.3230802139524969
       },
       {
         "visitIndexSinceIncident": 33,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.6127660061352,
-        "meanTrueCycleSeconds": 77.80046527157228,
-        "maeSeconds": 1.2721209693416566
+        "meanPredictedCycleSeconds": 77.16775655341964,
+        "meanTrueCycleSeconds": 77.36915283155938,
+        "maeSeconds": 1.0470371568984558
       },
       {
         "visitIndexSinceIncident": 34,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.45378421836766,
-        "meanTrueCycleSeconds": 77.5893486060823,
-        "maeSeconds": 1.3202638526731596
+        "meanPredictedCycleSeconds": 77.18630051003352,
+        "meanTrueCycleSeconds": 77.69045940678566,
+        "maeSeconds": 1.357554408006478
       },
       {
         "visitIndexSinceIncident": 35,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.57540468147694,
-        "meanTrueCycleSeconds": 77.74731775476288,
-        "maeSeconds": 1.0809372609639702
+        "meanPredictedCycleSeconds": 77.19830014955008,
+        "meanTrueCycleSeconds": 77.57750836936135,
+        "maeSeconds": 1.2239796687048063
       },
       {
         "visitIndexSinceIncident": 36,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.85396100536381,
-        "meanTrueCycleSeconds": 77.88470883176973,
-        "maeSeconds": 1.1975215865326028
+        "meanPredictedCycleSeconds": 77.40537968821212,
+        "meanTrueCycleSeconds": 77.64772850529602,
+        "maeSeconds": 1.216262379162041
       },
       {
         "visitIndexSinceIncident": 37,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.41744481728892,
-        "meanTrueCycleSeconds": 77.66891492744287,
-        "maeSeconds": 1.4521387132728873
+        "meanPredictedCycleSeconds": 77.0814406198922,
+        "meanTrueCycleSeconds": 77.54231859385968,
+        "maeSeconds": 1.087966633323147
       },
       {
         "visitIndexSinceIncident": 38,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.65876873923708,
-        "meanTrueCycleSeconds": 77.70233330124368,
-        "maeSeconds": 1.2596791097922782
+        "meanPredictedCycleSeconds": 77.19972497417525,
+        "meanTrueCycleSeconds": 77.68569693300873,
+        "maeSeconds": 1.3236678330072473
       },
       {
         "visitIndexSinceIncident": 39,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.35864394266707,
-        "meanTrueCycleSeconds": 77.63045816607773,
-        "maeSeconds": 1.2391593143880015
+        "meanPredictedCycleSeconds": 76.97387987567461,
+        "meanTrueCycleSeconds": 77.3817005363231,
+        "maeSeconds": 1.3941004864909556
       },
       {
         "visitIndexSinceIncident": 40,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.27023258703325,
-        "meanTrueCycleSeconds": 77.43814160918195,
-        "maeSeconds": 1.3126870108818756
+        "meanPredictedCycleSeconds": 77.28750007126457,
+        "meanTrueCycleSeconds": 77.62435444752376,
+        "maeSeconds": 1.288289144618598
       },
       {
         "visitIndexSinceIncident": 41,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.39484855696682,
-        "meanTrueCycleSeconds": 77.41754251645257,
-        "maeSeconds": 1.2503737599092757
+        "meanPredictedCycleSeconds": 77.15732688245133,
+        "meanTrueCycleSeconds": 77.47698143639913,
+        "maeSeconds": 1.175852069233753
       },
       {
         "visitIndexSinceIncident": 42,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.2236082003429,
-        "meanTrueCycleSeconds": 77.50302027668803,
-        "maeSeconds": 1.382311709232444
+        "meanPredictedCycleSeconds": 77.35054029330286,
+        "meanTrueCycleSeconds": 77.4996963806823,
+        "maeSeconds": 1.2451460430588754
       },
       {
         "visitIndexSinceIncident": 43,
         "n": 150,
-        "meanPredictedCycleSeconds": 77.63609517837887,
-        "meanTrueCycleSeconds": 77.66646372607599,
-        "maeSeconds": 1.197016037294351
+        "meanPredictedCycleSeconds": 77.19081008097564,
+        "meanTrueCycleSeconds": 77.54035012452553,
+        "maeSeconds": 1.2756790522999764
       },
       {
         "visitIndexSinceIncident": 44,
         "n": 149,
-        "meanPredictedCycleSeconds": 77.56159045520228,
-        "meanTrueCycleSeconds": 77.88154724054039,
-        "maeSeconds": 1.1049538731853383
+        "meanPredictedCycleSeconds": 77.09903159891597,
+        "meanTrueCycleSeconds": 77.6912170380554,
+        "maeSeconds": 1.2067200139573344
       },
       {
         "visitIndexSinceIncident": 45,
         "n": 149,
-        "meanPredictedCycleSeconds": 77.41348806242243,
-        "meanTrueCycleSeconds": 77.50843745243779,
-        "maeSeconds": 1.3084920056155274
+        "meanPredictedCycleSeconds": 77.61096505486636,
+        "meanTrueCycleSeconds": 77.59133435154472,
+        "maeSeconds": 1.4076231945671198
       },
       {
         "visitIndexSinceIncident": 46,
         "n": 149,
-        "meanPredictedCycleSeconds": 77.56123938840742,
-        "meanTrueCycleSeconds": 77.61820858724465,
-        "maeSeconds": 1.2389213061230258
+        "meanPredictedCycleSeconds": 77.19582999872787,
+        "meanTrueCycleSeconds": 77.63070788228222,
+        "maeSeconds": 1.2153467489265015
       },
       {
         "visitIndexSinceIncident": 47,
         "n": 148,
-        "meanPredictedCycleSeconds": 77.56436914850504,
-        "meanTrueCycleSeconds": 77.69737766194787,
-        "maeSeconds": 1.210248398975995
+        "meanPredictedCycleSeconds": 77.18624534303413,
+        "meanTrueCycleSeconds": 77.61461457792619,
+        "maeSeconds": 1.090214729795898
       },
       {
         "visitIndexSinceIncident": 48,
         "n": 148,
-        "meanPredictedCycleSeconds": 77.40144379841563,
-        "meanTrueCycleSeconds": 77.56679575661248,
-        "maeSeconds": 1.4196578208265804
+        "meanPredictedCycleSeconds": 77.14492313059176,
+        "meanTrueCycleSeconds": 77.58108358148083,
+        "maeSeconds": 1.230347413476376
       },
       {
         "visitIndexSinceIncident": 49,
         "n": 148,
-        "meanPredictedCycleSeconds": 77.55593477931916,
-        "meanTrueCycleSeconds": 77.63073469850713,
-        "maeSeconds": 1.3398043014196523
+        "meanPredictedCycleSeconds": 77.25109331899361,
+        "meanTrueCycleSeconds": 77.54430390982512,
+        "maeSeconds": 1.2589015812121036
       },
       {
         "visitIndexSinceIncident": 50,
         "n": 148,
-        "meanPredictedCycleSeconds": 77.59797755457085,
-        "meanTrueCycleSeconds": 77.59218851129549,
-        "maeSeconds": 1.2818957487873996
+        "meanPredictedCycleSeconds": 77.10431238801128,
+        "meanTrueCycleSeconds": 77.66327502071303,
+        "maeSeconds": 1.1476168651630632
       },
       {
         "visitIndexSinceIncident": 51,
         "n": 148,
-        "meanPredictedCycleSeconds": 77.65744358197448,
-        "meanTrueCycleSeconds": 77.78207077255875,
-        "maeSeconds": 1.1655023040932326
+        "meanPredictedCycleSeconds": 77.19828668808026,
+        "meanTrueCycleSeconds": 77.71791763675424,
+        "maeSeconds": 1.3078438391650966
       },
       {
         "visitIndexSinceIncident": 52,
         "n": 148,
-        "meanPredictedCycleSeconds": 77.4784189152804,
-        "meanTrueCycleSeconds": 77.69511635096845,
-        "maeSeconds": 1.2254016517278523
+        "meanPredictedCycleSeconds": 77.21049589454574,
+        "meanTrueCycleSeconds": 77.59715689074349,
+        "maeSeconds": 1.168424718068239
       },
       {
         "visitIndexSinceIncident": 53,
         "n": 148,
-        "meanPredictedCycleSeconds": 77.48631799581818,
-        "meanTrueCycleSeconds": 77.62268778301674,
-        "maeSeconds": 1.2926644368903302
+        "meanPredictedCycleSeconds": 77.25320653144806,
+        "meanTrueCycleSeconds": 77.57834982830477,
+        "maeSeconds": 1.237469831381939
       },
       {
         "visitIndexSinceIncident": 54,
         "n": 148,
-        "meanPredictedCycleSeconds": 77.63213404713902,
-        "meanTrueCycleSeconds": 77.65227647286815,
-        "maeSeconds": 1.3942867100156076
+        "meanPredictedCycleSeconds": 77.27931418985769,
+        "meanTrueCycleSeconds": 77.6137371977313,
+        "maeSeconds": 1.252284960248211
       },
       {
         "visitIndexSinceIncident": 55,
         "n": 148,
-        "meanPredictedCycleSeconds": 77.38647006524138,
-        "meanTrueCycleSeconds": 77.56251581913061,
-        "maeSeconds": 1.3013833248370672
+        "meanPredictedCycleSeconds": 77.3039194404008,
+        "meanTrueCycleSeconds": 77.59076142156296,
+        "maeSeconds": 1.4040784118261778
       },
       {
         "visitIndexSinceIncident": 56,
         "n": 148,
-        "meanPredictedCycleSeconds": 77.35531496775324,
-        "meanTrueCycleSeconds": 77.54391315573122,
-        "maeSeconds": 1.4145747908593205
+        "meanPredictedCycleSeconds": 77.26722652191708,
+        "meanTrueCycleSeconds": 77.51477468046485,
+        "maeSeconds": 1.344200846678853
       },
       {
         "visitIndexSinceIncident": 57,
-        "n": 148,
-        "meanPredictedCycleSeconds": 77.40052539031696,
-        "meanTrueCycleSeconds": 77.62344020498111,
-        "maeSeconds": 1.3943307899630701
+        "n": 147,
+        "meanPredictedCycleSeconds": 77.26376228920635,
+        "meanTrueCycleSeconds": 77.53910160661503,
+        "maeSeconds": 1.3056325226787526
       },
       {
         "visitIndexSinceIncident": 58,
-        "n": 147,
-        "meanPredictedCycleSeconds": 77.3971104240761,
-        "meanTrueCycleSeconds": 77.55887769836755,
-        "maeSeconds": 1.2919062610126757
+        "n": 146,
+        "meanPredictedCycleSeconds": 77.29312552574089,
+        "meanTrueCycleSeconds": 77.59983877078567,
+        "maeSeconds": 1.2992825881710874
       },
       {
         "visitIndexSinceIncident": 59,
         "n": 146,
-        "meanPredictedCycleSeconds": 77.3986393429097,
-        "meanTrueCycleSeconds": 77.55714539091473,
-        "maeSeconds": 1.2928476176667156
+        "meanPredictedCycleSeconds": 76.95483553936515,
+        "meanTrueCycleSeconds": 77.48074481816171,
+        "maeSeconds": 1.393710935740323
       },
       {
         "visitIndexSinceIncident": 60,
         "n": 146,
-        "meanPredictedCycleSeconds": 77.21079806781682,
-        "meanTrueCycleSeconds": 77.51041334571495,
-        "maeSeconds": 1.3773160384815815
+        "meanPredictedCycleSeconds": 77.36536779586065,
+        "meanTrueCycleSeconds": 77.47312748567393,
+        "maeSeconds": 1.2327202466782374
       },
       {
         "visitIndexSinceIncident": 61,
-        "n": 146,
-        "meanPredictedCycleSeconds": 77.73292109301157,
-        "meanTrueCycleSeconds": 77.66221284158273,
-        "maeSeconds": 1.3270790599505873
+        "n": 145,
+        "meanPredictedCycleSeconds": 77.56912666405505,
+        "meanTrueCycleSeconds": 77.83491517405571,
+        "maeSeconds": 1.2637822119129063
       },
       {
         "visitIndexSinceIncident": 62,
-        "n": 146,
-        "meanPredictedCycleSeconds": 77.18586137478091,
-        "meanTrueCycleSeconds": 77.48368258053462,
-        "maeSeconds": 1.2517060071680253
+        "n": 143,
+        "meanPredictedCycleSeconds": 77.39537819872221,
+        "meanTrueCycleSeconds": 77.64109819283435,
+        "maeSeconds": 1.3250949577648063
       },
       {
         "visitIndexSinceIncident": 63,
-        "n": 144,
-        "meanPredictedCycleSeconds": 77.14213091461713,
-        "meanTrueCycleSeconds": 77.46458331050559,
-        "maeSeconds": 1.325318877142954
+        "n": 142,
+        "meanPredictedCycleSeconds": 77.18030426028464,
+        "meanTrueCycleSeconds": 77.59939483861426,
+        "maeSeconds": 1.2579229268148375
       },
       {
         "visitIndexSinceIncident": 64,
         "n": 142,
-        "meanPredictedCycleSeconds": 77.3981734402914,
-        "meanTrueCycleSeconds": 77.55940162461303,
-        "maeSeconds": 1.3602588228833834
+        "meanPredictedCycleSeconds": 77.06988974095998,
+        "meanTrueCycleSeconds": 77.47531412577283,
+        "maeSeconds": 1.1736315901455643
       },
       {
         "visitIndexSinceIncident": 65,
-        "n": 142,
-        "meanPredictedCycleSeconds": 77.68377565325024,
-        "meanTrueCycleSeconds": 77.7476869124237,
-        "maeSeconds": 1.176664231606465
+        "n": 141,
+        "meanPredictedCycleSeconds": 77.11168516970785,
+        "meanTrueCycleSeconds": 77.51868654878692,
+        "maeSeconds": 1.3502360959184803
       },
       {
         "visitIndexSinceIncident": 66,
-        "n": 142,
-        "meanPredictedCycleSeconds": 77.5137088093077,
-        "meanTrueCycleSeconds": 77.62315126349756,
-        "maeSeconds": 1.3830556949303263
+        "n": 141,
+        "meanPredictedCycleSeconds": 77.42831553419772,
+        "meanTrueCycleSeconds": 77.73056060473388,
+        "maeSeconds": 1.1159238975557835
       },
       {
         "visitIndexSinceIncident": 67,
         "n": 141,
-        "meanPredictedCycleSeconds": 77.50583379200835,
-        "meanTrueCycleSeconds": 77.58539527008666,
-        "maeSeconds": 1.3236000788034161
+        "meanPredictedCycleSeconds": 77.35481182279179,
+        "meanTrueCycleSeconds": 77.58133539320994,
+        "maeSeconds": 1.2920332576923221
       },
       {
         "visitIndexSinceIncident": 68,
-        "n": 141,
-        "meanPredictedCycleSeconds": 77.5034563923018,
-        "meanTrueCycleSeconds": 77.51712793579443,
-        "maeSeconds": 1.296547619679546
+        "n": 140,
+        "meanPredictedCycleSeconds": 77.21433443030881,
+        "meanTrueCycleSeconds": 77.64550458520118,
+        "maeSeconds": 1.2304864675579228
       },
       {
         "visitIndexSinceIncident": 69,
         "n": 140,
-        "meanPredictedCycleSeconds": 77.22576151538534,
-        "meanTrueCycleSeconds": 77.6317703188663,
-        "maeSeconds": 1.3377519472751624
+        "meanPredictedCycleSeconds": 77.41753330533,
+        "meanTrueCycleSeconds": 77.59964736106673,
+        "maeSeconds": 1.076694043295749
       },
       {
         "visitIndexSinceIncident": 70,
         "n": 140,
-        "meanPredictedCycleSeconds": 77.65690999462394,
-        "meanTrueCycleSeconds": 77.61873479063756,
-        "maeSeconds": 1.373172515792089
+        "meanPredictedCycleSeconds": 76.97581738035792,
+        "meanTrueCycleSeconds": 77.5950866286909,
+        "maeSeconds": 1.2952629232406154
       },
       {
         "visitIndexSinceIncident": 71,
         "n": 140,
-        "meanPredictedCycleSeconds": 77.55202479557829,
-        "meanTrueCycleSeconds": 77.49159181422687,
-        "maeSeconds": 1.3740115263946122
+        "meanPredictedCycleSeconds": 77.1717588249546,
+        "meanTrueCycleSeconds": 77.67147648987759,
+        "maeSeconds": 1.244935732144976
       },
       {
         "visitIndexSinceIncident": 72,
         "n": 140,
-        "meanPredictedCycleSeconds": 77.6908963392453,
-        "meanTrueCycleSeconds": 77.67502565604768,
-        "maeSeconds": 1.2617115081423544
+        "meanPredictedCycleSeconds": 77.20498259815076,
+        "meanTrueCycleSeconds": 77.51271764484368,
+        "maeSeconds": 1.2602094150422858
       },
       {
         "visitIndexSinceIncident": 73,
-        "n": 140,
-        "meanPredictedCycleSeconds": 77.37283875029766,
-        "meanTrueCycleSeconds": 77.6562563875291,
-        "maeSeconds": 1.2829172793885764
+        "n": 139,
+        "meanPredictedCycleSeconds": 77.15740552307801,
+        "meanTrueCycleSeconds": 77.53473414760752,
+        "maeSeconds": 1.1903050580980294
       },
       {
         "visitIndexSinceIncident": 74,
-        "n": 140,
-        "meanPredictedCycleSeconds": 77.37893647647088,
-        "meanTrueCycleSeconds": 77.62550620583019,
-        "maeSeconds": 1.3275562194931998
+        "n": 137,
+        "meanPredictedCycleSeconds": 77.78659564422517,
+        "meanTrueCycleSeconds": 77.84833280419944,
+        "maeSeconds": 1.1748343726920836
       },
       {
         "visitIndexSinceIncident": 75,
-        "n": 139,
-        "meanPredictedCycleSeconds": 77.54384169204488,
-        "meanTrueCycleSeconds": 77.65951293877077,
-        "maeSeconds": 1.3714592267719283
+        "n": 135,
+        "meanPredictedCycleSeconds": 77.026387495021,
+        "meanTrueCycleSeconds": 77.34367604584054,
+        "maeSeconds": 1.1872239332777945
       },
       {
         "visitIndexSinceIncident": 76,
-        "n": 137,
-        "meanPredictedCycleSeconds": 77.5861398206202,
-        "meanTrueCycleSeconds": 77.66015613266696,
-        "maeSeconds": 1.35472829762613
+        "n": 135,
+        "meanPredictedCycleSeconds": 77.20014023115725,
+        "meanTrueCycleSeconds": 77.42748678185873,
+        "maeSeconds": 1.1799417996502588
       },
       {
         "visitIndexSinceIncident": 77,
         "n": 135,
-        "meanPredictedCycleSeconds": 77.4408560853346,
-        "meanTrueCycleSeconds": 77.53067889779254,
-        "maeSeconds": 1.1939823802572838
+        "meanPredictedCycleSeconds": 77.2852532148415,
+        "meanTrueCycleSeconds": 77.63716344620894,
+        "maeSeconds": 1.2569520782935086
       },
       {
         "visitIndexSinceIncident": 78,
         "n": 135,
-        "meanPredictedCycleSeconds": 77.3965313613436,
-        "meanTrueCycleSeconds": 77.65612498451438,
-        "maeSeconds": 1.2742329070661573
+        "meanPredictedCycleSeconds": 77.29863690714424,
+        "meanTrueCycleSeconds": 77.71226325994013,
+        "maeSeconds": 1.3085502495273424
       },
       {
         "visitIndexSinceIncident": 79,
         "n": 135,
-        "meanPredictedCycleSeconds": 77.13766313415846,
-        "meanTrueCycleSeconds": 77.55799217589751,
-        "maeSeconds": 1.367590181192441
+        "meanPredictedCycleSeconds": 77.10523069189617,
+        "meanTrueCycleSeconds": 77.54339974504654,
+        "maeSeconds": 1.3976740456512506
       },
       {
         "visitIndexSinceIncident": 80,
         "n": 135,
-        "meanPredictedCycleSeconds": 77.61072238782772,
-        "meanTrueCycleSeconds": 77.6171407904338,
-        "maeSeconds": 1.2354176206496337
+        "meanPredictedCycleSeconds": 77.18987169446433,
+        "meanTrueCycleSeconds": 77.5265272759177,
+        "maeSeconds": 1.2501730930550232
       },
       {
         "visitIndexSinceIncident": 81,
-        "n": 135,
-        "meanPredictedCycleSeconds": 77.48712166067507,
-        "meanTrueCycleSeconds": 77.53005532999006,
-        "maeSeconds": 1.3068946791718627
+        "n": 133,
+        "meanPredictedCycleSeconds": 77.24179795094746,
+        "meanTrueCycleSeconds": 77.68760949632335,
+        "maeSeconds": 1.251358024310811
       },
       {
         "visitIndexSinceIncident": 82,
-        "n": 135,
-        "meanPredictedCycleSeconds": 77.29573601536524,
-        "meanTrueCycleSeconds": 77.51916206236238,
-        "maeSeconds": 1.2036161617460055
+        "n": 132,
+        "meanPredictedCycleSeconds": 77.2236754802409,
+        "meanTrueCycleSeconds": 77.6526530661592,
+        "maeSeconds": 1.2003254995081338
       },
       {
         "visitIndexSinceIncident": 83,
-        "n": 135,
-        "meanPredictedCycleSeconds": 77.29689862348583,
-        "meanTrueCycleSeconds": 77.45623474717141,
-        "maeSeconds": 1.3296002116839312
+        "n": 132,
+        "meanPredictedCycleSeconds": 77.35483826711797,
+        "meanTrueCycleSeconds": 77.63398182863426,
+        "maeSeconds": 1.35921779654372
       },
       {
         "visitIndexSinceIncident": 84,
         "n": 132,
-        "meanPredictedCycleSeconds": 77.41166018761179,
-        "meanTrueCycleSeconds": 77.45017338857393,
-        "maeSeconds": 1.217634750039751
+        "meanPredictedCycleSeconds": 77.08265636540818,
+        "meanTrueCycleSeconds": 77.59615493389411,
+        "maeSeconds": 1.2484867006733864
       },
       {
         "visitIndexSinceIncident": 85,
         "n": 132,
-        "meanPredictedCycleSeconds": 77.59489664502907,
-        "meanTrueCycleSeconds": 77.52142201407784,
-        "maeSeconds": 1.4582199736236066
+        "meanPredictedCycleSeconds": 77.14077655712053,
+        "meanTrueCycleSeconds": 77.62026022463529,
+        "maeSeconds": 1.3128000864816691
       },
       {
         "visitIndexSinceIncident": 86,
         "n": 132,
-        "meanPredictedCycleSeconds": 77.70191158237078,
-        "meanTrueCycleSeconds": 77.79473234998119,
-        "maeSeconds": 1.1682309048534445
+        "meanPredictedCycleSeconds": 76.93984166796203,
+        "meanTrueCycleSeconds": 77.47088763975736,
+        "maeSeconds": 1.135969857007922
       },
       {
         "visitIndexSinceIncident": 87,
-        "n": 132,
-        "meanPredictedCycleSeconds": 77.80848327367505,
-        "meanTrueCycleSeconds": 77.61663840550251,
-        "maeSeconds": 1.3466505485267892
+        "n": 130,
+        "meanPredictedCycleSeconds": 76.96946324803416,
+        "meanTrueCycleSeconds": 77.67997190374881,
+        "maeSeconds": 1.320192063481929
       },
       {
         "visitIndexSinceIncident": 88,
-        "n": 132,
-        "meanPredictedCycleSeconds": 77.31833264059901,
-        "meanTrueCycleSeconds": 77.60642642070624,
-        "maeSeconds": 1.4060426540915647
+        "n": 130,
+        "meanPredictedCycleSeconds": 77.51811383675607,
+        "meanTrueCycleSeconds": 77.72855243424956,
+        "maeSeconds": 1.1949665598986647
       },
       {
         "visitIndexSinceIncident": 89,
-        "n": 132,
-        "meanPredictedCycleSeconds": 77.51021427826541,
-        "meanTrueCycleSeconds": 77.62601750465392,
-        "maeSeconds": 1.195751397463471
+        "n": 129,
+        "meanPredictedCycleSeconds": 77.2313549242821,
+        "meanTrueCycleSeconds": 77.65712623979694,
+        "maeSeconds": 1.2828425860924768
       },
       {
         "visitIndexSinceIncident": 90,
-        "n": 130,
-        "meanPredictedCycleSeconds": 77.42805051039869,
-        "meanTrueCycleSeconds": 77.56918996199965,
-        "maeSeconds": 1.3509598477972549
+        "n": 128,
+        "meanPredictedCycleSeconds": 77.30854440234091,
+        "meanTrueCycleSeconds": 77.70151795141282,
+        "maeSeconds": 1.2670901863370765
       },
       {
         "visitIndexSinceIncident": 91,
-        "n": 130,
-        "meanPredictedCycleSeconds": 77.46642890773508,
-        "meanTrueCycleSeconds": 77.69581450083508,
-        "maeSeconds": 1.0548537980763149
+        "n": 128,
+        "meanPredictedCycleSeconds": 77.24230462972156,
+        "meanTrueCycleSeconds": 77.56130888096232,
+        "maeSeconds": 1.1173378224178299
       },
       {
         "visitIndexSinceIncident": 92,
-        "n": 129,
-        "meanPredictedCycleSeconds": 77.36770738993447,
-        "meanTrueCycleSeconds": 77.49171680201914,
-        "maeSeconds": 1.4024383179011588
+        "n": 128,
+        "meanPredictedCycleSeconds": 77.32596640910583,
+        "meanTrueCycleSeconds": 77.64959544361045,
+        "maeSeconds": 1.339191534791079
       },
       {
         "visitIndexSinceIncident": 93,
         "n": 128,
-        "meanPredictedCycleSeconds": 77.30822641079003,
-        "meanTrueCycleSeconds": 77.45443710533436,
-        "maeSeconds": 1.3425310577687632
+        "meanPredictedCycleSeconds": 77.1948510326347,
+        "meanTrueCycleSeconds": 77.40470668316993,
+        "maeSeconds": 1.280501054798651
       },
       {
         "visitIndexSinceIncident": 94,
         "n": 128,
-        "meanPredictedCycleSeconds": 77.53709416655775,
-        "meanTrueCycleSeconds": 77.5358280378714,
-        "maeSeconds": 1.2737655300973976
+        "meanPredictedCycleSeconds": 77.32994405647977,
+        "meanTrueCycleSeconds": 77.6434034016711,
+        "maeSeconds": 1.3382621305668807
       },
       {
         "visitIndexSinceIncident": 95,
         "n": 128,
-        "meanPredictedCycleSeconds": 77.35048946586164,
-        "meanTrueCycleSeconds": 77.49370852623542,
-        "maeSeconds": 1.4223931785464623
+        "meanPredictedCycleSeconds": 77.27240108685771,
+        "meanTrueCycleSeconds": 77.66839080561476,
+        "maeSeconds": 1.0883775384681613
       },
       {
         "visitIndexSinceIncident": 96,
-        "n": 128,
-        "meanPredictedCycleSeconds": 77.3359342298912,
-        "meanTrueCycleSeconds": 77.58554367262695,
-        "maeSeconds": 1.2325430547627954
+        "n": 127,
+        "meanPredictedCycleSeconds": 77.23429046470729,
+        "meanTrueCycleSeconds": 77.55641162694674,
+        "maeSeconds": 1.2412929235398662
       },
       {
         "visitIndexSinceIncident": 97,
-        "n": 128,
-        "meanPredictedCycleSeconds": 77.2765676694674,
-        "meanTrueCycleSeconds": 77.45399230266048,
-        "maeSeconds": 1.3622830138233524
+        "n": 126,
+        "meanPredictedCycleSeconds": 77.15955984893354,
+        "meanTrueCycleSeconds": 77.66281160707807,
+        "maeSeconds": 1.1088664595386768
       },
       {
         "visitIndexSinceIncident": 98,
-        "n": 128,
-        "meanPredictedCycleSeconds": 77.53243701208581,
-        "meanTrueCycleSeconds": 77.62483200832503,
-        "maeSeconds": 1.1893137675466763
+        "n": 126,
+        "meanPredictedCycleSeconds": 77.34631049914859,
+        "meanTrueCycleSeconds": 77.65192302681565,
+        "maeSeconds": 1.1679914060364571
       },
       {
         "visitIndexSinceIncident": 99,
-        "n": 128,
-        "meanPredictedCycleSeconds": 77.34374248081606,
-        "meanTrueCycleSeconds": 77.53652597172186,
-        "maeSeconds": 1.3482581681467494
+        "n": 125,
+        "meanPredictedCycleSeconds": 77.37693040298554,
+        "meanTrueCycleSeconds": 77.69989977811277,
+        "maeSeconds": 1.2005023385895865
       },
       {
         "visitIndexSinceIncident": 100,
-        "n": 127,
-        "meanPredictedCycleSeconds": 77.37981445033891,
-        "meanTrueCycleSeconds": 77.57731669246564,
-        "maeSeconds": 1.3118713845048413
+        "n": 125,
+        "meanPredictedCycleSeconds": 77.3266804844301,
+        "meanTrueCycleSeconds": 77.64143919065594,
+        "maeSeconds": 1.4311084928950637
       },
       {
         "visitIndexSinceIncident": 101,
-        "n": 126,
-        "meanPredictedCycleSeconds": 77.60232739729041,
-        "meanTrueCycleSeconds": 77.66146109259081,
-        "maeSeconds": 1.3241546804960405
+        "n": 125,
+        "meanPredictedCycleSeconds": 77.34278298923239,
+        "meanTrueCycleSeconds": 77.65697859449685,
+        "maeSeconds": 1.1530614275267321
       },
       {
         "visitIndexSinceIncident": 102,
-        "n": 126,
-        "meanPredictedCycleSeconds": 77.24070099851168,
-        "meanTrueCycleSeconds": 77.41705312359605,
-        "maeSeconds": 1.397073285041366
+        "n": 124,
+        "meanPredictedCycleSeconds": 77.14013323466652,
+        "meanTrueCycleSeconds": 77.60468265227973,
+        "maeSeconds": 1.239087696565046
       },
       {
         "visitIndexSinceIncident": 103,
-        "n": 125,
-        "meanPredictedCycleSeconds": 77.59339905344524,
-        "meanTrueCycleSeconds": 77.68361272771656,
-        "maeSeconds": 1.3264678285476217
+        "n": 123,
+        "meanPredictedCycleSeconds": 77.44512833980465,
+        "meanTrueCycleSeconds": 77.91664419351979,
+        "maeSeconds": 1.2671082072768336
       },
       {
         "visitIndexSinceIncident": 104,
-        "n": 125,
-        "meanPredictedCycleSeconds": 77.38352134856275,
-        "meanTrueCycleSeconds": 77.4561253336966,
-        "maeSeconds": 1.3840754553329433
+        "n": 123,
+        "meanPredictedCycleSeconds": 77.06515211394378,
+        "meanTrueCycleSeconds": 77.57005633342618,
+        "maeSeconds": 1.3314431792372339
       },
       {
         "visitIndexSinceIncident": 105,
-        "n": 125,
-        "meanPredictedCycleSeconds": 77.57850263924774,
-        "meanTrueCycleSeconds": 77.47608186228574,
-        "maeSeconds": 1.3589346427934788
+        "n": 123,
+        "meanPredictedCycleSeconds": 77.11018341296743,
+        "meanTrueCycleSeconds": 77.56582571976493,
+        "maeSeconds": 1.3111289590667088
       },
       {
         "visitIndexSinceIncident": 106,
-        "n": 124,
-        "meanPredictedCycleSeconds": 78.02083094648617,
-        "meanTrueCycleSeconds": 77.84878783381635,
-        "maeSeconds": 1.2859190051498204
+        "n": 122,
+        "meanPredictedCycleSeconds": 77.09581100493735,
+        "meanTrueCycleSeconds": 77.58706231140455,
+        "maeSeconds": 1.28308152079851
       },
       {
         "visitIndexSinceIncident": 107,
-        "n": 124,
-        "meanPredictedCycleSeconds": 77.51024847908155,
-        "meanTrueCycleSeconds": 77.51107224928695,
-        "maeSeconds": 1.3206596477078525
+        "n": 122,
+        "meanPredictedCycleSeconds": 77.04564655432607,
+        "meanTrueCycleSeconds": 77.56907055911715,
+        "maeSeconds": 1.2062591764471182
       },
       {
         "visitIndexSinceIncident": 108,
-        "n": 123,
-        "meanPredictedCycleSeconds": 77.55836122857804,
-        "meanTrueCycleSeconds": 77.52605277622436,
-        "maeSeconds": 1.3902957726502612
+        "n": 121,
+        "meanPredictedCycleSeconds": 77.21955597608695,
+        "meanTrueCycleSeconds": 77.64751086456408,
+        "maeSeconds": 1.1850239337043051
       },
       {
         "visitIndexSinceIncident": 109,
-        "n": 123,
-        "meanPredictedCycleSeconds": 77.46488965008798,
-        "meanTrueCycleSeconds": 77.61634992332598,
-        "maeSeconds": 1.2178037720959756
+        "n": 121,
+        "meanPredictedCycleSeconds": 77.16862530940634,
+        "meanTrueCycleSeconds": 77.58145009797097,
+        "maeSeconds": 1.2285643229480983
       },
       {
         "visitIndexSinceIncident": 110,
-        "n": 123,
-        "meanPredictedCycleSeconds": 77.60609165633105,
-        "meanTrueCycleSeconds": 77.72141994853935,
-        "maeSeconds": 1.2454705714048553
+        "n": 120,
+        "meanPredictedCycleSeconds": 77.13824553870538,
+        "meanTrueCycleSeconds": 77.40977029930801,
+        "maeSeconds": 1.4251117296853255
       },
       {
         "visitIndexSinceIncident": 111,
-        "n": 122,
-        "meanPredictedCycleSeconds": 77.59957901815042,
-        "meanTrueCycleSeconds": 77.73209376964473,
-        "maeSeconds": 1.2292075792586394
+        "n": 120,
+        "meanPredictedCycleSeconds": 77.30314920378835,
+        "meanTrueCycleSeconds": 77.68545628824891,
+        "maeSeconds": 1.2350463570199048
       },
       {
         "visitIndexSinceIncident": 112,
-        "n": 122,
-        "meanPredictedCycleSeconds": 77.28411813215354,
-        "meanTrueCycleSeconds": 77.60599874775308,
-        "maeSeconds": 1.3001158681909304
+        "n": 120,
+        "meanPredictedCycleSeconds": 77.27224826504275,
+        "meanTrueCycleSeconds": 77.80152241027294,
+        "maeSeconds": 1.2357545719116103
       },
       {
         "visitIndexSinceIncident": 113,
-        "n": 121,
-        "meanPredictedCycleSeconds": 77.58404865897214,
-        "meanTrueCycleSeconds": 77.86100871967199,
-        "maeSeconds": 1.1986018222980714
+        "n": 120,
+        "meanPredictedCycleSeconds": 77.12525805189702,
+        "meanTrueCycleSeconds": 77.64825290022418,
+        "maeSeconds": 1.2286798251432818
       },
       {
         "visitIndexSinceIncident": 114,
-        "n": 121,
-        "meanPredictedCycleSeconds": 77.36440022521282,
-        "meanTrueCycleSeconds": 77.49580195272141,
-        "maeSeconds": 1.458294414921453
+        "n": 119,
+        "meanPredictedCycleSeconds": 77.13557548475134,
+        "meanTrueCycleSeconds": 77.69134723136844,
+        "maeSeconds": 1.1117006592336571
       },
       {
         "visitIndexSinceIncident": 115,
-        "n": 120,
-        "meanPredictedCycleSeconds": 77.3278386428535,
-        "meanTrueCycleSeconds": 77.60853971835847,
-        "maeSeconds": 1.2823570653747054
+        "n": 119,
+        "meanPredictedCycleSeconds": 77.55700659284966,
+        "meanTrueCycleSeconds": 77.85104208164105,
+        "maeSeconds": 1.2897794453144626
       },
       {
         "visitIndexSinceIncident": 116,
-        "n": 120,
-        "meanPredictedCycleSeconds": 77.38061314393592,
-        "meanTrueCycleSeconds": 77.59103283000489,
-        "maeSeconds": 1.2892935938176557
+        "n": 119,
+        "meanPredictedCycleSeconds": 76.97887698147181,
+        "meanTrueCycleSeconds": 77.61351827940582,
+        "maeSeconds": 1.3021837395775466
       },
       {
         "visitIndexSinceIncident": 117,
-        "n": 120,
-        "meanPredictedCycleSeconds": 77.20022798929037,
-        "meanTrueCycleSeconds": 77.48301773077498,
-        "maeSeconds": 1.441487119636386
+        "n": 118,
+        "meanPredictedCycleSeconds": 77.17804221083186,
+        "meanTrueCycleSeconds": 77.62047916814937,
+        "maeSeconds": 1.2200041812315023
       },
       {
         "visitIndexSinceIncident": 118,
-        "n": 120,
-        "meanPredictedCycleSeconds": 77.63723768289987,
-        "meanTrueCycleSeconds": 77.81673642749277,
-        "maeSeconds": 1.1650798654965862
+        "n": 117,
+        "meanPredictedCycleSeconds": 77.09702809497729,
+        "meanTrueCycleSeconds": 77.56081219253122,
+        "maeSeconds": 1.2564933268425929
       },
       {
         "visitIndexSinceIncident": 119,
-        "n": 119,
-        "meanPredictedCycleSeconds": 77.41644561857046,
-        "meanTrueCycleSeconds": 77.55611230933867,
-        "maeSeconds": 1.3301909424610832
+        "n": 116,
+        "meanPredictedCycleSeconds": 77.33248791206215,
+        "meanTrueCycleSeconds": 77.5104589280833,
+        "maeSeconds": 1.2676931419257853
       },
       {
         "visitIndexSinceIncident": 120,
-        "n": 119,
-        "meanPredictedCycleSeconds": 77.24466721707262,
-        "meanTrueCycleSeconds": 77.6882690030518,
-        "maeSeconds": 1.4344276981819735
+        "n": 115,
+        "meanPredictedCycleSeconds": 77.3363956878033,
+        "meanTrueCycleSeconds": 77.65749476931018,
+        "maeSeconds": 1.2175781825602272
       },
       {
         "visitIndexSinceIncident": 121,
-        "n": 119,
-        "meanPredictedCycleSeconds": 77.74816895628688,
-        "meanTrueCycleSeconds": 77.8238362106612,
-        "maeSeconds": 1.1731942584467603
+        "n": 115,
+        "meanPredictedCycleSeconds": 76.88134758385591,
+        "meanTrueCycleSeconds": 77.73256741187171,
+        "maeSeconds": 1.2658956443487208
       },
       {
         "visitIndexSinceIncident": 122,
-        "n": 119,
-        "meanPredictedCycleSeconds": 77.35596197944335,
-        "meanTrueCycleSeconds": 77.44074107543761,
-        "maeSeconds": 1.4170463371985345
+        "n": 114,
+        "meanPredictedCycleSeconds": 77.09072275744502,
+        "meanTrueCycleSeconds": 77.53127224978648,
+        "maeSeconds": 1.2844739122761004
       },
       {
         "visitIndexSinceIncident": 123,
-        "n": 117,
-        "meanPredictedCycleSeconds": 77.31071690168523,
-        "meanTrueCycleSeconds": 77.5781216682691,
-        "maeSeconds": 1.3433180786392267
+        "n": 112,
+        "meanPredictedCycleSeconds": 77.6074915277482,
+        "meanTrueCycleSeconds": 77.77528643694573,
+        "maeSeconds": 1.257382002490992
       },
       {
         "visitIndexSinceIncident": 124,
-        "n": 117,
-        "meanPredictedCycleSeconds": 77.57278010560032,
-        "meanTrueCycleSeconds": 77.55957890230303,
-        "maeSeconds": 1.2708065120453922
+        "n": 112,
+        "meanPredictedCycleSeconds": 77.43438312858805,
+        "meanTrueCycleSeconds": 77.60606416126913,
+        "maeSeconds": 1.291632387057668
       },
       {
         "visitIndexSinceIncident": 125,
-        "n": 115,
-        "meanPredictedCycleSeconds": 77.27892370603236,
-        "meanTrueCycleSeconds": 77.62877514472474,
-        "maeSeconds": 1.3296267966089643
+        "n": 112,
+        "meanPredictedCycleSeconds": 77.07929186544995,
+        "meanTrueCycleSeconds": 77.47201027875833,
+        "maeSeconds": 1.2302436887078585
       },
       {
         "visitIndexSinceIncident": 126,
-        "n": 115,
-        "meanPredictedCycleSeconds": 77.50355582848994,
-        "meanTrueCycleSeconds": 77.8109844285347,
-        "maeSeconds": 1.2202385384474739
+        "n": 112,
+        "meanPredictedCycleSeconds": 77.08696762534535,
+        "meanTrueCycleSeconds": 77.38918288211737,
+        "maeSeconds": 1.444305215019251
       },
       {
         "visitIndexSinceIncident": 127,
-        "n": 115,
-        "meanPredictedCycleSeconds": 77.5488816348212,
-        "meanTrueCycleSeconds": 77.68965718112887,
-        "maeSeconds": 1.3665036153532504
+        "n": 110,
+        "meanPredictedCycleSeconds": 77.21199930209345,
+        "meanTrueCycleSeconds": 77.6605671938678,
+        "maeSeconds": 1.3657836929229508
       },
       {
         "visitIndexSinceIncident": 128,
-        "n": 114,
-        "meanPredictedCycleSeconds": 77.52283159387966,
-        "meanTrueCycleSeconds": 77.68153933273922,
-        "maeSeconds": 1.2170174616851859
+        "n": 110,
+        "meanPredictedCycleSeconds": 77.21987968510399,
+        "meanTrueCycleSeconds": 77.66474464913323,
+        "maeSeconds": 1.3092366358083305
       },
       {
         "visitIndexSinceIncident": 129,
-        "n": 112,
-        "meanPredictedCycleSeconds": 77.59260203020186,
-        "meanTrueCycleSeconds": 77.84663631633988,
-        "maeSeconds": 1.2463842882365108
+        "n": 109,
+        "meanPredictedCycleSeconds": 77.18521261409508,
+        "meanTrueCycleSeconds": 77.70453674660637,
+        "maeSeconds": 1.1939555226650438
       },
       {
         "visitIndexSinceIncident": 130,
-        "n": 112,
-        "meanPredictedCycleSeconds": 77.54502604362713,
-        "meanTrueCycleSeconds": 77.61869027937895,
-        "maeSeconds": 1.2582892019326217
+        "n": 109,
+        "meanPredictedCycleSeconds": 77.03894539594837,
+        "meanTrueCycleSeconds": 77.4911416010128,
+        "maeSeconds": 1.2981065192255612
       },
       {
         "visitIndexSinceIncident": 131,
-        "n": 112,
-        "meanPredictedCycleSeconds": 77.51738546904653,
-        "meanTrueCycleSeconds": 77.72919580420213,
-        "maeSeconds": 1.4152946393191301
+        "n": 108,
+        "meanPredictedCycleSeconds": 77.25629581195084,
+        "meanTrueCycleSeconds": 77.61747570516955,
+        "maeSeconds": 1.3431930690227982
       },
       {
         "visitIndexSinceIncident": 132,
-        "n": 111,
-        "meanPredictedCycleSeconds": 77.29816968456642,
-        "meanTrueCycleSeconds": 77.66402422381682,
-        "maeSeconds": 1.2579821666306472
+        "n": 107,
+        "meanPredictedCycleSeconds": 77.20703808989887,
+        "meanTrueCycleSeconds": 77.63295830100357,
+        "maeSeconds": 1.2980609232686262
       },
       {
         "visitIndexSinceIncident": 133,
-        "n": 110,
-        "meanPredictedCycleSeconds": 77.407440321302,
-        "meanTrueCycleSeconds": 77.48676946921782,
-        "maeSeconds": 1.2421251199740608
+        "n": 107,
+        "meanPredictedCycleSeconds": 77.04052770329022,
+        "meanTrueCycleSeconds": 77.61253113720879,
+        "maeSeconds": 1.2697173962862256
       },
       {
         "visitIndexSinceIncident": 134,
-        "n": 110,
-        "meanPredictedCycleSeconds": 77.65133444943059,
-        "meanTrueCycleSeconds": 77.66358683896674,
-        "maeSeconds": 1.221244084502828
+        "n": 107,
+        "meanPredictedCycleSeconds": 77.32760771531736,
+        "meanTrueCycleSeconds": 77.56782560818176,
+        "maeSeconds": 1.090564343136163
       },
       {
         "visitIndexSinceIncident": 135,
-        "n": 109,
-        "meanPredictedCycleSeconds": 77.54318480361142,
-        "meanTrueCycleSeconds": 77.57530694219088,
-        "maeSeconds": 1.2245632456188715
+        "n": 105,
+        "meanPredictedCycleSeconds": 77.03039768964238,
+        "meanTrueCycleSeconds": 77.38351201422158,
+        "maeSeconds": 1.2042157335621306
       },
       {
         "visitIndexSinceIncident": 136,
-        "n": 109,
-        "meanPredictedCycleSeconds": 77.30838882058454,
-        "meanTrueCycleSeconds": 77.66468561878172,
-        "maeSeconds": 1.4331047396408754
+        "n": 105,
+        "meanPredictedCycleSeconds": 77.18450001291347,
+        "meanTrueCycleSeconds": 77.69012102055407,
+        "maeSeconds": 1.1114782159504975
       },
       {
         "visitIndexSinceIncident": 137,
-        "n": 108,
-        "meanPredictedCycleSeconds": 77.45907592009918,
-        "meanTrueCycleSeconds": 77.7228732630438,
-        "maeSeconds": 1.3280266317038425
+        "n": 105,
+        "meanPredictedCycleSeconds": 77.04059296986934,
+        "meanTrueCycleSeconds": 77.55880501456559,
+        "maeSeconds": 1.401430235014125
       },
       {
         "visitIndexSinceIncident": 138,
-        "n": 107,
-        "meanPredictedCycleSeconds": 77.5961963288574,
-        "meanTrueCycleSeconds": 77.59049568800516,
-        "maeSeconds": 1.3383635911442346
+        "n": 105,
+        "meanPredictedCycleSeconds": 77.28843048749923,
+        "meanTrueCycleSeconds": 77.67718192887094,
+        "maeSeconds": 1.1008989345194182
       },
       {
         "visitIndexSinceIncident": 139,
-        "n": 107,
-        "meanPredictedCycleSeconds": 77.49456699921346,
-        "meanTrueCycleSeconds": 77.68954421332646,
-        "maeSeconds": 1.4776851159526836
+        "n": 105,
+        "meanPredictedCycleSeconds": 77.11748208849939,
+        "meanTrueCycleSeconds": 77.51652286980479,
+        "maeSeconds": 1.2539883658826587
       },
       {
         "visitIndexSinceIncident": 140,
-        "n": 107,
-        "meanPredictedCycleSeconds": 77.34461650245514,
-        "meanTrueCycleSeconds": 77.61661831848323,
-        "maeSeconds": 1.2417336781515889
+        "n": 104,
+        "meanPredictedCycleSeconds": 77.12724193129931,
+        "meanTrueCycleSeconds": 77.51802385243802,
+        "maeSeconds": 1.2491257035051908
       },
       {
         "visitIndexSinceIncident": 141,
-        "n": 107,
-        "meanPredictedCycleSeconds": 77.48464322192282,
-        "meanTrueCycleSeconds": 77.58964841819812,
-        "maeSeconds": 1.279119858214667
+        "n": 104,
+        "meanPredictedCycleSeconds": 77.3786447334574,
+        "meanTrueCycleSeconds": 77.848431800116,
+        "maeSeconds": 1.2268722156077745
       },
       {
         "visitIndexSinceIncident": 142,
-        "n": 105,
-        "meanPredictedCycleSeconds": 77.39718601227894,
-        "meanTrueCycleSeconds": 77.57611046795334,
-        "maeSeconds": 1.3307122031215899
+        "n": 103,
+        "meanPredictedCycleSeconds": 76.91176137611002,
+        "meanTrueCycleSeconds": 77.51949919785545,
+        "maeSeconds": 1.1846639629778604
       },
       {
         "visitIndexSinceIncident": 143,
-        "n": 105,
-        "meanPredictedCycleSeconds": 77.38748868846524,
-        "meanTrueCycleSeconds": 77.56997253460189,
-        "maeSeconds": 1.354589690703741
+        "n": 100,
+        "meanPredictedCycleSeconds": 76.84227374027643,
+        "meanTrueCycleSeconds": 77.34162955662235,
+        "maeSeconds": 1.209078192483882
       },
       {
         "visitIndexSinceIncident": 144,
-        "n": 105,
-        "meanPredictedCycleSeconds": 77.53189187753301,
-        "meanTrueCycleSeconds": 77.57037563442829,
-        "maeSeconds": 1.3115320571423326
+        "n": 100,
+        "meanPredictedCycleSeconds": 77.32892290348616,
+        "meanTrueCycleSeconds": 77.70847438130528,
+        "maeSeconds": 1.182210896311978
       },
       {
         "visitIndexSinceIncident": 145,
-        "n": 105,
-        "meanPredictedCycleSeconds": 77.14307598619638,
-        "meanTrueCycleSeconds": 77.45021355395161,
-        "maeSeconds": 1.3514644345942495
+        "n": 100,
+        "meanPredictedCycleSeconds": 76.95471554317501,
+        "meanTrueCycleSeconds": 77.44772223139182,
+        "maeSeconds": 1.2104885177426512
       },
       {
         "visitIndexSinceIncident": 146,
-        "n": 105,
-        "meanPredictedCycleSeconds": 77.75814868125026,
-        "meanTrueCycleSeconds": 77.81373783130022,
-        "maeSeconds": 1.1755307326787627
+        "n": 100,
+        "meanPredictedCycleSeconds": 77.0437397490721,
+        "meanTrueCycleSeconds": 77.4631377255544,
+        "maeSeconds": 1.2981432396509587
       },
       {
         "visitIndexSinceIncident": 147,
-        "n": 104,
-        "meanPredictedCycleSeconds": 77.59923303654082,
-        "meanTrueCycleSeconds": 77.62187963842342,
-        "maeSeconds": 1.2496058116615782
+        "n": 100,
+        "meanPredictedCycleSeconds": 77.03744738850081,
+        "meanTrueCycleSeconds": 77.42946597039699,
+        "maeSeconds": 1.2443368617080492
       },
       {
         "visitIndexSinceIncident": 148,
-        "n": 104,
-        "meanPredictedCycleSeconds": 77.50962671639435,
-        "meanTrueCycleSeconds": 77.64905367338528,
-        "maeSeconds": 1.280964913272121
+        "n": 100,
+        "meanPredictedCycleSeconds": 76.69063284251308,
+        "meanTrueCycleSeconds": 77.25915051847696,
+        "maeSeconds": 1.434648946611173
       },
       {
         "visitIndexSinceIncident": 149,
-        "n": 103,
-        "meanPredictedCycleSeconds": 77.15584375956011,
-        "meanTrueCycleSeconds": 77.41599510763817,
-        "maeSeconds": 1.225128957646663
+        "n": 100,
+        "meanPredictedCycleSeconds": 77.38030641641384,
+        "meanTrueCycleSeconds": 77.7457980802469,
+        "maeSeconds": 1.37072199119594
       },
       {
         "visitIndexSinceIncident": 150,
-        "n": 101,
-        "meanPredictedCycleSeconds": 77.2967691735596,
-        "meanTrueCycleSeconds": 77.61336191232768,
-        "maeSeconds": 1.3326281012565533
+        "n": 98,
+        "meanPredictedCycleSeconds": 77.42619739052108,
+        "meanTrueCycleSeconds": 77.73155164332795,
+        "maeSeconds": 1.358915504011871
       },
       {
         "visitIndexSinceIncident": 151,
-        "n": 100,
-        "meanPredictedCycleSeconds": 77.32563779053925,
-        "meanTrueCycleSeconds": 77.46465377928689,
-        "maeSeconds": 1.290708832630048
+        "n": 98,
+        "meanPredictedCycleSeconds": 77.19480214869114,
+        "meanTrueCycleSeconds": 77.58877359075966,
+        "maeSeconds": 1.2913366232726156
       },
       {
         "visitIndexSinceIncident": 152,
-        "n": 100,
-        "meanPredictedCycleSeconds": 77.48373743462166,
-        "meanTrueCycleSeconds": 77.59691650848836,
-        "maeSeconds": 1.2576798155734537
+        "n": 98,
+        "meanPredictedCycleSeconds": 77.13148841043335,
+        "meanTrueCycleSeconds": 77.51003219219571,
+        "maeSeconds": 1.4760360560112902
       },
       {
         "visitIndexSinceIncident": 153,
-        "n": 100,
-        "meanPredictedCycleSeconds": 77.41392975146334,
-        "meanTrueCycleSeconds": 77.5564465325512,
-        "maeSeconds": 1.165994948523317
+        "n": 98,
+        "meanPredictedCycleSeconds": 76.92432288169945,
+        "meanTrueCycleSeconds": 77.48052661721499,
+        "maeSeconds": 1.2180605171262817
       },
       {
         "visitIndexSinceIncident": 154,
-        "n": 100,
-        "meanPredictedCycleSeconds": 77.30244296817608,
-        "meanTrueCycleSeconds": 77.59163029650226,
-        "maeSeconds": 1.140467538131274
+        "n": 97,
+        "meanPredictedCycleSeconds": 77.03222968983222,
+        "meanTrueCycleSeconds": 77.55964244020738,
+        "maeSeconds": 1.2772052612442113
       },
       {
         "visitIndexSinceIncident": 155,
-        "n": 100,
-        "meanPredictedCycleSeconds": 77.3836000577111,
-        "meanTrueCycleSeconds": 77.57518736897036,
-        "maeSeconds": 1.361223510660816
+        "n": 97,
+        "meanPredictedCycleSeconds": 77.34287966163498,
+        "meanTrueCycleSeconds": 77.64982158268235,
+        "maeSeconds": 1.187570516420303
       },
       {
         "visitIndexSinceIncident": 156,
-        "n": 100,
-        "meanPredictedCycleSeconds": 77.5301071830091,
-        "meanTrueCycleSeconds": 77.6984324618429,
-        "maeSeconds": 1.2949969329016033
+        "n": 95,
+        "meanPredictedCycleSeconds": 77.51813712822168,
+        "meanTrueCycleSeconds": 77.77554011405691,
+        "maeSeconds": 1.1374919538980863
       },
       {
         "visitIndexSinceIncident": 157,
-        "n": 100,
-        "meanPredictedCycleSeconds": 77.25422671906145,
-        "meanTrueCycleSeconds": 77.45984589835629,
-        "maeSeconds": 1.4092040109177355
+        "n": 95,
+        "meanPredictedCycleSeconds": 77.1024569771239,
+        "meanTrueCycleSeconds": 77.65573792708547,
+        "maeSeconds": 1.372504923630319
       },
       {
         "visitIndexSinceIncident": 158,
-        "n": 98,
-        "meanPredictedCycleSeconds": 77.4425306585056,
-        "meanTrueCycleSeconds": 77.6205899049623,
-        "maeSeconds": 1.2279336996945898
+        "n": 94,
+        "meanPredictedCycleSeconds": 77.22570722396527,
+        "meanTrueCycleSeconds": 77.59255670861123,
+        "maeSeconds": 1.284766481044868
       },
       {
         "visitIndexSinceIncident": 159,
-        "n": 98,
-        "meanPredictedCycleSeconds": 77.34784058671465,
-        "meanTrueCycleSeconds": 77.27806536176679,
-        "maeSeconds": 1.395419055776309
+        "n": 94,
+        "meanPredictedCycleSeconds": 77.38753855918608,
+        "meanTrueCycleSeconds": 77.7040852443216,
+        "maeSeconds": 1.252393804631415
       },
       {
         "visitIndexSinceIncident": 160,
-        "n": 98,
-        "meanPredictedCycleSeconds": 77.32853166178961,
-        "meanTrueCycleSeconds": 77.51308555788911,
-        "maeSeconds": 1.273176743088105
+        "n": 93,
+        "meanPredictedCycleSeconds": 77.05604881563644,
+        "meanTrueCycleSeconds": 77.54387419270252,
+        "maeSeconds": 1.3092487534897173
       },
       {
         "visitIndexSinceIncident": 161,
-        "n": 98,
-        "meanPredictedCycleSeconds": 77.54870606117937,
-        "meanTrueCycleSeconds": 77.50421912485392,
-        "maeSeconds": 1.1761097303008365
+        "n": 92,
+        "meanPredictedCycleSeconds": 77.40733047231436,
+        "meanTrueCycleSeconds": 77.61975102140771,
+        "maeSeconds": 1.1822751852281987
       },
       {
         "visitIndexSinceIncident": 162,
-        "n": 97,
-        "meanPredictedCycleSeconds": 77.57955211834287,
-        "meanTrueCycleSeconds": 77.53760459143476,
-        "maeSeconds": 1.2820455304944576
+        "n": 91,
+        "meanPredictedCycleSeconds": 77.17835504152768,
+        "meanTrueCycleSeconds": 77.40227979245586,
+        "maeSeconds": 1.2324645349544125
       },
       {
         "visitIndexSinceIncident": 163,
-        "n": 97,
-        "meanPredictedCycleSeconds": 77.56748437140224,
-        "meanTrueCycleSeconds": 77.68676018534401,
-        "maeSeconds": 1.256545508734629
+        "n": 91,
+        "meanPredictedCycleSeconds": 77.10073094181188,
+        "meanTrueCycleSeconds": 77.66686075489845,
+        "maeSeconds": 1.2748937639736013
       },
       {
         "visitIndexSinceIncident": 164,
-        "n": 95,
-        "meanPredictedCycleSeconds": 77.49990123795064,
-        "meanTrueCycleSeconds": 77.74379127284413,
-        "maeSeconds": 1.3636358421483152
+        "n": 91,
+        "meanPredictedCycleSeconds": 77.31798084716864,
+        "meanTrueCycleSeconds": 77.54518962215509,
+        "maeSeconds": 1.3141439213098574
       },
       {
         "visitIndexSinceIncident": 165,
-        "n": 95,
-        "meanPredictedCycleSeconds": 77.24270410744501,
-        "meanTrueCycleSeconds": 77.71906162486657,
-        "maeSeconds": 1.220282751718068
+        "n": 91,
+        "meanPredictedCycleSeconds": 77.14764448497225,
+        "meanTrueCycleSeconds": 77.41829474462749,
+        "maeSeconds": 1.2935968984452184
       },
       {
         "visitIndexSinceIncident": 166,
-        "n": 94,
-        "meanPredictedCycleSeconds": 77.36435964956733,
-        "meanTrueCycleSeconds": 77.51214816349935,
-        "maeSeconds": 1.5949623399335227
+        "n": 91,
+        "meanPredictedCycleSeconds": 77.17656948276047,
+        "meanTrueCycleSeconds": 77.42441046905223,
+        "maeSeconds": 1.2949116505750453
       },
       {
         "visitIndexSinceIncident": 167,
-        "n": 94,
-        "meanPredictedCycleSeconds": 77.88313716036926,
-        "meanTrueCycleSeconds": 77.95563282413369,
-        "maeSeconds": 1.262982564116038
+        "n": 90,
+        "meanPredictedCycleSeconds": 77.4771671255845,
+        "meanTrueCycleSeconds": 77.86777622304443,
+        "maeSeconds": 1.0094361724360725
       },
       {
         "visitIndexSinceIncident": 168,
-        "n": 94,
-        "meanPredictedCycleSeconds": 77.34769421456886,
-        "meanTrueCycleSeconds": 77.40029656270796,
-        "maeSeconds": 1.2477861329706084
+        "n": 90,
+        "meanPredictedCycleSeconds": 77.28226411205283,
+        "meanTrueCycleSeconds": 77.41152972032627,
+        "maeSeconds": 1.1639071502431073
       },
       {
         "visitIndexSinceIncident": 169,
-        "n": 92,
-        "meanPredictedCycleSeconds": 77.42863385962113,
-        "meanTrueCycleSeconds": 77.5319100103503,
-        "maeSeconds": 1.1821097578319057
+        "n": 90,
+        "meanPredictedCycleSeconds": 77.23269859487495,
+        "meanTrueCycleSeconds": 77.75038531581974,
+        "maeSeconds": 1.3739039543210447
       },
       {
         "visitIndexSinceIncident": 170,
-        "n": 92,
-        "meanPredictedCycleSeconds": 77.47734965371747,
-        "meanTrueCycleSeconds": 77.77573837066555,
-        "maeSeconds": 1.3019518473512042
+        "n": 90,
+        "meanPredictedCycleSeconds": 77.34627163338774,
+        "meanTrueCycleSeconds": 77.43782976996154,
+        "maeSeconds": 1.0882014576316066
       },
       {
         "visitIndexSinceIncident": 171,
-        "n": 91,
-        "meanPredictedCycleSeconds": 77.38341946936384,
-        "meanTrueCycleSeconds": 77.5020784594446,
-        "maeSeconds": 1.3826449534927507
+        "n": 90,
+        "meanPredictedCycleSeconds": 77.13829799570722,
+        "meanTrueCycleSeconds": 77.46716006104317,
+        "maeSeconds": 1.1279089904148234
       },
       {
         "visitIndexSinceIncident": 172,
-        "n": 91,
-        "meanPredictedCycleSeconds": 77.626516028145,
-        "meanTrueCycleSeconds": 77.49127840535245,
-        "maeSeconds": 1.297952436296093
+        "n": 90,
+        "meanPredictedCycleSeconds": 77.28620437625905,
+        "meanTrueCycleSeconds": 77.86050180029125,
+        "maeSeconds": 1.0958832196840154
       },
       {
         "visitIndexSinceIncident": 173,
-        "n": 91,
-        "meanPredictedCycleSeconds": 77.52567159834304,
-        "meanTrueCycleSeconds": 77.6543211046156,
-        "maeSeconds": 1.0153387300266008
+        "n": 88,
+        "meanPredictedCycleSeconds": 77.22924333883259,
+        "meanTrueCycleSeconds": 77.66198231004687,
+        "maeSeconds": 1.2508228372369283
       },
       {
         "visitIndexSinceIncident": 174,
-        "n": 91,
-        "meanPredictedCycleSeconds": 77.67796156621174,
-        "meanTrueCycleSeconds": 77.6876095554249,
-        "maeSeconds": 1.269039848871037
+        "n": 86,
+        "meanPredictedCycleSeconds": 76.99930606745096,
+        "meanTrueCycleSeconds": 77.51701453579373,
+        "maeSeconds": 1.2228300298509913
       },
       {
         "visitIndexSinceIncident": 175,
-        "n": 90,
-        "meanPredictedCycleSeconds": 77.34007784371055,
-        "meanTrueCycleSeconds": 77.60836728825751,
-        "maeSeconds": 1.4021951946545845
+        "n": 86,
+        "meanPredictedCycleSeconds": 77.41574611976847,
+        "meanTrueCycleSeconds": 77.82446654047817,
+        "maeSeconds": 1.3248543553787238
       },
       {
         "visitIndexSinceIncident": 176,
-        "n": 90,
-        "meanPredictedCycleSeconds": 77.5882383287209,
-        "meanTrueCycleSeconds": 77.60140383727848,
-        "maeSeconds": 1.1692987508739885
+        "n": 85,
+        "meanPredictedCycleSeconds": 77.37737159270824,
+        "meanTrueCycleSeconds": 77.54056218422073,
+        "maeSeconds": 1.2608378532504552
       },
       {
         "visitIndexSinceIncident": 177,
-        "n": 90,
-        "meanPredictedCycleSeconds": 77.6471744129345,
-        "meanTrueCycleSeconds": 77.76834153340509,
-        "maeSeconds": 1.0963045393525228
+        "n": 85,
+        "meanPredictedCycleSeconds": 77.53031748769345,
+        "meanTrueCycleSeconds": 77.48549290726729,
+        "maeSeconds": 1.0128441987070838
       },
       {
         "visitIndexSinceIncident": 178,
-        "n": 90,
-        "meanPredictedCycleSeconds": 77.37191168298969,
-        "meanTrueCycleSeconds": 77.68235803145087,
-        "maeSeconds": 1.3042908202133274
+        "n": 84,
+        "meanPredictedCycleSeconds": 76.81505360082318,
+        "meanTrueCycleSeconds": 77.35043214188356,
+        "maeSeconds": 1.3360657274645396
       },
       {
         "visitIndexSinceIncident": 179,
-        "n": 90,
-        "meanPredictedCycleSeconds": 77.38427063665871,
-        "meanTrueCycleSeconds": 77.65628137619545,
-        "maeSeconds": 1.179666278107371
+        "n": 83,
+        "meanPredictedCycleSeconds": 76.93534707826657,
+        "meanTrueCycleSeconds": 77.55307130585145,
+        "maeSeconds": 1.298417233852994
       },
       {
         "visitIndexSinceIncident": 180,
-        "n": 90,
-        "meanPredictedCycleSeconds": 77.21029591460346,
-        "meanTrueCycleSeconds": 77.66617561139994,
-        "maeSeconds": 1.2949281159476362
+        "n": 82,
+        "meanPredictedCycleSeconds": 77.06116910604797,
+        "meanTrueCycleSeconds": 77.37839400734207,
+        "maeSeconds": 1.1287552048156404
       },
       {
         "visitIndexSinceIncident": 181,
-        "n": 90,
-        "meanPredictedCycleSeconds": 77.36528754065273,
-        "meanTrueCycleSeconds": 77.51839845302618,
-        "maeSeconds": 1.4270209684979196
+        "n": 81,
+        "meanPredictedCycleSeconds": 77.11775895553633,
+        "meanTrueCycleSeconds": 77.47370714972509,
+        "maeSeconds": 1.2867597790179752
       },
       {
         "visitIndexSinceIncident": 182,
-        "n": 88,
-        "meanPredictedCycleSeconds": 77.76984943103629,
-        "meanTrueCycleSeconds": 77.67203136872162,
-        "maeSeconds": 1.394328025810806
+        "n": 79,
+        "meanPredictedCycleSeconds": 77.16083854605992,
+        "meanTrueCycleSeconds": 77.61692578449279,
+        "maeSeconds": 1.26405857249846
       },
       {
         "visitIndexSinceIncident": 183,
-        "n": 87,
-        "meanPredictedCycleSeconds": 77.37048833605128,
-        "meanTrueCycleSeconds": 77.43741376276246,
-        "maeSeconds": 1.286909847135109
+        "n": 78,
+        "meanPredictedCycleSeconds": 77.3805138353051,
+        "meanTrueCycleSeconds": 77.59597624305827,
+        "maeSeconds": 1.335465049811949
       },
       {
         "visitIndexSinceIncident": 184,
-        "n": 86,
-        "meanPredictedCycleSeconds": 77.83875856735139,
-        "meanTrueCycleSeconds": 77.92536380763578,
-        "maeSeconds": 1.1677906506120124
+        "n": 78,
+        "meanPredictedCycleSeconds": 77.32042775104803,
+        "meanTrueCycleSeconds": 77.76414992013135,
+        "maeSeconds": 1.2324568016375317
       },
       {
         "visitIndexSinceIncident": 185,
-        "n": 86,
-        "meanPredictedCycleSeconds": 77.63763131633566,
-        "meanTrueCycleSeconds": 77.70966032190725,
-        "maeSeconds": 1.3004374632103013
+        "n": 77,
+        "meanPredictedCycleSeconds": 77.20468537770513,
+        "meanTrueCycleSeconds": 77.78219216292749,
+        "maeSeconds": 1.127383585793285
       },
       {
         "visitIndexSinceIncident": 186,
-        "n": 85,
-        "meanPredictedCycleSeconds": 77.77203245122769,
-        "meanTrueCycleSeconds": 77.755320743318,
-        "maeSeconds": 1.2672477664880257
+        "n": 77,
+        "meanPredictedCycleSeconds": 76.76752421425286,
+        "meanTrueCycleSeconds": 77.65930762461254,
+        "maeSeconds": 1.4247715055871093
       },
       {
         "visitIndexSinceIncident": 187,
-        "n": 84,
-        "meanPredictedCycleSeconds": 77.45249454374049,
-        "meanTrueCycleSeconds": 77.65374388013568,
-        "maeSeconds": 1.2388482339651137
+        "n": 77,
+        "meanPredictedCycleSeconds": 77.34819435128296,
+        "meanTrueCycleSeconds": 77.78078567645477,
+        "maeSeconds": 1.1223507421630763
       },
       {
         "visitIndexSinceIncident": 188,
-        "n": 84,
-        "meanPredictedCycleSeconds": 77.2763307272258,
-        "meanTrueCycleSeconds": 77.39899081643671,
-        "maeSeconds": 1.2277519817203857
+        "n": 77,
+        "meanPredictedCycleSeconds": 77.28309970410936,
+        "meanTrueCycleSeconds": 77.67313351709541,
+        "maeSeconds": 1.1712414639473994
       },
       {
         "visitIndexSinceIncident": 189,
-        "n": 83,
-        "meanPredictedCycleSeconds": 77.32680483566523,
-        "meanTrueCycleSeconds": 77.45027891589126,
-        "maeSeconds": 1.4245714106744967
+        "n": 75,
+        "meanPredictedCycleSeconds": 76.79316084740518,
+        "meanTrueCycleSeconds": 77.63091680633525,
+        "maeSeconds": 1.3584212872243386
       },
       {
         "visitIndexSinceIncident": 190,
-        "n": 82,
-        "meanPredictedCycleSeconds": 77.38080121884859,
-        "meanTrueCycleSeconds": 77.56109636033908,
-        "maeSeconds": 1.2369738523158336
+        "n": 75,
+        "meanPredictedCycleSeconds": 77.20003684030553,
+        "meanTrueCycleSeconds": 77.46171638386944,
+        "maeSeconds": 1.287714361012619
       },
       {
         "visitIndexSinceIncident": 191,
-        "n": 81,
-        "meanPredictedCycleSeconds": 77.2854852982247,
-        "meanTrueCycleSeconds": 77.33815408153114,
-        "maeSeconds": 1.255994528612332
+        "n": 75,
+        "meanPredictedCycleSeconds": 77.39437748993355,
+        "meanTrueCycleSeconds": 77.83473884748916,
+        "maeSeconds": 1.2207566287502263
       },
       {
         "visitIndexSinceIncident": 192,
-        "n": 79,
-        "meanPredictedCycleSeconds": 77.58244906848621,
-        "meanTrueCycleSeconds": 77.4822004722502,
-        "maeSeconds": 1.1244478522060624
+        "n": 74,
+        "meanPredictedCycleSeconds": 77.23095910652717,
+        "meanTrueCycleSeconds": 77.79079574920438,
+        "maeSeconds": 1.221917844490662
       },
       {
         "visitIndexSinceIncident": 193,
-        "n": 78,
-        "meanPredictedCycleSeconds": 77.49619630572546,
-        "meanTrueCycleSeconds": 77.58873065112111,
-        "maeSeconds": 1.5194318459935867
+        "n": 74,
+        "meanPredictedCycleSeconds": 77.16547044292672,
+        "meanTrueCycleSeconds": 77.60179484811788,
+        "maeSeconds": 1.2763609039740396
       },
       {
         "visitIndexSinceIncident": 194,
-        "n": 78,
-        "meanPredictedCycleSeconds": 77.49935420495214,
-        "meanTrueCycleSeconds": 77.40825668708064,
-        "maeSeconds": 1.3588102942117364
+        "n": 73,
+        "meanPredictedCycleSeconds": 77.29130509407213,
+        "meanTrueCycleSeconds": 77.50730170523876,
+        "maeSeconds": 1.3065523734124618
       },
       {
         "visitIndexSinceIncident": 195,
-        "n": 78,
-        "meanPredictedCycleSeconds": 77.92110882645765,
-        "meanTrueCycleSeconds": 77.7315090443127,
-        "maeSeconds": 1.2696001243102712
+        "n": 73,
+        "meanPredictedCycleSeconds": 77.33103496633625,
+        "meanTrueCycleSeconds": 77.80000496165802,
+        "maeSeconds": 1.218786290161238
       },
       {
         "visitIndexSinceIncident": 196,
-        "n": 77,
-        "meanPredictedCycleSeconds": 77.74659638842864,
-        "meanTrueCycleSeconds": 78.00561136853966,
-        "maeSeconds": 1.2762192651965092
+        "n": 73,
+        "meanPredictedCycleSeconds": 77.19382358874455,
+        "meanTrueCycleSeconds": 77.73607571208721,
+        "maeSeconds": 1.2233766755205995
       },
       {
         "visitIndexSinceIncident": 197,
-        "n": 77,
-        "meanPredictedCycleSeconds": 77.22866711081653,
-        "meanTrueCycleSeconds": 77.65243568399606,
-        "maeSeconds": 1.1927407801097896
+        "n": 73,
+        "meanPredictedCycleSeconds": 76.93141706850031,
+        "meanTrueCycleSeconds": 77.34137220872081,
+        "maeSeconds": 1.3049247662633678
       },
       {
         "visitIndexSinceIncident": 198,
-        "n": 77,
-        "meanPredictedCycleSeconds": 77.70056248969362,
-        "meanTrueCycleSeconds": 77.75243403053807,
-        "maeSeconds": 1.4859481381711575
+        "n": 71,
+        "meanPredictedCycleSeconds": 77.5631794765575,
+        "meanTrueCycleSeconds": 77.64822089522552,
+        "maeSeconds": 1.355934592362109
       },
       {
         "visitIndexSinceIncident": 199,
-        "n": 76,
-        "meanPredictedCycleSeconds": 76.82022899172573,
-        "meanTrueCycleSeconds": 77.36947830151276,
-        "maeSeconds": 1.3464067159473185
+        "n": 71,
+        "meanPredictedCycleSeconds": 77.25249738978815,
+        "meanTrueCycleSeconds": 77.79534444443776,
+        "maeSeconds": 1.3411551393398564
       },
       {
         "visitIndexSinceIncident": 200,
-        "n": 75,
-        "meanPredictedCycleSeconds": 77.96583554690093,
-        "meanTrueCycleSeconds": 77.78220746661226,
-        "maeSeconds": 1.397359678325595
+        "n": 70,
+        "meanPredictedCycleSeconds": 76.8578429143037,
+        "meanTrueCycleSeconds": 77.43191964022283,
+        "maeSeconds": 1.1563936603079135
       },
       {
         "visitIndexSinceIncident": 201,
-        "n": 75,
-        "meanPredictedCycleSeconds": 77.48212392775666,
-        "meanTrueCycleSeconds": 77.67932951380809,
-        "maeSeconds": 1.3812978047766815
+        "n": 69,
+        "meanPredictedCycleSeconds": 77.81852241004765,
+        "meanTrueCycleSeconds": 77.78601589717942,
+        "maeSeconds": 1.2892965225557278
       },
       {
         "visitIndexSinceIncident": 202,
-        "n": 75,
-        "meanPredictedCycleSeconds": 77.43204642447118,
-        "meanTrueCycleSeconds": 77.65926689125598,
-        "maeSeconds": 1.2073461675099193
+        "n": 69,
+        "meanPredictedCycleSeconds": 77.43566589547333,
+        "meanTrueCycleSeconds": 77.81378945505813,
+        "maeSeconds": 1.206633562521399
       },
       {
         "visitIndexSinceIncident": 203,
-        "n": 74,
-        "meanPredictedCycleSeconds": 77.41746712179273,
-        "meanTrueCycleSeconds": 77.58962264279458,
-        "maeSeconds": 1.254961532281171
+        "n": 69,
+        "meanPredictedCycleSeconds": 77.15366099075469,
+        "meanTrueCycleSeconds": 77.70577941640563,
+        "maeSeconds": 1.2939528027927587
       },
       {
         "visitIndexSinceIncident": 204,
-        "n": 74,
-        "meanPredictedCycleSeconds": 77.41967369702266,
-        "meanTrueCycleSeconds": 77.73333107891517,
-        "maeSeconds": 1.398858654921983
+        "n": 69,
+        "meanPredictedCycleSeconds": 77.27894873854147,
+        "meanTrueCycleSeconds": 77.78669140109982,
+        "maeSeconds": 1.176274808966445
       },
       {
         "visitIndexSinceIncident": 205,
-        "n": 73,
-        "meanPredictedCycleSeconds": 77.85996437653412,
-        "meanTrueCycleSeconds": 77.97884449860311,
-        "maeSeconds": 1.208600231529439
+        "n": 68,
+        "meanPredictedCycleSeconds": 77.39212046174053,
+        "meanTrueCycleSeconds": 77.91302973555182,
+        "maeSeconds": 1.2099021142685924
       },
       {
         "visitIndexSinceIncident": 206,
-        "n": 73,
-        "meanPredictedCycleSeconds": 77.22717757840672,
-        "meanTrueCycleSeconds": 77.70736928289271,
-        "maeSeconds": 1.3335581762225635
+        "n": 67,
+        "meanPredictedCycleSeconds": 77.2297215504301,
+        "meanTrueCycleSeconds": 77.53074136131735,
+        "maeSeconds": 1.273303192263767
       },
       {
         "visitIndexSinceIncident": 207,
-        "n": 73,
-        "meanPredictedCycleSeconds": 77.48886223533941,
-        "meanTrueCycleSeconds": 77.81885863304751,
-        "maeSeconds": 1.2253375616213518
+        "n": 66,
+        "meanPredictedCycleSeconds": 77.17470478837579,
+        "meanTrueCycleSeconds": 77.87922028136073,
+        "maeSeconds": 1.141353681876917
       },
       {
         "visitIndexSinceIncident": 208,
-        "n": 73,
-        "meanPredictedCycleSeconds": 77.76519786936534,
-        "meanTrueCycleSeconds": 77.79958012342861,
-        "maeSeconds": 1.1164028973244495
+        "n": 66,
+        "meanPredictedCycleSeconds": 77.62489591248072,
+        "meanTrueCycleSeconds": 77.82153566779964,
+        "maeSeconds": 1.3033884583831825
       },
       {
         "visitIndexSinceIncident": 209,
-        "n": 71,
-        "meanPredictedCycleSeconds": 77.64494387258006,
-        "meanTrueCycleSeconds": 77.41258857270677,
-        "maeSeconds": 1.3799560023609536
+        "n": 64,
+        "meanPredictedCycleSeconds": 77.00808883908229,
+        "meanTrueCycleSeconds": 77.44308546659886,
+        "maeSeconds": 1.2902091602188295
       },
       {
         "visitIndexSinceIncident": 210,
-        "n": 71,
-        "meanPredictedCycleSeconds": 77.82797114932168,
-        "meanTrueCycleSeconds": 77.46982420860252,
-        "maeSeconds": 1.3324952572777966
+        "n": 62,
+        "meanPredictedCycleSeconds": 77.25114807022571,
+        "meanTrueCycleSeconds": 77.61321171123775,
+        "maeSeconds": 1.2369584995651475
       },
       {
         "visitIndexSinceIncident": 211,
-        "n": 71,
-        "meanPredictedCycleSeconds": 77.18472297585292,
-        "meanTrueCycleSeconds": 77.42036145820585,
-        "maeSeconds": 1.4178790552221128
+        "n": 60,
+        "meanPredictedCycleSeconds": 77.51399162129746,
+        "meanTrueCycleSeconds": 77.55524558223163,
+        "maeSeconds": 1.3858888877076014
       },
       {
         "visitIndexSinceIncident": 212,
-        "n": 69,
-        "meanPredictedCycleSeconds": 77.25187778854517,
-        "meanTrueCycleSeconds": 77.8184893152312,
-        "maeSeconds": 1.3408178645276407
+        "n": 58,
+        "meanPredictedCycleSeconds": 77.21378342612289,
+        "meanTrueCycleSeconds": 77.45197005977789,
+        "maeSeconds": 1.1397069846497343
       },
       {
         "visitIndexSinceIncident": 213,
-        "n": 69,
-        "meanPredictedCycleSeconds": 77.5213834672748,
-        "meanTrueCycleSeconds": 77.56668748220672,
-        "maeSeconds": 1.2244043004721616
+        "n": 58,
+        "meanPredictedCycleSeconds": 77.19572524566877,
+        "meanTrueCycleSeconds": 77.67849751150814,
+        "maeSeconds": 1.218491088302413
       },
       {
         "visitIndexSinceIncident": 214,
-        "n": 69,
-        "meanPredictedCycleSeconds": 77.33520270951904,
-        "meanTrueCycleSeconds": 77.57352698807591,
-        "maeSeconds": 1.3466728338105847
+        "n": 58,
+        "meanPredictedCycleSeconds": 77.05232108418262,
+        "meanTrueCycleSeconds": 77.65340972136192,
+        "maeSeconds": 1.2096805962208246
       },
       {
         "visitIndexSinceIncident": 215,
-        "n": 69,
-        "meanPredictedCycleSeconds": 77.77988272874576,
-        "meanTrueCycleSeconds": 77.72026820677885,
-        "maeSeconds": 1.2309624491921611
+        "n": 57,
+        "meanPredictedCycleSeconds": 77.36396894733275,
+        "meanTrueCycleSeconds": 77.82523475482799,
+        "maeSeconds": 1.185661934084998
       },
       {
         "visitIndexSinceIncident": 216,
-        "n": 69,
-        "meanPredictedCycleSeconds": 77.83871073714046,
-        "meanTrueCycleSeconds": 77.7730613036648,
-        "maeSeconds": 1.4260732227754356
+        "n": 57,
+        "meanPredictedCycleSeconds": 77.06012663258718,
+        "meanTrueCycleSeconds": 77.30835988366029,
+        "maeSeconds": 1.0965483518224868
       },
       {
         "visitIndexSinceIncident": 217,
-        "n": 68,
-        "meanPredictedCycleSeconds": 77.75824271656326,
-        "meanTrueCycleSeconds": 77.69412289880326,
-        "maeSeconds": 1.4215661586894226
+        "n": 55,
+        "meanPredictedCycleSeconds": 77.21771857719483,
+        "meanTrueCycleSeconds": 77.50101086067205,
+        "maeSeconds": 1.2687441587774027
       },
       {
         "visitIndexSinceIncident": 218,
-        "n": 66,
-        "meanPredictedCycleSeconds": 77.28869649021614,
-        "meanTrueCycleSeconds": 77.64408625334953,
-        "maeSeconds": 1.3081327523465693
+        "n": 55,
+        "meanPredictedCycleSeconds": 77.07823457745245,
+        "meanTrueCycleSeconds": 77.45431096760387,
+        "maeSeconds": 1.3806957543855214
       },
       {
         "visitIndexSinceIncident": 219,
-        "n": 66,
-        "meanPredictedCycleSeconds": 77.18965991530419,
-        "meanTrueCycleSeconds": 77.22875976415746,
-        "maeSeconds": 1.3776928020121109
+        "n": 55,
+        "meanPredictedCycleSeconds": 77.20737895898151,
+        "meanTrueCycleSeconds": 77.52403072067959,
+        "maeSeconds": 1.1306160636826381
       },
       {
         "visitIndexSinceIncident": 220,
-        "n": 65,
-        "meanPredictedCycleSeconds": 77.62018123605627,
-        "meanTrueCycleSeconds": 77.75768691252631,
-        "maeSeconds": 1.188875719754602
+        "n": 55,
+        "meanPredictedCycleSeconds": 77.1598389605202,
+        "meanTrueCycleSeconds": 77.49396841712296,
+        "maeSeconds": 1.4165064076940908
       },
       {
         "visitIndexSinceIncident": 221,
-        "n": 64,
-        "meanPredictedCycleSeconds": 77.68079207014424,
-        "meanTrueCycleSeconds": 78.0695301918895,
-        "maeSeconds": 1.1813342255872994
+        "n": 54,
+        "meanPredictedCycleSeconds": 77.10632089029224,
+        "meanTrueCycleSeconds": 77.58531864211653,
+        "maeSeconds": 1.432267746031008
       },
       {
         "visitIndexSinceIncident": 222,
-        "n": 62,
-        "meanPredictedCycleSeconds": 77.86659108212342,
-        "meanTrueCycleSeconds": 77.88378789597341,
-        "maeSeconds": 1.2603342161582307
+        "n": 54,
+        "meanPredictedCycleSeconds": 77.54990793288854,
+        "meanTrueCycleSeconds": 77.38344901244811,
+        "maeSeconds": 1.4718078781689186
       },
       {
         "visitIndexSinceIncident": 223,
-        "n": 60,
-        "meanPredictedCycleSeconds": 77.31666643621473,
-        "meanTrueCycleSeconds": 77.51032552604254,
-        "maeSeconds": 1.1856895188050696
+        "n": 54,
+        "meanPredictedCycleSeconds": 77.1501893893099,
+        "meanTrueCycleSeconds": 77.6602962044999,
+        "maeSeconds": 1.278131097528596
       },
       {
         "visitIndexSinceIncident": 224,
-        "n": 58,
-        "meanPredictedCycleSeconds": 76.89667271368123,
-        "meanTrueCycleSeconds": 77.33116343334831,
-        "maeSeconds": 1.325154639542062
+        "n": 54,
+        "meanPredictedCycleSeconds": 77.63017331113535,
+        "meanTrueCycleSeconds": 77.79985719112058,
+        "maeSeconds": 1.2330449549772378
       },
       {
         "visitIndexSinceIncident": 225,
-        "n": 58,
-        "meanPredictedCycleSeconds": 77.94250831757128,
-        "meanTrueCycleSeconds": 77.57522611551244,
-        "maeSeconds": 1.2834035932567782
+        "n": 54,
+        "meanPredictedCycleSeconds": 77.36439460505383,
+        "meanTrueCycleSeconds": 77.43172056665989,
+        "maeSeconds": 1.320524036693439
       },
       {
         "visitIndexSinceIncident": 226,
-        "n": 58,
-        "meanPredictedCycleSeconds": 77.5141590698573,
-        "meanTrueCycleSeconds": 77.66178789731629,
-        "maeSeconds": 1.2534719969531933
+        "n": 54,
+        "meanPredictedCycleSeconds": 77.23409710203616,
+        "meanTrueCycleSeconds": 77.68377016039773,
+        "maeSeconds": 1.408903535759511
       },
       {
         "visitIndexSinceIncident": 227,
-        "n": 57,
-        "meanPredictedCycleSeconds": 77.28355646246179,
-        "meanTrueCycleSeconds": 77.63421902468984,
-        "maeSeconds": 1.4077542994672627
+        "n": 51,
+        "meanPredictedCycleSeconds": 76.6641999731961,
+        "meanTrueCycleSeconds": 77.42568815006491,
+        "maeSeconds": 1.0975007168873703
       },
       {
         "visitIndexSinceIncident": 228,
-        "n": 57,
-        "meanPredictedCycleSeconds": 77.8993585618932,
-        "meanTrueCycleSeconds": 77.55805246440465,
-        "maeSeconds": 1.3231187225778813
+        "n": 50,
+        "meanPredictedCycleSeconds": 77.21484561409851,
+        "meanTrueCycleSeconds": 77.61621506426484,
+        "maeSeconds": 1.3187075908526256
       },
       {
         "visitIndexSinceIncident": 229,
-        "n": 55,
-        "meanPredictedCycleSeconds": 77.46943477852193,
-        "meanTrueCycleSeconds": 77.52932838052511,
-        "maeSeconds": 1.4277336067993789
+        "n": 49,
+        "meanPredictedCycleSeconds": 77.07220877050598,
+        "meanTrueCycleSeconds": 77.42430718402777,
+        "maeSeconds": 1.180154752853726
       },
       {
         "visitIndexSinceIncident": 230,
-        "n": 55,
-        "meanPredictedCycleSeconds": 77.26100948592567,
-        "meanTrueCycleSeconds": 77.60922679149292,
-        "maeSeconds": 1.3373978084418159
+        "n": 49,
+        "meanPredictedCycleSeconds": 76.99042964750824,
+        "meanTrueCycleSeconds": 77.73558941551921,
+        "maeSeconds": 1.3196677518375728
       },
       {
         "visitIndexSinceIncident": 231,
-        "n": 55,
-        "meanPredictedCycleSeconds": 77.56307540162774,
-        "meanTrueCycleSeconds": 77.71489203650165,
-        "maeSeconds": 1.3874159174163159
+        "n": 49,
+        "meanPredictedCycleSeconds": 77.60699460415533,
+        "meanTrueCycleSeconds": 78.00142093721244,
+        "maeSeconds": 0.9828005194591655
       },
       {
         "visitIndexSinceIncident": 232,
-        "n": 55,
-        "meanPredictedCycleSeconds": 77.50224410611474,
-        "meanTrueCycleSeconds": 77.64145746766167,
-        "maeSeconds": 1.4336722842170702
+        "n": 49,
+        "meanPredictedCycleSeconds": 77.57808981853012,
+        "meanTrueCycleSeconds": 77.75141779215512,
+        "maeSeconds": 1.0498752216185625
       },
       {
         "visitIndexSinceIncident": 233,
-        "n": 55,
-        "meanPredictedCycleSeconds": 77.40417560250386,
-        "meanTrueCycleSeconds": 77.42631909430705,
-        "maeSeconds": 1.0492575631922814
+        "n": 48,
+        "meanPredictedCycleSeconds": 77.14807484135,
+        "meanTrueCycleSeconds": 77.6017468533634,
+        "maeSeconds": 1.1067434344089955
       },
       {
         "visitIndexSinceIncident": 234,
-        "n": 54,
-        "meanPredictedCycleSeconds": 77.58853249921631,
-        "meanTrueCycleSeconds": 77.8834888998212,
-        "maeSeconds": 1.4525424463526457
+        "n": 47,
+        "meanPredictedCycleSeconds": 77.27195719586811,
+        "meanTrueCycleSeconds": 77.61433780621341,
+        "maeSeconds": 1.1553899529566065
       },
       {
         "visitIndexSinceIncident": 235,
-        "n": 54,
-        "meanPredictedCycleSeconds": 77.28479874509883,
-        "meanTrueCycleSeconds": 77.46722331239532,
-        "maeSeconds": 1.1783452454193895
+        "n": 46,
+        "meanPredictedCycleSeconds": 77.17061972882102,
+        "meanTrueCycleSeconds": 77.3332153527147,
+        "maeSeconds": 1.2115148672952003
       },
       {
         "visitIndexSinceIncident": 236,
-        "n": 54,
-        "meanPredictedCycleSeconds": 77.55188967121036,
-        "meanTrueCycleSeconds": 77.34586129206474,
-        "maeSeconds": 1.3536632503138728
+        "n": 45,
+        "meanPredictedCycleSeconds": 77.23282497410612,
+        "meanTrueCycleSeconds": 77.92460351342129,
+        "maeSeconds": 1.4881674759904417
       },
       {
         "visitIndexSinceIncident": 237,
-        "n": 54,
-        "meanPredictedCycleSeconds": 77.84557938903038,
-        "meanTrueCycleSeconds": 77.55191509943042,
-        "maeSeconds": 1.1436163499308731
+        "n": 45,
+        "meanPredictedCycleSeconds": 77.2580916273071,
+        "meanTrueCycleSeconds": 77.43108811871045,
+        "maeSeconds": 1.1796992341196737
       },
       {
         "visitIndexSinceIncident": 238,
-        "n": 54,
-        "meanPredictedCycleSeconds": 77.43573897810226,
-        "meanTrueCycleSeconds": 77.66901264857087,
-        "maeSeconds": 1.4129673543490495
+        "n": 45,
+        "meanPredictedCycleSeconds": 77.148167126947,
+        "meanTrueCycleSeconds": 77.76298079672787,
+        "maeSeconds": 1.1921793657856843
       },
       {
         "visitIndexSinceIncident": 239,
-        "n": 53,
-        "meanPredictedCycleSeconds": 77.74897902902285,
-        "meanTrueCycleSeconds": 77.82731239409802,
-        "maeSeconds": 1.1013260436566223
+        "n": 43,
+        "meanPredictedCycleSeconds": 77.33543669304045,
+        "meanTrueCycleSeconds": 77.70138962415241,
+        "maeSeconds": 1.1398893192896602
       },
       {
         "visitIndexSinceIncident": 240,
-        "n": 50,
-        "meanPredictedCycleSeconds": 77.54909126947308,
-        "meanTrueCycleSeconds": 77.47595052361488,
-        "maeSeconds": 1.27609731772159
+        "n": 43,
+        "meanPredictedCycleSeconds": 77.15344391068231,
+        "meanTrueCycleSeconds": 77.57586289959592,
+        "maeSeconds": 1.1617712250821695
       },
       {
         "visitIndexSinceIncident": 241,
-        "n": 49,
-        "meanPredictedCycleSeconds": 77.03991388369,
-        "meanTrueCycleSeconds": 77.55197064327646,
-        "maeSeconds": 1.2962539754397018
+        "n": 43,
+        "meanPredictedCycleSeconds": 77.8880962946303,
+        "meanTrueCycleSeconds": 77.91792889818723,
+        "maeSeconds": 1.5502938152800865
       },
       {
         "visitIndexSinceIncident": 242,
-        "n": 49,
-        "meanPredictedCycleSeconds": 77.22382941109035,
-        "meanTrueCycleSeconds": 77.65591980235614,
-        "maeSeconds": 1.3151363702621255
+        "n": 43,
+        "meanPredictedCycleSeconds": 77.45588646535694,
+        "meanTrueCycleSeconds": 77.77958302719648,
+        "maeSeconds": 1.4110253738619085
       },
       {
         "visitIndexSinceIncident": 243,
-        "n": 49,
-        "meanPredictedCycleSeconds": 77.86851346534681,
-        "meanTrueCycleSeconds": 78.05501021843936,
-        "maeSeconds": 1.115007138790708
+        "n": 42,
+        "meanPredictedCycleSeconds": 77.13297995117497,
+        "meanTrueCycleSeconds": 77.43637469002888,
+        "maeSeconds": 1.1160581580419227
       },
       {
         "visitIndexSinceIncident": 244,
-        "n": 49,
-        "meanPredictedCycleSeconds": 77.48673223146345,
-        "meanTrueCycleSeconds": 77.43767195392628,
-        "maeSeconds": 1.4994506044197229
+        "n": 42,
+        "meanPredictedCycleSeconds": 77.03712218122295,
+        "meanTrueCycleSeconds": 77.46470369079283,
+        "maeSeconds": 1.2541698738676716
       },
       {
         "visitIndexSinceIncident": 245,
-        "n": 49,
-        "meanPredictedCycleSeconds": 77.81349748333758,
-        "meanTrueCycleSeconds": 77.61685429475442,
-        "maeSeconds": 1.190530096764405
+        "n": 42,
+        "meanPredictedCycleSeconds": 76.92687464411763,
+        "meanTrueCycleSeconds": 77.1912600690765,
+        "maeSeconds": 1.1852041840450283
       },
       {
         "visitIndexSinceIncident": 246,
-        "n": 49,
-        "meanPredictedCycleSeconds": 78.08154602145271,
-        "meanTrueCycleSeconds": 78.0448611009942,
-        "maeSeconds": 1.134201585695691
+        "n": 42,
+        "meanPredictedCycleSeconds": 77.16485576610086,
+        "meanTrueCycleSeconds": 77.41070128635813,
+        "maeSeconds": 1.335439274051182
       },
       {
         "visitIndexSinceIncident": 247,
-        "n": 48,
-        "meanPredictedCycleSeconds": 77.1824796053359,
-        "meanTrueCycleSeconds": 77.4244927163624,
-        "maeSeconds": 1.5943148725434189
+        "n": 42,
+        "meanPredictedCycleSeconds": 77.09463851825087,
+        "meanTrueCycleSeconds": 77.72371110111652,
+        "maeSeconds": 1.028296249544486
       },
       {
         "visitIndexSinceIncident": 248,
-        "n": 47,
-        "meanPredictedCycleSeconds": 77.49939625000299,
-        "meanTrueCycleSeconds": 77.60932399673348,
-        "maeSeconds": 1.2480615976789542
+        "n": 41,
+        "meanPredictedCycleSeconds": 77.1350644622127,
+        "meanTrueCycleSeconds": 77.49051799075451,
+        "maeSeconds": 1.2330084810888786
       },
       {
         "visitIndexSinceIncident": 249,
-        "n": 47,
-        "meanPredictedCycleSeconds": 77.14905425312722,
-        "meanTrueCycleSeconds": 77.4191443637172,
-        "maeSeconds": 1.2493853267590345
+        "n": 39,
+        "meanPredictedCycleSeconds": 76.93729665717503,
+        "meanTrueCycleSeconds": 77.69259166822602,
+        "maeSeconds": 1.151076144023918
       },
       {
         "visitIndexSinceIncident": 250,
-        "n": 45,
-        "meanPredictedCycleSeconds": 77.29792034777637,
-        "meanTrueCycleSeconds": 77.73119435086846,
-        "maeSeconds": 1.1164423538671369
+        "n": 39,
+        "meanPredictedCycleSeconds": 76.93513078759779,
+        "meanTrueCycleSeconds": 77.36039299173997,
+        "maeSeconds": 1.4540156717886203
       },
       {
         "visitIndexSinceIncident": 251,
-        "n": 45,
-        "meanPredictedCycleSeconds": 77.34754798836333,
-        "meanTrueCycleSeconds": 77.54957870629927,
-        "maeSeconds": 1.3121408230924376
+        "n": 39,
+        "meanPredictedCycleSeconds": 77.01514358768324,
+        "meanTrueCycleSeconds": 77.48166898704874,
+        "maeSeconds": 1.1643850827029614
       },
       {
         "visitIndexSinceIncident": 252,
-        "n": 44,
-        "meanPredictedCycleSeconds": 77.43247576651736,
-        "meanTrueCycleSeconds": 77.4221917190589,
-        "maeSeconds": 1.1902142929893542
+        "n": 38,
+        "meanPredictedCycleSeconds": 77.77291824143515,
+        "meanTrueCycleSeconds": 77.95116286587559,
+        "maeSeconds": 1.438120425447567
       },
       {
         "visitIndexSinceIncident": 253,
-        "n": 43,
-        "meanPredictedCycleSeconds": 78.245626971311,
-        "meanTrueCycleSeconds": 77.64716512692529,
-        "maeSeconds": 1.2439448277845437
+        "n": 38,
+        "meanPredictedCycleSeconds": 77.0590093916066,
+        "meanTrueCycleSeconds": 77.56998815059073,
+        "maeSeconds": 1.3820873978654333
       },
       {
         "visitIndexSinceIncident": 254,
-        "n": 43,
-        "meanPredictedCycleSeconds": 77.17924815497304,
-        "meanTrueCycleSeconds": 77.59544867056228,
-        "maeSeconds": 1.2783295169206674
+        "n": 37,
+        "meanPredictedCycleSeconds": 76.86870094657834,
+        "meanTrueCycleSeconds": 77.79128484186289,
+        "maeSeconds": 1.472793707387428
       },
       {
         "visitIndexSinceIncident": 255,
-        "n": 43,
-        "meanPredictedCycleSeconds": 77.08475656743683,
-        "meanTrueCycleSeconds": 77.34213872058967,
-        "maeSeconds": 1.2962086630609782
+        "n": 36,
+        "meanPredictedCycleSeconds": 77.50614147621307,
+        "meanTrueCycleSeconds": 77.650166323305,
+        "maeSeconds": 1.2836744821782036
       },
       {
         "visitIndexSinceIncident": 256,
-        "n": 43,
-        "meanPredictedCycleSeconds": 77.97116552812852,
-        "meanTrueCycleSeconds": 77.70999076031148,
-        "maeSeconds": 0.9997456757218236
+        "n": 36,
+        "meanPredictedCycleSeconds": 76.98968300786828,
+        "meanTrueCycleSeconds": 77.55384995695204,
+        "maeSeconds": 1.2130370616646762
       },
       {
         "visitIndexSinceIncident": 257,
-        "n": 42,
-        "meanPredictedCycleSeconds": 77.59982705033403,
-        "meanTrueCycleSeconds": 77.45981692150235,
-        "maeSeconds": 1.4448626770741277
+        "n": 36,
+        "meanPredictedCycleSeconds": 77.23020724006642,
+        "meanTrueCycleSeconds": 77.6604369350502,
+        "maeSeconds": 1.0280231270036657
       },
       {
         "visitIndexSinceIncident": 258,
-        "n": 42,
-        "meanPredictedCycleSeconds": 77.04035495062479,
-        "meanTrueCycleSeconds": 77.45770092348435,
-        "maeSeconds": 1.2590860300931188
+        "n": 36,
+        "meanPredictedCycleSeconds": 77.38239327861942,
+        "meanTrueCycleSeconds": 77.61517119035125,
+        "maeSeconds": 0.9583513668925292
       },
       {
         "visitIndexSinceIncident": 259,
-        "n": 42,
-        "meanPredictedCycleSeconds": 76.96905254647079,
-        "meanTrueCycleSeconds": 77.49894981640612,
-        "maeSeconds": 1.4799229970060157
+        "n": 35,
+        "meanPredictedCycleSeconds": 77.09333442843587,
+        "meanTrueCycleSeconds": 78.0241450184158,
+        "maeSeconds": 1.22650990201397
       },
       {
         "visitIndexSinceIncident": 260,
-        "n": 42,
-        "meanPredictedCycleSeconds": 77.68140044297841,
-        "meanTrueCycleSeconds": 77.45518438557961,
-        "maeSeconds": 1.4638382637920782
+        "n": 35,
+        "meanPredictedCycleSeconds": 76.94914251249719,
+        "meanTrueCycleSeconds": 77.3447263947555,
+        "maeSeconds": 1.167945289400024
       },
       {
         "visitIndexSinceIncident": 261,
-        "n": 42,
-        "meanPredictedCycleSeconds": 77.42646387046636,
-        "meanTrueCycleSeconds": 77.58322970351826,
-        "maeSeconds": 1.179454580227659
+        "n": 35,
+        "meanPredictedCycleSeconds": 77.56672621520715,
+        "meanTrueCycleSeconds": 77.79845316942249,
+        "maeSeconds": 1.4124995304621044
       },
       {
         "visitIndexSinceIncident": 262,
-        "n": 41,
-        "meanPredictedCycleSeconds": 77.70671946143105,
-        "meanTrueCycleSeconds": 77.81114371307194,
-        "maeSeconds": 1.1496032615537495
+        "n": 35,
+        "meanPredictedCycleSeconds": 77.14395586447698,
+        "meanTrueCycleSeconds": 77.24436078055629,
+        "maeSeconds": 1.0953935005584123
       },
       {
         "visitIndexSinceIncident": 263,
-        "n": 41,
-        "meanPredictedCycleSeconds": 77.4017215160716,
-        "meanTrueCycleSeconds": 77.49183249555347,
-        "maeSeconds": 1.3743863783037742
+        "n": 35,
+        "meanPredictedCycleSeconds": 76.81717516998658,
+        "meanTrueCycleSeconds": 77.23977569996246,
+        "maeSeconds": 1.233283475815104
       },
       {
         "visitIndexSinceIncident": 264,
-        "n": 39,
-        "meanPredictedCycleSeconds": 77.39531370342984,
-        "meanTrueCycleSeconds": 77.76173205864735,
-        "maeSeconds": 1.27640868526154
+        "n": 33,
+        "meanPredictedCycleSeconds": 76.67192945641094,
+        "meanTrueCycleSeconds": 77.39528827013618,
+        "maeSeconds": 1.1731647940104755
       },
       {
         "visitIndexSinceIncident": 265,
-        "n": 39,
-        "meanPredictedCycleSeconds": 78.07908531982658,
-        "meanTrueCycleSeconds": 77.7479943390458,
-        "maeSeconds": 1.0422181792162222
+        "n": 33,
+        "meanPredictedCycleSeconds": 77.35209149368296,
+        "meanTrueCycleSeconds": 77.62568250044502,
+        "maeSeconds": 1.3604820532991717
       },
       {
         "visitIndexSinceIncident": 266,
-        "n": 39,
-        "meanPredictedCycleSeconds": 77.43602653729323,
-        "meanTrueCycleSeconds": 77.51829375574987,
-        "maeSeconds": 1.3689786771826142
+        "n": 32,
+        "meanPredictedCycleSeconds": 77.38707313450483,
+        "meanTrueCycleSeconds": 77.62738416256616,
+        "maeSeconds": 1.3205821375201232
       },
       {
         "visitIndexSinceIncident": 267,
-        "n": 38,
-        "meanPredictedCycleSeconds": 77.51173965038657,
-        "meanTrueCycleSeconds": 77.33713626778244,
-        "maeSeconds": 1.165203383352848
+        "n": 31,
+        "meanPredictedCycleSeconds": 77.52159132469845,
+        "meanTrueCycleSeconds": 77.77980897317249,
+        "maeSeconds": 1.0078421053505648
       },
       {
         "visitIndexSinceIncident": 268,
-        "n": 38,
-        "meanPredictedCycleSeconds": 76.99531445004939,
-        "meanTrueCycleSeconds": 77.48868824639602,
-        "maeSeconds": 1.2797501211358715
+        "n": 31,
+        "meanPredictedCycleSeconds": 77.33199735327045,
+        "meanTrueCycleSeconds": 77.70737845168239,
+        "maeSeconds": 1.223773928408053
       },
       {
         "visitIndexSinceIncident": 269,
-        "n": 38,
-        "meanPredictedCycleSeconds": 77.47010755575542,
-        "meanTrueCycleSeconds": 77.76770844624231,
-        "maeSeconds": 1.2877305903606422
+        "n": 31,
+        "meanPredictedCycleSeconds": 78.21798236866624,
+        "meanTrueCycleSeconds": 78.11759823404493,
+        "maeSeconds": 1.311838251736689
       },
       {
         "visitIndexSinceIncident": 270,
-        "n": 37,
-        "meanPredictedCycleSeconds": 77.49058808168316,
-        "meanTrueCycleSeconds": 77.77086165708465,
-        "maeSeconds": 1.2440018598539262
+        "n": 30,
+        "meanPredictedCycleSeconds": 77.37369619837189,
+        "meanTrueCycleSeconds": 77.62030746228993,
+        "maeSeconds": 1.520814233438478
       },
       {
         "visitIndexSinceIncident": 271,
-        "n": 36,
-        "meanPredictedCycleSeconds": 77.429139709379,
-        "meanTrueCycleSeconds": 77.72992967436504,
-        "maeSeconds": 1.220705116326695
+        "n": 29,
+        "meanPredictedCycleSeconds": 77.6370458109558,
+        "meanTrueCycleSeconds": 78.10155722023597,
+        "maeSeconds": 1.3129161134620704
       },
       {
         "visitIndexSinceIncident": 272,
-        "n": 36,
-        "meanPredictedCycleSeconds": 77.236204909421,
-        "meanTrueCycleSeconds": 77.66006574577962,
-        "maeSeconds": 1.434842236427397
+        "n": 29,
+        "meanPredictedCycleSeconds": 77.26326096289564,
+        "meanTrueCycleSeconds": 77.43448543343051,
+        "maeSeconds": 1.073920738814089
       },
       {
         "visitIndexSinceIncident": 273,
-        "n": 36,
-        "meanPredictedCycleSeconds": 77.71646669901239,
-        "meanTrueCycleSeconds": 77.74161088011331,
-        "maeSeconds": 0.9709239616733044
+        "n": 27,
+        "meanPredictedCycleSeconds": 77.46395984434041,
+        "meanTrueCycleSeconds": 77.80661203519061,
+        "maeSeconds": 1.406376909627171
       },
       {
         "visitIndexSinceIncident": 274,
-        "n": 35,
-        "meanPredictedCycleSeconds": 77.55643709267481,
-        "meanTrueCycleSeconds": 77.79869487211108,
-        "maeSeconds": 1.1491434341370959
+        "n": 26,
+        "meanPredictedCycleSeconds": 77.92781944189502,
+        "meanTrueCycleSeconds": 77.89819202543451,
+        "maeSeconds": 1.320156268043778
       },
       {
         "visitIndexSinceIncident": 275,
-        "n": 35,
-        "meanPredictedCycleSeconds": 77.40695246027477,
-        "meanTrueCycleSeconds": 77.86706846558621,
-        "maeSeconds": 1.0933387251229416
+        "n": 25,
+        "meanPredictedCycleSeconds": 76.46971724448204,
+        "meanTrueCycleSeconds": 77.55769942171872,
+        "maeSeconds": 1.3770998700326504
       },
       {
         "visitIndexSinceIncident": 276,
-        "n": 35,
-        "meanPredictedCycleSeconds": 78.09870370180275,
-        "meanTrueCycleSeconds": 77.61570491311805,
-        "maeSeconds": 1.3752896618284098
+        "n": 25,
+        "meanPredictedCycleSeconds": 77.58072385873054,
+        "meanTrueCycleSeconds": 77.76790602587164,
+        "maeSeconds": 1.0502175101648146
       },
       {
         "visitIndexSinceIncident": 277,
-        "n": 35,
-        "meanPredictedCycleSeconds": 77.52958311477983,
-        "meanTrueCycleSeconds": 77.73008129820228,
-        "maeSeconds": 1.2663299808254689
+        "n": 24,
+        "meanPredictedCycleSeconds": 77.31085890500425,
+        "meanTrueCycleSeconds": 77.53473875376706,
+        "maeSeconds": 1.5314899811403044
       },
       {
         "visitIndexSinceIncident": 278,
-        "n": 35,
-        "meanPredictedCycleSeconds": 77.03225597949893,
-        "meanTrueCycleSeconds": 77.56559889997754,
-        "maeSeconds": 1.3410082638332215
+        "n": 24,
+        "meanPredictedCycleSeconds": 76.66448562240986,
+        "meanTrueCycleSeconds": 77.32967619155534,
+        "maeSeconds": 1.601060780941807
       },
       {
         "visitIndexSinceIncident": 279,
-        "n": 34,
-        "meanPredictedCycleSeconds": 77.27527973374801,
-        "meanTrueCycleSeconds": 77.38255085960469,
-        "maeSeconds": 1.0252419928716199
+        "n": 23,
+        "meanPredictedCycleSeconds": 77.56872687144416,
+        "meanTrueCycleSeconds": 78.01309486948277,
+        "maeSeconds": 1.1831551142472698
       },
       {
         "visitIndexSinceIncident": 280,
-        "n": 33,
-        "meanPredictedCycleSeconds": 77.73877877790493,
-        "meanTrueCycleSeconds": 77.5213363423492,
-        "maeSeconds": 1.1365827927577494
+        "n": 23,
+        "meanPredictedCycleSeconds": 77.43296072662774,
+        "meanTrueCycleSeconds": 77.76225374881987,
+        "maeSeconds": 1.2299728009619086
       },
       {
         "visitIndexSinceIncident": 281,
-        "n": 33,
-        "meanPredictedCycleSeconds": 77.39871540747039,
-        "meanTrueCycleSeconds": 77.41722081285535,
-        "maeSeconds": 1.5127215740483968
+        "n": 22,
+        "meanPredictedCycleSeconds": 77.20456718876284,
+        "meanTrueCycleSeconds": 77.40451343035834,
+        "maeSeconds": 1.5902815721963626
       },
       {
         "visitIndexSinceIncident": 282,
-        "n": 32,
-        "meanPredictedCycleSeconds": 77.96998742397136,
-        "meanTrueCycleSeconds": 78.13243298896123,
-        "maeSeconds": 1.3229742009742007
+        "n": 22,
+        "meanPredictedCycleSeconds": 76.7884308111025,
+        "meanTrueCycleSeconds": 77.48365740638904,
+        "maeSeconds": 1.1270501544369458
       },
       {
         "visitIndexSinceIncident": 283,
-        "n": 31,
-        "meanPredictedCycleSeconds": 77.18509136483564,
-        "meanTrueCycleSeconds": 77.36032503747171,
-        "maeSeconds": 1.7420782951622813
+        "n": 22,
+        "meanPredictedCycleSeconds": 76.65588720089222,
+        "meanTrueCycleSeconds": 77.49616535499014,
+        "maeSeconds": 1.2118510367966941
       },
       {
         "visitIndexSinceIncident": 284,
-        "n": 31,
-        "meanPredictedCycleSeconds": 77.4900517047308,
-        "meanTrueCycleSeconds": 77.29376708265514,
-        "maeSeconds": 1.4556246177996264
+        "n": 20,
+        "meanPredictedCycleSeconds": 77.21943058814834,
+        "meanTrueCycleSeconds": 77.61878447346389,
+        "maeSeconds": 1.1032810328454126
       },
       {
         "visitIndexSinceIncident": 285,
-        "n": 31,
-        "meanPredictedCycleSeconds": 77.95926993140158,
-        "meanTrueCycleSeconds": 77.63347417897275,
-        "maeSeconds": 1.3707499471261708
+        "n": 19,
+        "meanPredictedCycleSeconds": 76.63575714704719,
+        "meanTrueCycleSeconds": 77.26833814186485,
+        "maeSeconds": 0.9998092212227192
       },
       {
         "visitIndexSinceIncident": 286,
-        "n": 30,
-        "meanPredictedCycleSeconds": 77.69136259160922,
-        "meanTrueCycleSeconds": 77.73337043070545,
-        "maeSeconds": 1.4350824439055287
+        "n": 19,
+        "meanPredictedCycleSeconds": 76.80556648213123,
+        "meanTrueCycleSeconds": 77.97457970247457,
+        "maeSeconds": 1.3736190991061903
       },
       {
         "visitIndexSinceIncident": 287,
-        "n": 29,
-        "meanPredictedCycleSeconds": 78.17194490436047,
-        "meanTrueCycleSeconds": 78.53331543203315,
-        "maeSeconds": 0.9908527015973109
+        "n": 18,
+        "meanPredictedCycleSeconds": 77.02362602785556,
+        "meanTrueCycleSeconds": 77.64500193784221,
+        "maeSeconds": 1.3075741325084114
       },
       {
         "visitIndexSinceIncident": 288,
-        "n": 29,
-        "meanPredictedCycleSeconds": 77.5598636686275,
-        "meanTrueCycleSeconds": 77.79590071801995,
-        "maeSeconds": 1.1206912998179481
+        "n": 18,
+        "meanPredictedCycleSeconds": 77.57079000374385,
+        "meanTrueCycleSeconds": 77.99190025611057,
+        "maeSeconds": 1.3171670704934304
       },
       {
         "visitIndexSinceIncident": 289,
-        "n": 28,
-        "meanPredictedCycleSeconds": 78.08561277526732,
-        "meanTrueCycleSeconds": 77.47377527498507,
-        "maeSeconds": 1.5724593389386068
+        "n": 18,
+        "meanPredictedCycleSeconds": 77.25653817226413,
+        "meanTrueCycleSeconds": 77.13072255978153,
+        "maeSeconds": 1.430496910582794
       },
       {
         "visitIndexSinceIncident": 290,
-        "n": 26,
-        "meanPredictedCycleSeconds": 77.59479651369355,
-        "meanTrueCycleSeconds": 77.5804238866728,
-        "maeSeconds": 1.2209604957536027
+        "n": 18,
+        "meanPredictedCycleSeconds": 77.58509535859633,
+        "meanTrueCycleSeconds": 77.7175970049575,
+        "maeSeconds": 1.1931637899122163
       },
       {
         "visitIndexSinceIncident": 291,
-        "n": 26,
-        "meanPredictedCycleSeconds": 78.2415423432081,
-        "meanTrueCycleSeconds": 77.94094319784871,
-        "maeSeconds": 1.349366873614021
+        "n": 17,
+        "meanPredictedCycleSeconds": 77.18470723985341,
+        "meanTrueCycleSeconds": 77.48915464858361,
+        "maeSeconds": 1.3863743792203556
       },
       {
         "visitIndexSinceIncident": 292,
-        "n": 25,
-        "meanPredictedCycleSeconds": 77.05888595748314,
-        "meanTrueCycleSeconds": 77.33747373439371,
-        "maeSeconds": 1.307086787801063
+        "n": 14,
+        "meanPredictedCycleSeconds": 77.91828998017981,
+        "meanTrueCycleSeconds": 77.69403791374394,
+        "maeSeconds": 1.4567102641174563
       },
       {
         "visitIndexSinceIncident": 293,
-        "n": 25,
-        "meanPredictedCycleSeconds": 77.369197694284,
-        "meanTrueCycleSeconds": 78.03767493508757,
-        "maeSeconds": 1.0889472897572636
+        "n": 14,
+        "meanPredictedCycleSeconds": 76.9433039059066,
+        "meanTrueCycleSeconds": 77.64576823849764,
+        "maeSeconds": 1.214397562453714
       },
       {
         "visitIndexSinceIncident": 294,
-        "n": 24,
-        "meanPredictedCycleSeconds": 77.69326385180045,
-        "meanTrueCycleSeconds": 77.88885395702285,
-        "maeSeconds": 1.338055259117482
+        "n": 14,
+        "meanPredictedCycleSeconds": 76.58715170608335,
+        "meanTrueCycleSeconds": 77.80377127443042,
+        "maeSeconds": 1.5606911621182198
       },
       {
         "visitIndexSinceIncident": 295,
-        "n": 23,
-        "meanPredictedCycleSeconds": 77.12548919648282,
-        "meanTrueCycleSeconds": 77.34842175399156,
-        "maeSeconds": 1.5464234424805343
+        "n": 14,
+        "meanPredictedCycleSeconds": 76.87576640762187,
+        "meanTrueCycleSeconds": 78.02769051891353,
+        "maeSeconds": 1.2324376566825097
       },
       {
         "visitIndexSinceIncident": 296,
-        "n": 23,
-        "meanPredictedCycleSeconds": 77.21281928949759,
-        "meanTrueCycleSeconds": 77.5934851632818,
-        "maeSeconds": 1.5306595351891144
+        "n": 12,
+        "meanPredictedCycleSeconds": 76.97001096413396,
+        "meanTrueCycleSeconds": 77.51652172332008,
+        "maeSeconds": 1.4066540124688913
       },
       {
         "visitIndexSinceIncident": 297,
-        "n": 23,
-        "meanPredictedCycleSeconds": 77.3562311702932,
-        "meanTrueCycleSeconds": 77.43749865176885,
-        "maeSeconds": 1.0803292006806522
+        "n": 12,
+        "meanPredictedCycleSeconds": 77.20848586307532,
+        "meanTrueCycleSeconds": 77.89675199473277,
+        "maeSeconds": 0.9862899585482623
       },
       {
         "visitIndexSinceIncident": 298,
-        "n": 23,
-        "meanPredictedCycleSeconds": 77.00579656924906,
-        "meanTrueCycleSeconds": 77.59289079191892,
-        "maeSeconds": 1.2778937622026958
+        "n": 12,
+        "meanPredictedCycleSeconds": 77.57949622235064,
+        "meanTrueCycleSeconds": 77.57084000855684,
+        "maeSeconds": 1.1502984365107274
       },
       {
         "visitIndexSinceIncident": 299,
-        "n": 22,
-        "meanPredictedCycleSeconds": 77.44824642357335,
-        "meanTrueCycleSeconds": 77.32598677150567,
-        "maeSeconds": 1.7182874982858651
+        "n": 12,
+        "meanPredictedCycleSeconds": 76.81801663101068,
+        "meanTrueCycleSeconds": 76.95115255999069,
+        "maeSeconds": 1.1352251315310216
       },
       {
         "visitIndexSinceIncident": 300,
-        "n": 22,
-        "meanPredictedCycleSeconds": 77.18940673795018,
-        "meanTrueCycleSeconds": 77.71483673443171,
-        "maeSeconds": 1.2517046622620072
+        "n": 11,
+        "meanPredictedCycleSeconds": 77.8220068637198,
+        "meanTrueCycleSeconds": 77.92346395856954,
+        "maeSeconds": 1.0635769799936297
       },
       {
         "visitIndexSinceIncident": 301,
-        "n": 22,
-        "meanPredictedCycleSeconds": 77.11049409903138,
-        "meanTrueCycleSeconds": 77.57475589308888,
-        "maeSeconds": 1.2529663811374974
+        "n": 10,
+        "meanPredictedCycleSeconds": 76.81478926792548,
+        "meanTrueCycleSeconds": 77.41529763471335,
+        "maeSeconds": 1.1211170178422818
       },
       {
         "visitIndexSinceIncident": 302,
-        "n": 20,
-        "meanPredictedCycleSeconds": 77.51272784261269,
-        "meanTrueCycleSeconds": 77.2359709655866,
-        "maeSeconds": 1.50677820182976
+        "n": 8,
+        "meanPredictedCycleSeconds": 77.52535352536351,
+        "meanTrueCycleSeconds": 77.79924032557756,
+        "maeSeconds": 0.9341011015530523
       },
       {
         "visitIndexSinceIncident": 303,
-        "n": 19,
-        "meanPredictedCycleSeconds": 77.99527361853913,
-        "meanTrueCycleSeconds": 77.4969841687891,
-        "maeSeconds": 0.9422381704083801
+        "n": 8,
+        "meanPredictedCycleSeconds": 77.4000819901579,
+        "meanTrueCycleSeconds": 77.18988400232047,
+        "maeSeconds": 1.8301742212376428
       },
       {
         "visitIndexSinceIncident": 304,
-        "n": 19,
-        "meanPredictedCycleSeconds": 76.89600682671612,
-        "meanTrueCycleSeconds": 77.361235684078,
-        "maeSeconds": 1.4869718424394562
+        "n": 7,
+        "meanPredictedCycleSeconds": 75.61659644090416,
+        "meanTrueCycleSeconds": 77.10545762628317,
+        "maeSeconds": 1.85861776134367
       },
       {
         "visitIndexSinceIncident": 305,
-        "n": 18,
-        "meanPredictedCycleSeconds": 77.98876471937605,
-        "meanTrueCycleSeconds": 78.12481564066063,
-        "maeSeconds": 1.1237608738010505
+        "n": 6,
+        "meanPredictedCycleSeconds": 76.79076696736492,
+        "meanTrueCycleSeconds": 77.02638538181782,
+        "maeSeconds": 0.35794124712466413
       },
       {
         "visitIndexSinceIncident": 306,
-        "n": 18,
-        "meanPredictedCycleSeconds": 78.21175257829479,
-        "meanTrueCycleSeconds": 78.10425309257374,
-        "maeSeconds": 1.355112398085197
+        "n": 6,
+        "meanPredictedCycleSeconds": 77.66747237074547,
+        "meanTrueCycleSeconds": 77.51731514465064,
+        "maeSeconds": 1.6309789289790757
       },
       {
         "visitIndexSinceIncident": 307,
-        "n": 18,
-        "meanPredictedCycleSeconds": 77.23833346870883,
-        "meanTrueCycleSeconds": 77.273651573807,
-        "maeSeconds": 1.5147594224661711
+        "n": 6,
+        "meanPredictedCycleSeconds": 76.79427628453828,
+        "meanTrueCycleSeconds": 77.09321925633897,
+        "maeSeconds": 1.1176629175505657
       },
       {
         "visitIndexSinceIncident": 308,
-        "n": 18,
-        "meanPredictedCycleSeconds": 77.76252904918937,
-        "meanTrueCycleSeconds": 78.09095855067588,
-        "maeSeconds": 0.8885976777076396
+        "n": 5,
+        "meanPredictedCycleSeconds": 77.70343859114817,
+        "meanTrueCycleSeconds": 77.06338520050049,
+        "maeSeconds": 1.7102061946051748
       },
       {
         "visitIndexSinceIncident": 309,
-        "n": 16,
-        "meanPredictedCycleSeconds": 77.73176049131771,
-        "meanTrueCycleSeconds": 77.3265465311706,
-        "maeSeconds": 1.5192960832723763
+        "n": 5,
+        "meanPredictedCycleSeconds": 78.49461622439028,
+        "meanTrueCycleSeconds": 76.88309982307256,
+        "maeSeconds": 1.6115164013177292
       },
       {
         "visitIndexSinceIncident": 310,
-        "n": 15,
-        "meanPredictedCycleSeconds": 78.08761056223621,
-        "meanTrueCycleSeconds": 77.73275109964112,
-        "maeSeconds": 1.465834703816384
+        "n": 5,
+        "meanPredictedCycleSeconds": 77.13370233601776,
+        "meanTrueCycleSeconds": 77.63286269195378,
+        "maeSeconds": 2.1760158736656594
       },
       {
         "visitIndexSinceIncident": 311,
-        "n": 14,
-        "meanPredictedCycleSeconds": 77.02006606371877,
-        "meanTrueCycleSeconds": 77.21073511788356,
-        "maeSeconds": 1.7773370821548247
+        "n": 4,
+        "meanPredictedCycleSeconds": 76.85772163516476,
+        "meanTrueCycleSeconds": 76.95211395528167,
+        "maeSeconds": 1.6919743999906771
       },
       {
         "visitIndexSinceIncident": 312,
-        "n": 14,
-        "meanPredictedCycleSeconds": 77.30820394684451,
-        "meanTrueCycleSeconds": 77.70311118502703,
-        "maeSeconds": 1.3953275941594174
+        "n": 4,
+        "meanPredictedCycleSeconds": 75.76549134665818,
+        "meanTrueCycleSeconds": 76.95137462159619,
+        "maeSeconds": 1.2317236397630218
       },
       {
         "visitIndexSinceIncident": 313,
-        "n": 14,
-        "meanPredictedCycleSeconds": 77.6423789000002,
-        "meanTrueCycleSeconds": 77.94694559076535,
-        "maeSeconds": 1.0939884206457344
+        "n": 4,
+        "meanPredictedCycleSeconds": 77.25275763570511,
+        "meanTrueCycleSeconds": 76.89679362019524,
+        "maeSeconds": 1.2194428875927663
       },
       {
         "visitIndexSinceIncident": 314,
-        "n": 12,
-        "meanPredictedCycleSeconds": 76.86333033286333,
-        "meanTrueCycleSeconds": 77.41225193953142,
-        "maeSeconds": 1.5557908657364148
+        "n": 3,
+        "meanPredictedCycleSeconds": 77.01066762955692,
+        "meanTrueCycleSeconds": 77.41536941938102,
+        "maeSeconds": 0.8301521891894339
       },
       {
         "visitIndexSinceIncident": 315,
-        "n": 12,
-        "meanPredictedCycleSeconds": 77.21530556481896,
-        "meanTrueCycleSeconds": 77.16435935193051,
-        "maeSeconds": 1.3421557722727009
-      },
-      {
-        "visitIndexSinceIncident": 316,
-        "n": 12,
-        "meanPredictedCycleSeconds": 77.93885713623115,
-        "meanTrueCycleSeconds": 77.22644496072705,
-        "maeSeconds": 1.7713460825212255
-      },
-      {
-        "visitIndexSinceIncident": 317,
-        "n": 12,
-        "meanPredictedCycleSeconds": 77.32951477213923,
-        "meanTrueCycleSeconds": 77.49347431243707,
-        "maeSeconds": 1.0969801309729708
-      },
-      {
-        "visitIndexSinceIncident": 318,
-        "n": 11,
-        "meanPredictedCycleSeconds": 76.47841916396463,
-        "meanTrueCycleSeconds": 76.63298857364465,
-        "maeSeconds": 2.0122718565786513
-      },
-      {
-        "visitIndexSinceIncident": 319,
-        "n": 10,
-        "meanPredictedCycleSeconds": 77.15948834926466,
-        "meanTrueCycleSeconds": 77.54210441615433,
-        "maeSeconds": 1.7756056817689398
-      },
-      {
-        "visitIndexSinceIncident": 320,
-        "n": 8,
-        "meanPredictedCycleSeconds": 76.67506644547343,
-        "meanTrueCycleSeconds": 76.9579023362603,
-        "maeSeconds": 1.2021943265455732
-      },
-      {
-        "visitIndexSinceIncident": 321,
-        "n": 8,
-        "meanPredictedCycleSeconds": 78.473025472567,
-        "meanTrueCycleSeconds": 78.04267304181121,
-        "maeSeconds": 1.1770230851577033
-      },
-      {
-        "visitIndexSinceIncident": 322,
-        "n": 4,
-        "meanPredictedCycleSeconds": 77.17406219160775,
-        "meanTrueCycleSeconds": 77.26318753464147,
-        "maeSeconds": 1.3463960302713645
+        "n": 2,
+        "meanPredictedCycleSeconds": 78.75317792195244,
+        "meanTrueCycleSeconds": 78.31965521536767,
+        "maeSeconds": 1.0429072026680402
       }
     ]
   },
@@ -2808,44 +2892,44 @@
     {
       "confidenceBucketLow": 0.55,
       "confidenceBucketHigh": 0.65,
-      "meanPredictedConfidence": 0.5796035375835532,
-      "observedAccuracy": 0.5751695751695751,
-      "n": 47619
+      "meanPredictedConfidence": 0.5706870109226667,
+      "observedAccuracy": 0.5677944650691866,
+      "n": 47408
     },
     {
       "confidenceBucketLow": 0.65,
       "confidenceBucketHigh": 0.72,
-      "meanPredictedConfidence": 0.6785950856313918,
-      "observedAccuracy": 0.6843301853795033,
-      "n": 5718
+      "meanPredictedConfidence": 0.6712795552621148,
+      "observedAccuracy": 0.6672597864768683,
+      "n": 5620
     },
     {
       "confidenceBucketLow": 0.72,
       "confidenceBucketHigh": 0.78,
-      "meanPredictedConfidence": 0.7431167043994032,
-      "observedAccuracy": 0.7687088018611865,
-      "n": 5158
+      "meanPredictedConfidence": 0.7368448911189637,
+      "observedAccuracy": 0.7531541415249589,
+      "n": 5469
     },
     {
       "confidenceBucketLow": 0.78,
       "confidenceBucketHigh": 0.83,
-      "meanPredictedConfidence": 0.8096086791960895,
-      "observedAccuracy": 0.8060825052694971,
-      "n": 3321
+      "meanPredictedConfidence": 0.8081180507809217,
+      "observedAccuracy": 0.8001640240568617,
+      "n": 3658
     }
   ],
   "perTier": {
     "blind": {
-      "n": 36935,
-      "maeSeconds": 1.287472119573122,
-      "meanConfidence": 0.6092520536965205,
-      "medianConfidence": 0.5673438883968114
+      "n": 37136,
+      "maeSeconds": 1.290066675223191,
+      "meanConfidence": 0.6030236036514883,
+      "medianConfidence": 0.5698640138724104
     },
     "partial": {
-      "n": 24881,
-      "maeSeconds": 1.3021373745577363,
-      "meanConfidence": 0.6229383600921535,
-      "medianConfidence": 0.5816279069767442
+      "n": 25019,
+      "maeSeconds": 1.2972652058406648,
+      "meanConfidence": 0.6163210723242104,
+      "medianConfidence": 0.5698640138724104
     }
   }
 }
