@@ -1,0 +1,2851 @@
+{
+  "validationRows": 61816,
+  "trainRows": 247521,
+  "validationShiftSeeds": [
+    100000,
+    100014
+  ],
+  "calibrationToleranceSeconds": 1.5174199540248712,
+  "calibrationToleranceDerivation": "1 standard deviation of residuals on the calibration split",
+  "baselines": {
+    "r2CaveatNote": "R2 and skill score per station are only meaningful where the held-out split actually contains incident-affected rows for that station (see incidentRowsByStation / labelStdByStation below) - a station with zero incident rows in this split has no non-jitter variance to explain, so a near-zero R2 there reflects the split's random incident assignment, not necessarily worse model skill at that station.",
+    "incidentRowsByStation": {
+      "P7": 162,
+      "P8": 728,
+      "S11": 0,
+      "S14": 0,
+      "S17": 0,
+      "S19": 299,
+      "S21": 605,
+      "S3": 192,
+      "S6": 72,
+      "S8": 279
+    },
+    "labelStdByStation": {
+      "P7": 2.3458273034025567,
+      "P8": 2.1803497068426223,
+      "S11": 1.5097734733916677,
+      "S14": 1.5153388813745714,
+      "S17": 1.5133980241311966,
+      "S19": 2.705445365647594,
+      "S21": 9.098436486481628,
+      "S3": 8.558552578361232,
+      "S6": 1.6664927178058877,
+      "S8": 2.7990814536919353
+    },
+    "nominalCycleBaseline": {
+      "description": "predicts each station's own nominal cycle time as stated in docs/assumptions.md (S6=55s from the demo-incident table, every other target station=54s/takt, the file's only other stated timing figure) - per-station, not a single global constant",
+      "maeSeconds": {
+        "overallSeconds": 1.886374609833874,
+        "byGroupSeconds": {
+          "P7": 1.573770400871319,
+          "P8": 1.7040170318206926,
+          "S11": 1.3111695344633103,
+          "S14": 1.3240369966853431,
+          "S17": 1.3219610445040462,
+          "S19": 1.7672925415862364,
+          "S21": 3.6738853938112643,
+          "S3": 2.7672631814213724,
+          "S6": 1.6763811412155936,
+          "S8": 1.7710672013062898
+        }
+      },
+      "skillScore": {
+        "overall": 0.3143594638115075,
+        "P7": 0.1934006167784449,
+        "P8": 0.18177927572169417,
+        "S11": 0.031155881085840997,
+        "S14": 0.03320817239279561,
+        "S17": 0.035963617065778775,
+        "S19": 0.2881142082092515,
+        "S21": 0.6510156345921371,
+        "S3": 0.5096012590854984,
+        "S6": 0.23470346553786103,
+        "S8": 0.2878919868408242
+      },
+      "naiveGlobal54Comparison": {
+        "description": "what this baseline would report if it incorrectly used the simulation's internal 54s for S6 too, instead of the assumptions file's stated 55s - kept for comparison, not used for the reported skill score",
+        "maeSecondsOverall": 1.8572251810315017,
+        "skillScoreOverall": 0.3035982323799227
+      }
+    },
+    "previousVisitBaseline": {
+      "description": "predicts the same station's immediately preceding observed visit within the same shift",
+      "rowCoverage": 0.9975734437686036,
+      "rowCoverageNote": "fraction of held-out rows with a previous visit at the same station in the same shift; the rest have no defined prediction under this baseline and are excluded from it",
+      "maeSecondsOverall": 1.730131111377591,
+      "maeSecondsByStation": {
+        "P7": 1.7236533821333582,
+        "P8": 1.6422665490158286,
+        "S11": 1.7473380649089116,
+        "S14": 1.7464452604551914,
+        "S17": 1.732835929587134,
+        "S19": 1.7346689105125388,
+        "S21": 1.7359093919892232,
+        "S3": 1.7462226393173848,
+        "S6": 1.7585445847572387,
+        "S8": 1.7354864620174701
+      },
+      "modelMaeOnSameSubsetSeconds": 1.293095289559549,
+      "skillScore": {
+        "overall": 0.25260271833968617,
+        "P7": 0.2642216921442099,
+        "P8": 0.15085354142725504,
+        "S11": 0.2730907966620607,
+        "S14": 0.26688507113178195,
+        "S17": 0.2648826779595148,
+        "S19": 0.27541453107296465,
+        "S21": 0.2613247218302317,
+        "S3": 0.22273075383780438,
+        "S6": 0.2707706315822884,
+        "S8": 0.2733250841925502
+      }
+    },
+    "r2": {
+      "overall": 0.8727827129327623,
+      "byStation": {
+        "P7": 0.5981472252101077,
+        "P8": 0.08094294631858456,
+        "S11": 0.03307656280447002,
+        "S14": 0.02566385747986999,
+        "S17": 0.033837824622135027,
+        "S19": 0.7023124309455424,
+        "S21": 0.9726323338828072,
+        "S3": 0.9628739554882131,
+        "S6": 0.1894228251703043,
+        "S8": 0.7189645309840655
+      }
+    }
+  },
+  "regimeDecomposition": {
+    "trainMae": {
+      "overallSeconds": 1.253155048914545,
+      "byGroupSeconds": {
+        "P7": 1.2441582734199808,
+        "P8": 1.2328481814897647,
+        "S11": 1.2414121616958809,
+        "S14": 1.2511985921535325,
+        "S17": 1.2614720453843435,
+        "S19": 1.2768731237738946,
+        "S21": 1.2667181583347253,
+        "S3": 1.2599257471465717,
+        "S6": 1.2410009675217315,
+        "S8": 1.2574760361900017
+      }
+    },
+    "heldOutMae": {
+      "overallSeconds": 1.2933748989388558,
+      "byGroupSeconds": {
+        "P7": 1.2694022346751455,
+        "P8": 1.394262049958896,
+        "S11": 1.270318892364194,
+        "S14": 1.280068147844977,
+        "S17": 1.2744185437236257,
+        "S19": 1.2581104502930023,
+        "S21": 1.2821285627404406,
+        "S3": 1.357062379948099,
+        "S6": 1.2829286778099793,
+        "S8": 1.261191145893604
+      }
+    },
+    "heldOutByRegime": {
+      "steadyState": {
+        "overallSeconds": 1.2984833853955209,
+        "byStationSeconds": {
+          "P7": 1.2812931947023813,
+          "P8": 1.4747008667334982,
+          "S11": 1.270318892364194,
+          "S14": 1.280068147844977,
+          "S17": 1.2744185437236257,
+          "S19": 1.2809396289350528,
+          "S21": 1.2990488050039721,
+          "S3": 1.2713545885796051,
+          "S6": 1.2873909341555811,
+          "S8": 1.2791197128582381
+        },
+        "n": 59479
+      },
+      "incidentTracking": {
+        "overallSeconds": 1.163358781713354,
+        "byStationSeconds": {
+          "P7": 0.8165915407984816,
+          "P8": 0.776717342605528,
+          "S19": 0.8186296734915268,
+          "S21": 1.130489631248097,
+          "S3": 4.072035229443832,
+          "S6": 0.9010339055655526,
+          "S8": 0.8803215530642621
+        },
+        "n": 2337
+      }
+    }
+  },
+  "alertMetricsByBand": {
+    "alertMultiplier": 1.15,
+    "easy": {
+      "n": 60031,
+      "nPositive": 552,
+      "precision": 0.7818696883852692,
+      "recall": 1.0,
+      "falseAlarmRate": 0.0025891491114511003
+    },
+    "marginal": {
+      "n": 61264,
+      "nPositive": 1785,
+      "precision": 0.8646748681898067,
+      "recall": 0.5512605042016807,
+      "falseAlarmRate": 0.0025891491114511003
+    },
+    "falseAlarmRateDefinition": "FP / (FP + TN) at visit level, TN/FP measured against steady-state (severityBand='none') rows"
+  },
+  "s6S9LeadTime": {
+    "definition": "seconds from the soft sensor's first true-positive S6 alert to S9's first starved tick (ground truth) in the same shift, CONDITIONED ON a warning having fired at all. Runs where no alert ever fired are excluded from the distribution (they are recall failures, counted separately as runsExcludedNeverFired / warningFireRate below), not differenced against a default/fallback tick. NOT clamped to be non-negative.",
+    "evidenceShifts": 300,
+    "shiftsWithIncident": 300,
+    "shiftsWhereS9Starved": 300,
+    "shiftsExcludedS9NeverStarved": 0,
+    "byBand": {
+      "easy": {
+        "runsIncludedFired": 164,
+        "runsExcludedNeverFired": 0,
+        "warningFireRate": 1.0,
+        "leadTimeConditionedOnWarning": {
+          "medianSeconds": 470.0,
+          "minSeconds": -1026.0,
+          "maxSeconds": 1121.0,
+          "allSeconds": [
+            413.0,
+            744.0,
+            713.0,
+            407.0,
+            977.0,
+            404.0,
+            -379.0,
+            438.0,
+            610.0,
+            358.0,
+            440.0,
+            436.0,
+            647.0,
+            264.0,
+            278.0,
+            284.0,
+            571.0,
+            470.0,
+            535.0,
+            605.0,
+            433.0,
+            747.0,
+            379.0,
+            377.0,
+            361.0,
+            307.0,
+            405.0,
+            525.0,
+            500.0,
+            688.0,
+            348.0,
+            551.0,
+            436.0,
+            617.0,
+            500.0,
+            339.0,
+            529.0,
+            491.0,
+            1092.0,
+            424.0,
+            539.0,
+            498.0,
+            456.0,
+            554.0,
+            689.0,
+            512.0,
+            328.0,
+            352.0,
+            329.0,
+            286.0,
+            552.0,
+            927.0,
+            662.0,
+            668.0,
+            323.0,
+            460.0,
+            590.0,
+            603.0,
+            432.0,
+            466.0,
+            534.0,
+            655.0,
+            547.0,
+            690.0,
+            730.0,
+            315.0,
+            320.0,
+            389.0,
+            676.0,
+            731.0,
+            280.0,
+            926.0,
+            317.0,
+            356.0,
+            761.0,
+            291.0,
+            269.0,
+            385.0,
+            473.0,
+            701.0,
+            472.0,
+            489.0,
+            432.0,
+            496.0,
+            474.0,
+            285.0,
+            470.0,
+            371.0,
+            930.0,
+            404.0,
+            708.0,
+            269.0,
+            422.0,
+            454.0,
+            463.0,
+            711.0,
+            419.0,
+            290.0,
+            473.0,
+            453.0,
+            539.0,
+            732.0,
+            234.0,
+            703.0,
+            538.0,
+            337.0,
+            485.0,
+            637.0,
+            481.0,
+            424.0,
+            747.0,
+            1121.0,
+            -1006.0,
+            342.0,
+            965.0,
+            312.0,
+            -228.0,
+            534.0,
+            441.0,
+            919.0,
+            591.0,
+            390.0,
+            291.0,
+            799.0,
+            550.0,
+            602.0,
+            412.0,
+            252.0,
+            422.0,
+            916.0,
+            391.0,
+            287.0,
+            392.0,
+            619.0,
+            391.0,
+            333.0,
+            -404.0,
+            646.0,
+            484.0,
+            367.0,
+            756.0,
+            980.0,
+            470.0,
+            477.0,
+            350.0,
+            413.0,
+            504.0,
+            445.0,
+            -1026.0,
+            517.0,
+            471.0,
+            336.0,
+            585.0,
+            403.0,
+            745.0,
+            671.0,
+            407.0,
+            590.0,
+            307.0,
+            387.0,
+            843.0,
+            321.0,
+            465.0,
+            769.0
+          ]
+        }
+      },
+      "marginal": {
+        "runsIncludedFired": 118,
+        "runsExcludedNeverFired": 18,
+        "warningFireRate": 0.8676470588235294,
+        "leadTimeConditionedOnWarning": {
+          "medianSeconds": 1286.5,
+          "minSeconds": -15110.0,
+          "maxSeconds": 2732.0,
+          "allSeconds": [
+            -300.0,
+            2732.0,
+            1485.0,
+            1692.0,
+            -1874.0,
+            -5143.0,
+            -2661.0,
+            177.0,
+            1748.0,
+            1050.0,
+            691.0,
+            1003.0,
+            1289.0,
+            -2611.0,
+            858.0,
+            1353.0,
+            1062.0,
+            -1444.0,
+            1185.0,
+            392.0,
+            745.0,
+            1216.0,
+            1269.0,
+            901.0,
+            1330.0,
+            616.0,
+            1439.0,
+            1335.0,
+            -1525.0,
+            1729.0,
+            957.0,
+            -434.0,
+            1154.0,
+            1927.0,
+            922.0,
+            1572.0,
+            1300.0,
+            1221.0,
+            1981.0,
+            740.0,
+            1984.0,
+            2049.0,
+            1611.0,
+            1679.0,
+            1072.0,
+            1622.0,
+            1262.0,
+            1576.0,
+            1391.0,
+            953.0,
+            -329.0,
+            1284.0,
+            2088.0,
+            1299.0,
+            2160.0,
+            1945.0,
+            1306.0,
+            946.0,
+            1380.0,
+            1258.0,
+            1878.0,
+            1032.0,
+            465.0,
+            -10443.0,
+            2721.0,
+            1087.0,
+            964.0,
+            1480.0,
+            1078.0,
+            1637.0,
+            1550.0,
+            1551.0,
+            1977.0,
+            1161.0,
+            1470.0,
+            2069.0,
+            1660.0,
+            1240.0,
+            1376.0,
+            1614.0,
+            2018.0,
+            2060.0,
+            -15110.0,
+            1198.0,
+            1242.0,
+            1347.0,
+            1389.0,
+            1039.0,
+            2043.0,
+            1465.0,
+            1197.0,
+            1264.0,
+            -742.0,
+            1670.0,
+            1859.0,
+            1336.0,
+            1166.0,
+            1811.0,
+            805.0,
+            859.0,
+            1127.0,
+            963.0,
+            1533.0,
+            996.0,
+            1422.0,
+            1475.0,
+            1540.0,
+            671.0,
+            2122.0,
+            1324.0,
+            1349.0,
+            1488.0,
+            2308.0,
+            1097.0,
+            1099.0,
+            1079.0,
+            2503.0,
+            1184.0
+          ]
+        }
+      }
+    },
+    "workedExampleByBand": {
+      "easy": {
+        "shiftSeed": 900001,
+        "alertVehicleId": 353,
+        "alertEntryTick": 21054.0,
+        "alertPredictedCycleSeconds": 99.35238060520439,
+        "alertTrueCycleSeconds": 107.97813933067955,
+        "alertThresholdSeconds": 62.099999999999994,
+        "s9StarvedTick": 21467.0,
+        "leadTimeSeconds": 413.0
+      },
+      "marginal": {
+        "shiftSeed": 900000,
+        "alertVehicleId": 343,
+        "alertEntryTick": 20725.0,
+        "alertPredictedCycleSeconds": 62.63404147808993,
+        "alertTrueCycleSeconds": 60.89713849581312,
+        "alertThresholdSeconds": 62.099999999999994,
+        "s9StarvedTick": 20425.0,
+        "leadTimeSeconds": -300.0
+      }
+    }
+  },
+  "s6Tracking": {
+    "trackingShifts": 150,
+    "forcedDegradedCycleSeconds": 76.94694279506803,
+    "steadyStateMaeSeconds": 1.2241656584369551,
+    "overallIncidentTrackingMaeSeconds": 1.3098292645194063,
+    "byVisitIndexSinceIncident": [
+      {
+        "visitIndexSinceIncident": 0,
+        "n": 150,
+        "meanPredictedCycleSeconds": 74.31709517583542,
+        "meanTrueCycleSeconds": 77.68001704532654,
+        "maeSeconds": 3.846289405107522
+      },
+      {
+        "visitIndexSinceIncident": 1,
+        "n": 150,
+        "meanPredictedCycleSeconds": 76.91929549911353,
+        "meanTrueCycleSeconds": 77.5168663205579,
+        "maeSeconds": 1.6127215812162887
+      },
+      {
+        "visitIndexSinceIncident": 2,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.18808073720555,
+        "meanTrueCycleSeconds": 77.45280178645005,
+        "maeSeconds": 1.3122893501470552
+      },
+      {
+        "visitIndexSinceIncident": 3,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.51066797707502,
+        "meanTrueCycleSeconds": 77.60786505150298,
+        "maeSeconds": 1.3309197493620923
+      },
+      {
+        "visitIndexSinceIncident": 4,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.63295909626972,
+        "meanTrueCycleSeconds": 77.53572418787827,
+        "maeSeconds": 1.3244162689640384
+      },
+      {
+        "visitIndexSinceIncident": 5,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.49093241933835,
+        "meanTrueCycleSeconds": 77.57374958752344,
+        "maeSeconds": 1.3099160159009988
+      },
+      {
+        "visitIndexSinceIncident": 6,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.38815840337524,
+        "meanTrueCycleSeconds": 77.65276279442013,
+        "maeSeconds": 1.248192948131014
+      },
+      {
+        "visitIndexSinceIncident": 7,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.38691508453009,
+        "meanTrueCycleSeconds": 77.57492839201043,
+        "maeSeconds": 1.3685230894089129
+      },
+      {
+        "visitIndexSinceIncident": 8,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.48259520276403,
+        "meanTrueCycleSeconds": 77.58340010532488,
+        "maeSeconds": 1.3624433957395077
+      },
+      {
+        "visitIndexSinceIncident": 9,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.645989239053,
+        "meanTrueCycleSeconds": 77.75096387289464,
+        "maeSeconds": 1.2039632843701709
+      },
+      {
+        "visitIndexSinceIncident": 10,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.59188805207799,
+        "meanTrueCycleSeconds": 77.60605357310425,
+        "maeSeconds": 1.351600841205021
+      },
+      {
+        "visitIndexSinceIncident": 11,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.44564994818275,
+        "meanTrueCycleSeconds": 77.65393836637338,
+        "maeSeconds": 1.1794842956338105
+      },
+      {
+        "visitIndexSinceIncident": 12,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.32703854347602,
+        "meanTrueCycleSeconds": 77.47524502585331,
+        "maeSeconds": 1.3933095152393309
+      },
+      {
+        "visitIndexSinceIncident": 13,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.57851571797183,
+        "meanTrueCycleSeconds": 77.53578181138883,
+        "maeSeconds": 1.3412174706647946
+      },
+      {
+        "visitIndexSinceIncident": 14,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.86224595739174,
+        "meanTrueCycleSeconds": 77.84979257681718,
+        "maeSeconds": 1.2201623412645992
+      },
+      {
+        "visitIndexSinceIncident": 15,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.44394103091439,
+        "meanTrueCycleSeconds": 77.65919885205726,
+        "maeSeconds": 1.1493576249528863
+      },
+      {
+        "visitIndexSinceIncident": 16,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.38121599156362,
+        "meanTrueCycleSeconds": 77.66681854156157,
+        "maeSeconds": 1.266120496465357
+      },
+      {
+        "visitIndexSinceIncident": 17,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.54439577474884,
+        "meanTrueCycleSeconds": 77.59593551720182,
+        "maeSeconds": 1.3404806908715576
+      },
+      {
+        "visitIndexSinceIncident": 18,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.44851496811573,
+        "meanTrueCycleSeconds": 77.60779633191724,
+        "maeSeconds": 1.3560483583231704
+      },
+      {
+        "visitIndexSinceIncident": 19,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.57899567743623,
+        "meanTrueCycleSeconds": 77.80177520436546,
+        "maeSeconds": 1.301288624095608
+      },
+      {
+        "visitIndexSinceIncident": 20,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.31532217302214,
+        "meanTrueCycleSeconds": 77.71899314373732,
+        "maeSeconds": 1.2223693522688943
+      },
+      {
+        "visitIndexSinceIncident": 21,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.39219538922457,
+        "meanTrueCycleSeconds": 77.52128680908432,
+        "maeSeconds": 1.3831493191339863
+      },
+      {
+        "visitIndexSinceIncident": 22,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.34088634537441,
+        "meanTrueCycleSeconds": 77.64014806774755,
+        "maeSeconds": 1.2469406197954536
+      },
+      {
+        "visitIndexSinceIncident": 23,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.44512051032397,
+        "meanTrueCycleSeconds": 77.73173917176823,
+        "maeSeconds": 1.138312949830431
+      },
+      {
+        "visitIndexSinceIncident": 24,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.67511484197023,
+        "meanTrueCycleSeconds": 77.74997878177713,
+        "maeSeconds": 1.1483664011034416
+      },
+      {
+        "visitIndexSinceIncident": 25,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.6670413327109,
+        "meanTrueCycleSeconds": 77.87780096085122,
+        "maeSeconds": 1.245642747236695
+      },
+      {
+        "visitIndexSinceIncident": 26,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.60359749755939,
+        "meanTrueCycleSeconds": 77.60855984117836,
+        "maeSeconds": 1.3581780727694226
+      },
+      {
+        "visitIndexSinceIncident": 27,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.23281461479371,
+        "meanTrueCycleSeconds": 77.63777757403751,
+        "maeSeconds": 1.3034164109483053
+      },
+      {
+        "visitIndexSinceIncident": 28,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.47807730633373,
+        "meanTrueCycleSeconds": 77.5799050773556,
+        "maeSeconds": 1.2918403034807384
+      },
+      {
+        "visitIndexSinceIncident": 29,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.55184733428274,
+        "meanTrueCycleSeconds": 77.62590560195346,
+        "maeSeconds": 1.2200816429322088
+      },
+      {
+        "visitIndexSinceIncident": 30,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.82269222196318,
+        "meanTrueCycleSeconds": 77.72238214233269,
+        "maeSeconds": 1.3783499158267076
+      },
+      {
+        "visitIndexSinceIncident": 31,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.47506231521406,
+        "meanTrueCycleSeconds": 77.65835277616978,
+        "maeSeconds": 1.4318294078684508
+      },
+      {
+        "visitIndexSinceIncident": 32,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.61361783490383,
+        "meanTrueCycleSeconds": 77.69036051549017,
+        "maeSeconds": 1.2642422946357557
+      },
+      {
+        "visitIndexSinceIncident": 33,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.6127660061352,
+        "meanTrueCycleSeconds": 77.80046527157228,
+        "maeSeconds": 1.2721209693416566
+      },
+      {
+        "visitIndexSinceIncident": 34,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.45378421836766,
+        "meanTrueCycleSeconds": 77.5893486060823,
+        "maeSeconds": 1.3202638526731596
+      },
+      {
+        "visitIndexSinceIncident": 35,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.57540468147694,
+        "meanTrueCycleSeconds": 77.74731775476288,
+        "maeSeconds": 1.0809372609639702
+      },
+      {
+        "visitIndexSinceIncident": 36,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.85396100536381,
+        "meanTrueCycleSeconds": 77.88470883176973,
+        "maeSeconds": 1.1975215865326028
+      },
+      {
+        "visitIndexSinceIncident": 37,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.41744481728892,
+        "meanTrueCycleSeconds": 77.66891492744287,
+        "maeSeconds": 1.4521387132728873
+      },
+      {
+        "visitIndexSinceIncident": 38,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.65876873923708,
+        "meanTrueCycleSeconds": 77.70233330124368,
+        "maeSeconds": 1.2596791097922782
+      },
+      {
+        "visitIndexSinceIncident": 39,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.35864394266707,
+        "meanTrueCycleSeconds": 77.63045816607773,
+        "maeSeconds": 1.2391593143880015
+      },
+      {
+        "visitIndexSinceIncident": 40,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.27023258703325,
+        "meanTrueCycleSeconds": 77.43814160918195,
+        "maeSeconds": 1.3126870108818756
+      },
+      {
+        "visitIndexSinceIncident": 41,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.39484855696682,
+        "meanTrueCycleSeconds": 77.41754251645257,
+        "maeSeconds": 1.2503737599092757
+      },
+      {
+        "visitIndexSinceIncident": 42,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.2236082003429,
+        "meanTrueCycleSeconds": 77.50302027668803,
+        "maeSeconds": 1.382311709232444
+      },
+      {
+        "visitIndexSinceIncident": 43,
+        "n": 150,
+        "meanPredictedCycleSeconds": 77.63609517837887,
+        "meanTrueCycleSeconds": 77.66646372607599,
+        "maeSeconds": 1.197016037294351
+      },
+      {
+        "visitIndexSinceIncident": 44,
+        "n": 149,
+        "meanPredictedCycleSeconds": 77.56159045520228,
+        "meanTrueCycleSeconds": 77.88154724054039,
+        "maeSeconds": 1.1049538731853383
+      },
+      {
+        "visitIndexSinceIncident": 45,
+        "n": 149,
+        "meanPredictedCycleSeconds": 77.41348806242243,
+        "meanTrueCycleSeconds": 77.50843745243779,
+        "maeSeconds": 1.3084920056155274
+      },
+      {
+        "visitIndexSinceIncident": 46,
+        "n": 149,
+        "meanPredictedCycleSeconds": 77.56123938840742,
+        "meanTrueCycleSeconds": 77.61820858724465,
+        "maeSeconds": 1.2389213061230258
+      },
+      {
+        "visitIndexSinceIncident": 47,
+        "n": 148,
+        "meanPredictedCycleSeconds": 77.56436914850504,
+        "meanTrueCycleSeconds": 77.69737766194787,
+        "maeSeconds": 1.210248398975995
+      },
+      {
+        "visitIndexSinceIncident": 48,
+        "n": 148,
+        "meanPredictedCycleSeconds": 77.40144379841563,
+        "meanTrueCycleSeconds": 77.56679575661248,
+        "maeSeconds": 1.4196578208265804
+      },
+      {
+        "visitIndexSinceIncident": 49,
+        "n": 148,
+        "meanPredictedCycleSeconds": 77.55593477931916,
+        "meanTrueCycleSeconds": 77.63073469850713,
+        "maeSeconds": 1.3398043014196523
+      },
+      {
+        "visitIndexSinceIncident": 50,
+        "n": 148,
+        "meanPredictedCycleSeconds": 77.59797755457085,
+        "meanTrueCycleSeconds": 77.59218851129549,
+        "maeSeconds": 1.2818957487873996
+      },
+      {
+        "visitIndexSinceIncident": 51,
+        "n": 148,
+        "meanPredictedCycleSeconds": 77.65744358197448,
+        "meanTrueCycleSeconds": 77.78207077255875,
+        "maeSeconds": 1.1655023040932326
+      },
+      {
+        "visitIndexSinceIncident": 52,
+        "n": 148,
+        "meanPredictedCycleSeconds": 77.4784189152804,
+        "meanTrueCycleSeconds": 77.69511635096845,
+        "maeSeconds": 1.2254016517278523
+      },
+      {
+        "visitIndexSinceIncident": 53,
+        "n": 148,
+        "meanPredictedCycleSeconds": 77.48631799581818,
+        "meanTrueCycleSeconds": 77.62268778301674,
+        "maeSeconds": 1.2926644368903302
+      },
+      {
+        "visitIndexSinceIncident": 54,
+        "n": 148,
+        "meanPredictedCycleSeconds": 77.63213404713902,
+        "meanTrueCycleSeconds": 77.65227647286815,
+        "maeSeconds": 1.3942867100156076
+      },
+      {
+        "visitIndexSinceIncident": 55,
+        "n": 148,
+        "meanPredictedCycleSeconds": 77.38647006524138,
+        "meanTrueCycleSeconds": 77.56251581913061,
+        "maeSeconds": 1.3013833248370672
+      },
+      {
+        "visitIndexSinceIncident": 56,
+        "n": 148,
+        "meanPredictedCycleSeconds": 77.35531496775324,
+        "meanTrueCycleSeconds": 77.54391315573122,
+        "maeSeconds": 1.4145747908593205
+      },
+      {
+        "visitIndexSinceIncident": 57,
+        "n": 148,
+        "meanPredictedCycleSeconds": 77.40052539031696,
+        "meanTrueCycleSeconds": 77.62344020498111,
+        "maeSeconds": 1.3943307899630701
+      },
+      {
+        "visitIndexSinceIncident": 58,
+        "n": 147,
+        "meanPredictedCycleSeconds": 77.3971104240761,
+        "meanTrueCycleSeconds": 77.55887769836755,
+        "maeSeconds": 1.2919062610126757
+      },
+      {
+        "visitIndexSinceIncident": 59,
+        "n": 146,
+        "meanPredictedCycleSeconds": 77.3986393429097,
+        "meanTrueCycleSeconds": 77.55714539091473,
+        "maeSeconds": 1.2928476176667156
+      },
+      {
+        "visitIndexSinceIncident": 60,
+        "n": 146,
+        "meanPredictedCycleSeconds": 77.21079806781682,
+        "meanTrueCycleSeconds": 77.51041334571495,
+        "maeSeconds": 1.3773160384815815
+      },
+      {
+        "visitIndexSinceIncident": 61,
+        "n": 146,
+        "meanPredictedCycleSeconds": 77.73292109301157,
+        "meanTrueCycleSeconds": 77.66221284158273,
+        "maeSeconds": 1.3270790599505873
+      },
+      {
+        "visitIndexSinceIncident": 62,
+        "n": 146,
+        "meanPredictedCycleSeconds": 77.18586137478091,
+        "meanTrueCycleSeconds": 77.48368258053462,
+        "maeSeconds": 1.2517060071680253
+      },
+      {
+        "visitIndexSinceIncident": 63,
+        "n": 144,
+        "meanPredictedCycleSeconds": 77.14213091461713,
+        "meanTrueCycleSeconds": 77.46458331050559,
+        "maeSeconds": 1.325318877142954
+      },
+      {
+        "visitIndexSinceIncident": 64,
+        "n": 142,
+        "meanPredictedCycleSeconds": 77.3981734402914,
+        "meanTrueCycleSeconds": 77.55940162461303,
+        "maeSeconds": 1.3602588228833834
+      },
+      {
+        "visitIndexSinceIncident": 65,
+        "n": 142,
+        "meanPredictedCycleSeconds": 77.68377565325024,
+        "meanTrueCycleSeconds": 77.7476869124237,
+        "maeSeconds": 1.176664231606465
+      },
+      {
+        "visitIndexSinceIncident": 66,
+        "n": 142,
+        "meanPredictedCycleSeconds": 77.5137088093077,
+        "meanTrueCycleSeconds": 77.62315126349756,
+        "maeSeconds": 1.3830556949303263
+      },
+      {
+        "visitIndexSinceIncident": 67,
+        "n": 141,
+        "meanPredictedCycleSeconds": 77.50583379200835,
+        "meanTrueCycleSeconds": 77.58539527008666,
+        "maeSeconds": 1.3236000788034161
+      },
+      {
+        "visitIndexSinceIncident": 68,
+        "n": 141,
+        "meanPredictedCycleSeconds": 77.5034563923018,
+        "meanTrueCycleSeconds": 77.51712793579443,
+        "maeSeconds": 1.296547619679546
+      },
+      {
+        "visitIndexSinceIncident": 69,
+        "n": 140,
+        "meanPredictedCycleSeconds": 77.22576151538534,
+        "meanTrueCycleSeconds": 77.6317703188663,
+        "maeSeconds": 1.3377519472751624
+      },
+      {
+        "visitIndexSinceIncident": 70,
+        "n": 140,
+        "meanPredictedCycleSeconds": 77.65690999462394,
+        "meanTrueCycleSeconds": 77.61873479063756,
+        "maeSeconds": 1.373172515792089
+      },
+      {
+        "visitIndexSinceIncident": 71,
+        "n": 140,
+        "meanPredictedCycleSeconds": 77.55202479557829,
+        "meanTrueCycleSeconds": 77.49159181422687,
+        "maeSeconds": 1.3740115263946122
+      },
+      {
+        "visitIndexSinceIncident": 72,
+        "n": 140,
+        "meanPredictedCycleSeconds": 77.6908963392453,
+        "meanTrueCycleSeconds": 77.67502565604768,
+        "maeSeconds": 1.2617115081423544
+      },
+      {
+        "visitIndexSinceIncident": 73,
+        "n": 140,
+        "meanPredictedCycleSeconds": 77.37283875029766,
+        "meanTrueCycleSeconds": 77.6562563875291,
+        "maeSeconds": 1.2829172793885764
+      },
+      {
+        "visitIndexSinceIncident": 74,
+        "n": 140,
+        "meanPredictedCycleSeconds": 77.37893647647088,
+        "meanTrueCycleSeconds": 77.62550620583019,
+        "maeSeconds": 1.3275562194931998
+      },
+      {
+        "visitIndexSinceIncident": 75,
+        "n": 139,
+        "meanPredictedCycleSeconds": 77.54384169204488,
+        "meanTrueCycleSeconds": 77.65951293877077,
+        "maeSeconds": 1.3714592267719283
+      },
+      {
+        "visitIndexSinceIncident": 76,
+        "n": 137,
+        "meanPredictedCycleSeconds": 77.5861398206202,
+        "meanTrueCycleSeconds": 77.66015613266696,
+        "maeSeconds": 1.35472829762613
+      },
+      {
+        "visitIndexSinceIncident": 77,
+        "n": 135,
+        "meanPredictedCycleSeconds": 77.4408560853346,
+        "meanTrueCycleSeconds": 77.53067889779254,
+        "maeSeconds": 1.1939823802572838
+      },
+      {
+        "visitIndexSinceIncident": 78,
+        "n": 135,
+        "meanPredictedCycleSeconds": 77.3965313613436,
+        "meanTrueCycleSeconds": 77.65612498451438,
+        "maeSeconds": 1.2742329070661573
+      },
+      {
+        "visitIndexSinceIncident": 79,
+        "n": 135,
+        "meanPredictedCycleSeconds": 77.13766313415846,
+        "meanTrueCycleSeconds": 77.55799217589751,
+        "maeSeconds": 1.367590181192441
+      },
+      {
+        "visitIndexSinceIncident": 80,
+        "n": 135,
+        "meanPredictedCycleSeconds": 77.61072238782772,
+        "meanTrueCycleSeconds": 77.6171407904338,
+        "maeSeconds": 1.2354176206496337
+      },
+      {
+        "visitIndexSinceIncident": 81,
+        "n": 135,
+        "meanPredictedCycleSeconds": 77.48712166067507,
+        "meanTrueCycleSeconds": 77.53005532999006,
+        "maeSeconds": 1.3068946791718627
+      },
+      {
+        "visitIndexSinceIncident": 82,
+        "n": 135,
+        "meanPredictedCycleSeconds": 77.29573601536524,
+        "meanTrueCycleSeconds": 77.51916206236238,
+        "maeSeconds": 1.2036161617460055
+      },
+      {
+        "visitIndexSinceIncident": 83,
+        "n": 135,
+        "meanPredictedCycleSeconds": 77.29689862348583,
+        "meanTrueCycleSeconds": 77.45623474717141,
+        "maeSeconds": 1.3296002116839312
+      },
+      {
+        "visitIndexSinceIncident": 84,
+        "n": 132,
+        "meanPredictedCycleSeconds": 77.41166018761179,
+        "meanTrueCycleSeconds": 77.45017338857393,
+        "maeSeconds": 1.217634750039751
+      },
+      {
+        "visitIndexSinceIncident": 85,
+        "n": 132,
+        "meanPredictedCycleSeconds": 77.59489664502907,
+        "meanTrueCycleSeconds": 77.52142201407784,
+        "maeSeconds": 1.4582199736236066
+      },
+      {
+        "visitIndexSinceIncident": 86,
+        "n": 132,
+        "meanPredictedCycleSeconds": 77.70191158237078,
+        "meanTrueCycleSeconds": 77.79473234998119,
+        "maeSeconds": 1.1682309048534445
+      },
+      {
+        "visitIndexSinceIncident": 87,
+        "n": 132,
+        "meanPredictedCycleSeconds": 77.80848327367505,
+        "meanTrueCycleSeconds": 77.61663840550251,
+        "maeSeconds": 1.3466505485267892
+      },
+      {
+        "visitIndexSinceIncident": 88,
+        "n": 132,
+        "meanPredictedCycleSeconds": 77.31833264059901,
+        "meanTrueCycleSeconds": 77.60642642070624,
+        "maeSeconds": 1.4060426540915647
+      },
+      {
+        "visitIndexSinceIncident": 89,
+        "n": 132,
+        "meanPredictedCycleSeconds": 77.51021427826541,
+        "meanTrueCycleSeconds": 77.62601750465392,
+        "maeSeconds": 1.195751397463471
+      },
+      {
+        "visitIndexSinceIncident": 90,
+        "n": 130,
+        "meanPredictedCycleSeconds": 77.42805051039869,
+        "meanTrueCycleSeconds": 77.56918996199965,
+        "maeSeconds": 1.3509598477972549
+      },
+      {
+        "visitIndexSinceIncident": 91,
+        "n": 130,
+        "meanPredictedCycleSeconds": 77.46642890773508,
+        "meanTrueCycleSeconds": 77.69581450083508,
+        "maeSeconds": 1.0548537980763149
+      },
+      {
+        "visitIndexSinceIncident": 92,
+        "n": 129,
+        "meanPredictedCycleSeconds": 77.36770738993447,
+        "meanTrueCycleSeconds": 77.49171680201914,
+        "maeSeconds": 1.4024383179011588
+      },
+      {
+        "visitIndexSinceIncident": 93,
+        "n": 128,
+        "meanPredictedCycleSeconds": 77.30822641079003,
+        "meanTrueCycleSeconds": 77.45443710533436,
+        "maeSeconds": 1.3425310577687632
+      },
+      {
+        "visitIndexSinceIncident": 94,
+        "n": 128,
+        "meanPredictedCycleSeconds": 77.53709416655775,
+        "meanTrueCycleSeconds": 77.5358280378714,
+        "maeSeconds": 1.2737655300973976
+      },
+      {
+        "visitIndexSinceIncident": 95,
+        "n": 128,
+        "meanPredictedCycleSeconds": 77.35048946586164,
+        "meanTrueCycleSeconds": 77.49370852623542,
+        "maeSeconds": 1.4223931785464623
+      },
+      {
+        "visitIndexSinceIncident": 96,
+        "n": 128,
+        "meanPredictedCycleSeconds": 77.3359342298912,
+        "meanTrueCycleSeconds": 77.58554367262695,
+        "maeSeconds": 1.2325430547627954
+      },
+      {
+        "visitIndexSinceIncident": 97,
+        "n": 128,
+        "meanPredictedCycleSeconds": 77.2765676694674,
+        "meanTrueCycleSeconds": 77.45399230266048,
+        "maeSeconds": 1.3622830138233524
+      },
+      {
+        "visitIndexSinceIncident": 98,
+        "n": 128,
+        "meanPredictedCycleSeconds": 77.53243701208581,
+        "meanTrueCycleSeconds": 77.62483200832503,
+        "maeSeconds": 1.1893137675466763
+      },
+      {
+        "visitIndexSinceIncident": 99,
+        "n": 128,
+        "meanPredictedCycleSeconds": 77.34374248081606,
+        "meanTrueCycleSeconds": 77.53652597172186,
+        "maeSeconds": 1.3482581681467494
+      },
+      {
+        "visitIndexSinceIncident": 100,
+        "n": 127,
+        "meanPredictedCycleSeconds": 77.37981445033891,
+        "meanTrueCycleSeconds": 77.57731669246564,
+        "maeSeconds": 1.3118713845048413
+      },
+      {
+        "visitIndexSinceIncident": 101,
+        "n": 126,
+        "meanPredictedCycleSeconds": 77.60232739729041,
+        "meanTrueCycleSeconds": 77.66146109259081,
+        "maeSeconds": 1.3241546804960405
+      },
+      {
+        "visitIndexSinceIncident": 102,
+        "n": 126,
+        "meanPredictedCycleSeconds": 77.24070099851168,
+        "meanTrueCycleSeconds": 77.41705312359605,
+        "maeSeconds": 1.397073285041366
+      },
+      {
+        "visitIndexSinceIncident": 103,
+        "n": 125,
+        "meanPredictedCycleSeconds": 77.59339905344524,
+        "meanTrueCycleSeconds": 77.68361272771656,
+        "maeSeconds": 1.3264678285476217
+      },
+      {
+        "visitIndexSinceIncident": 104,
+        "n": 125,
+        "meanPredictedCycleSeconds": 77.38352134856275,
+        "meanTrueCycleSeconds": 77.4561253336966,
+        "maeSeconds": 1.3840754553329433
+      },
+      {
+        "visitIndexSinceIncident": 105,
+        "n": 125,
+        "meanPredictedCycleSeconds": 77.57850263924774,
+        "meanTrueCycleSeconds": 77.47608186228574,
+        "maeSeconds": 1.3589346427934788
+      },
+      {
+        "visitIndexSinceIncident": 106,
+        "n": 124,
+        "meanPredictedCycleSeconds": 78.02083094648617,
+        "meanTrueCycleSeconds": 77.84878783381635,
+        "maeSeconds": 1.2859190051498204
+      },
+      {
+        "visitIndexSinceIncident": 107,
+        "n": 124,
+        "meanPredictedCycleSeconds": 77.51024847908155,
+        "meanTrueCycleSeconds": 77.51107224928695,
+        "maeSeconds": 1.3206596477078525
+      },
+      {
+        "visitIndexSinceIncident": 108,
+        "n": 123,
+        "meanPredictedCycleSeconds": 77.55836122857804,
+        "meanTrueCycleSeconds": 77.52605277622436,
+        "maeSeconds": 1.3902957726502612
+      },
+      {
+        "visitIndexSinceIncident": 109,
+        "n": 123,
+        "meanPredictedCycleSeconds": 77.46488965008798,
+        "meanTrueCycleSeconds": 77.61634992332598,
+        "maeSeconds": 1.2178037720959756
+      },
+      {
+        "visitIndexSinceIncident": 110,
+        "n": 123,
+        "meanPredictedCycleSeconds": 77.60609165633105,
+        "meanTrueCycleSeconds": 77.72141994853935,
+        "maeSeconds": 1.2454705714048553
+      },
+      {
+        "visitIndexSinceIncident": 111,
+        "n": 122,
+        "meanPredictedCycleSeconds": 77.59957901815042,
+        "meanTrueCycleSeconds": 77.73209376964473,
+        "maeSeconds": 1.2292075792586394
+      },
+      {
+        "visitIndexSinceIncident": 112,
+        "n": 122,
+        "meanPredictedCycleSeconds": 77.28411813215354,
+        "meanTrueCycleSeconds": 77.60599874775308,
+        "maeSeconds": 1.3001158681909304
+      },
+      {
+        "visitIndexSinceIncident": 113,
+        "n": 121,
+        "meanPredictedCycleSeconds": 77.58404865897214,
+        "meanTrueCycleSeconds": 77.86100871967199,
+        "maeSeconds": 1.1986018222980714
+      },
+      {
+        "visitIndexSinceIncident": 114,
+        "n": 121,
+        "meanPredictedCycleSeconds": 77.36440022521282,
+        "meanTrueCycleSeconds": 77.49580195272141,
+        "maeSeconds": 1.458294414921453
+      },
+      {
+        "visitIndexSinceIncident": 115,
+        "n": 120,
+        "meanPredictedCycleSeconds": 77.3278386428535,
+        "meanTrueCycleSeconds": 77.60853971835847,
+        "maeSeconds": 1.2823570653747054
+      },
+      {
+        "visitIndexSinceIncident": 116,
+        "n": 120,
+        "meanPredictedCycleSeconds": 77.38061314393592,
+        "meanTrueCycleSeconds": 77.59103283000489,
+        "maeSeconds": 1.2892935938176557
+      },
+      {
+        "visitIndexSinceIncident": 117,
+        "n": 120,
+        "meanPredictedCycleSeconds": 77.20022798929037,
+        "meanTrueCycleSeconds": 77.48301773077498,
+        "maeSeconds": 1.441487119636386
+      },
+      {
+        "visitIndexSinceIncident": 118,
+        "n": 120,
+        "meanPredictedCycleSeconds": 77.63723768289987,
+        "meanTrueCycleSeconds": 77.81673642749277,
+        "maeSeconds": 1.1650798654965862
+      },
+      {
+        "visitIndexSinceIncident": 119,
+        "n": 119,
+        "meanPredictedCycleSeconds": 77.41644561857046,
+        "meanTrueCycleSeconds": 77.55611230933867,
+        "maeSeconds": 1.3301909424610832
+      },
+      {
+        "visitIndexSinceIncident": 120,
+        "n": 119,
+        "meanPredictedCycleSeconds": 77.24466721707262,
+        "meanTrueCycleSeconds": 77.6882690030518,
+        "maeSeconds": 1.4344276981819735
+      },
+      {
+        "visitIndexSinceIncident": 121,
+        "n": 119,
+        "meanPredictedCycleSeconds": 77.74816895628688,
+        "meanTrueCycleSeconds": 77.8238362106612,
+        "maeSeconds": 1.1731942584467603
+      },
+      {
+        "visitIndexSinceIncident": 122,
+        "n": 119,
+        "meanPredictedCycleSeconds": 77.35596197944335,
+        "meanTrueCycleSeconds": 77.44074107543761,
+        "maeSeconds": 1.4170463371985345
+      },
+      {
+        "visitIndexSinceIncident": 123,
+        "n": 117,
+        "meanPredictedCycleSeconds": 77.31071690168523,
+        "meanTrueCycleSeconds": 77.5781216682691,
+        "maeSeconds": 1.3433180786392267
+      },
+      {
+        "visitIndexSinceIncident": 124,
+        "n": 117,
+        "meanPredictedCycleSeconds": 77.57278010560032,
+        "meanTrueCycleSeconds": 77.55957890230303,
+        "maeSeconds": 1.2708065120453922
+      },
+      {
+        "visitIndexSinceIncident": 125,
+        "n": 115,
+        "meanPredictedCycleSeconds": 77.27892370603236,
+        "meanTrueCycleSeconds": 77.62877514472474,
+        "maeSeconds": 1.3296267966089643
+      },
+      {
+        "visitIndexSinceIncident": 126,
+        "n": 115,
+        "meanPredictedCycleSeconds": 77.50355582848994,
+        "meanTrueCycleSeconds": 77.8109844285347,
+        "maeSeconds": 1.2202385384474739
+      },
+      {
+        "visitIndexSinceIncident": 127,
+        "n": 115,
+        "meanPredictedCycleSeconds": 77.5488816348212,
+        "meanTrueCycleSeconds": 77.68965718112887,
+        "maeSeconds": 1.3665036153532504
+      },
+      {
+        "visitIndexSinceIncident": 128,
+        "n": 114,
+        "meanPredictedCycleSeconds": 77.52283159387966,
+        "meanTrueCycleSeconds": 77.68153933273922,
+        "maeSeconds": 1.2170174616851859
+      },
+      {
+        "visitIndexSinceIncident": 129,
+        "n": 112,
+        "meanPredictedCycleSeconds": 77.59260203020186,
+        "meanTrueCycleSeconds": 77.84663631633988,
+        "maeSeconds": 1.2463842882365108
+      },
+      {
+        "visitIndexSinceIncident": 130,
+        "n": 112,
+        "meanPredictedCycleSeconds": 77.54502604362713,
+        "meanTrueCycleSeconds": 77.61869027937895,
+        "maeSeconds": 1.2582892019326217
+      },
+      {
+        "visitIndexSinceIncident": 131,
+        "n": 112,
+        "meanPredictedCycleSeconds": 77.51738546904653,
+        "meanTrueCycleSeconds": 77.72919580420213,
+        "maeSeconds": 1.4152946393191301
+      },
+      {
+        "visitIndexSinceIncident": 132,
+        "n": 111,
+        "meanPredictedCycleSeconds": 77.29816968456642,
+        "meanTrueCycleSeconds": 77.66402422381682,
+        "maeSeconds": 1.2579821666306472
+      },
+      {
+        "visitIndexSinceIncident": 133,
+        "n": 110,
+        "meanPredictedCycleSeconds": 77.407440321302,
+        "meanTrueCycleSeconds": 77.48676946921782,
+        "maeSeconds": 1.2421251199740608
+      },
+      {
+        "visitIndexSinceIncident": 134,
+        "n": 110,
+        "meanPredictedCycleSeconds": 77.65133444943059,
+        "meanTrueCycleSeconds": 77.66358683896674,
+        "maeSeconds": 1.221244084502828
+      },
+      {
+        "visitIndexSinceIncident": 135,
+        "n": 109,
+        "meanPredictedCycleSeconds": 77.54318480361142,
+        "meanTrueCycleSeconds": 77.57530694219088,
+        "maeSeconds": 1.2245632456188715
+      },
+      {
+        "visitIndexSinceIncident": 136,
+        "n": 109,
+        "meanPredictedCycleSeconds": 77.30838882058454,
+        "meanTrueCycleSeconds": 77.66468561878172,
+        "maeSeconds": 1.4331047396408754
+      },
+      {
+        "visitIndexSinceIncident": 137,
+        "n": 108,
+        "meanPredictedCycleSeconds": 77.45907592009918,
+        "meanTrueCycleSeconds": 77.7228732630438,
+        "maeSeconds": 1.3280266317038425
+      },
+      {
+        "visitIndexSinceIncident": 138,
+        "n": 107,
+        "meanPredictedCycleSeconds": 77.5961963288574,
+        "meanTrueCycleSeconds": 77.59049568800516,
+        "maeSeconds": 1.3383635911442346
+      },
+      {
+        "visitIndexSinceIncident": 139,
+        "n": 107,
+        "meanPredictedCycleSeconds": 77.49456699921346,
+        "meanTrueCycleSeconds": 77.68954421332646,
+        "maeSeconds": 1.4776851159526836
+      },
+      {
+        "visitIndexSinceIncident": 140,
+        "n": 107,
+        "meanPredictedCycleSeconds": 77.34461650245514,
+        "meanTrueCycleSeconds": 77.61661831848323,
+        "maeSeconds": 1.2417336781515889
+      },
+      {
+        "visitIndexSinceIncident": 141,
+        "n": 107,
+        "meanPredictedCycleSeconds": 77.48464322192282,
+        "meanTrueCycleSeconds": 77.58964841819812,
+        "maeSeconds": 1.279119858214667
+      },
+      {
+        "visitIndexSinceIncident": 142,
+        "n": 105,
+        "meanPredictedCycleSeconds": 77.39718601227894,
+        "meanTrueCycleSeconds": 77.57611046795334,
+        "maeSeconds": 1.3307122031215899
+      },
+      {
+        "visitIndexSinceIncident": 143,
+        "n": 105,
+        "meanPredictedCycleSeconds": 77.38748868846524,
+        "meanTrueCycleSeconds": 77.56997253460189,
+        "maeSeconds": 1.354589690703741
+      },
+      {
+        "visitIndexSinceIncident": 144,
+        "n": 105,
+        "meanPredictedCycleSeconds": 77.53189187753301,
+        "meanTrueCycleSeconds": 77.57037563442829,
+        "maeSeconds": 1.3115320571423326
+      },
+      {
+        "visitIndexSinceIncident": 145,
+        "n": 105,
+        "meanPredictedCycleSeconds": 77.14307598619638,
+        "meanTrueCycleSeconds": 77.45021355395161,
+        "maeSeconds": 1.3514644345942495
+      },
+      {
+        "visitIndexSinceIncident": 146,
+        "n": 105,
+        "meanPredictedCycleSeconds": 77.75814868125026,
+        "meanTrueCycleSeconds": 77.81373783130022,
+        "maeSeconds": 1.1755307326787627
+      },
+      {
+        "visitIndexSinceIncident": 147,
+        "n": 104,
+        "meanPredictedCycleSeconds": 77.59923303654082,
+        "meanTrueCycleSeconds": 77.62187963842342,
+        "maeSeconds": 1.2496058116615782
+      },
+      {
+        "visitIndexSinceIncident": 148,
+        "n": 104,
+        "meanPredictedCycleSeconds": 77.50962671639435,
+        "meanTrueCycleSeconds": 77.64905367338528,
+        "maeSeconds": 1.280964913272121
+      },
+      {
+        "visitIndexSinceIncident": 149,
+        "n": 103,
+        "meanPredictedCycleSeconds": 77.15584375956011,
+        "meanTrueCycleSeconds": 77.41599510763817,
+        "maeSeconds": 1.225128957646663
+      },
+      {
+        "visitIndexSinceIncident": 150,
+        "n": 101,
+        "meanPredictedCycleSeconds": 77.2967691735596,
+        "meanTrueCycleSeconds": 77.61336191232768,
+        "maeSeconds": 1.3326281012565533
+      },
+      {
+        "visitIndexSinceIncident": 151,
+        "n": 100,
+        "meanPredictedCycleSeconds": 77.32563779053925,
+        "meanTrueCycleSeconds": 77.46465377928689,
+        "maeSeconds": 1.290708832630048
+      },
+      {
+        "visitIndexSinceIncident": 152,
+        "n": 100,
+        "meanPredictedCycleSeconds": 77.48373743462166,
+        "meanTrueCycleSeconds": 77.59691650848836,
+        "maeSeconds": 1.2576798155734537
+      },
+      {
+        "visitIndexSinceIncident": 153,
+        "n": 100,
+        "meanPredictedCycleSeconds": 77.41392975146334,
+        "meanTrueCycleSeconds": 77.5564465325512,
+        "maeSeconds": 1.165994948523317
+      },
+      {
+        "visitIndexSinceIncident": 154,
+        "n": 100,
+        "meanPredictedCycleSeconds": 77.30244296817608,
+        "meanTrueCycleSeconds": 77.59163029650226,
+        "maeSeconds": 1.140467538131274
+      },
+      {
+        "visitIndexSinceIncident": 155,
+        "n": 100,
+        "meanPredictedCycleSeconds": 77.3836000577111,
+        "meanTrueCycleSeconds": 77.57518736897036,
+        "maeSeconds": 1.361223510660816
+      },
+      {
+        "visitIndexSinceIncident": 156,
+        "n": 100,
+        "meanPredictedCycleSeconds": 77.5301071830091,
+        "meanTrueCycleSeconds": 77.6984324618429,
+        "maeSeconds": 1.2949969329016033
+      },
+      {
+        "visitIndexSinceIncident": 157,
+        "n": 100,
+        "meanPredictedCycleSeconds": 77.25422671906145,
+        "meanTrueCycleSeconds": 77.45984589835629,
+        "maeSeconds": 1.4092040109177355
+      },
+      {
+        "visitIndexSinceIncident": 158,
+        "n": 98,
+        "meanPredictedCycleSeconds": 77.4425306585056,
+        "meanTrueCycleSeconds": 77.6205899049623,
+        "maeSeconds": 1.2279336996945898
+      },
+      {
+        "visitIndexSinceIncident": 159,
+        "n": 98,
+        "meanPredictedCycleSeconds": 77.34784058671465,
+        "meanTrueCycleSeconds": 77.27806536176679,
+        "maeSeconds": 1.395419055776309
+      },
+      {
+        "visitIndexSinceIncident": 160,
+        "n": 98,
+        "meanPredictedCycleSeconds": 77.32853166178961,
+        "meanTrueCycleSeconds": 77.51308555788911,
+        "maeSeconds": 1.273176743088105
+      },
+      {
+        "visitIndexSinceIncident": 161,
+        "n": 98,
+        "meanPredictedCycleSeconds": 77.54870606117937,
+        "meanTrueCycleSeconds": 77.50421912485392,
+        "maeSeconds": 1.1761097303008365
+      },
+      {
+        "visitIndexSinceIncident": 162,
+        "n": 97,
+        "meanPredictedCycleSeconds": 77.57955211834287,
+        "meanTrueCycleSeconds": 77.53760459143476,
+        "maeSeconds": 1.2820455304944576
+      },
+      {
+        "visitIndexSinceIncident": 163,
+        "n": 97,
+        "meanPredictedCycleSeconds": 77.56748437140224,
+        "meanTrueCycleSeconds": 77.68676018534401,
+        "maeSeconds": 1.256545508734629
+      },
+      {
+        "visitIndexSinceIncident": 164,
+        "n": 95,
+        "meanPredictedCycleSeconds": 77.49990123795064,
+        "meanTrueCycleSeconds": 77.74379127284413,
+        "maeSeconds": 1.3636358421483152
+      },
+      {
+        "visitIndexSinceIncident": 165,
+        "n": 95,
+        "meanPredictedCycleSeconds": 77.24270410744501,
+        "meanTrueCycleSeconds": 77.71906162486657,
+        "maeSeconds": 1.220282751718068
+      },
+      {
+        "visitIndexSinceIncident": 166,
+        "n": 94,
+        "meanPredictedCycleSeconds": 77.36435964956733,
+        "meanTrueCycleSeconds": 77.51214816349935,
+        "maeSeconds": 1.5949623399335227
+      },
+      {
+        "visitIndexSinceIncident": 167,
+        "n": 94,
+        "meanPredictedCycleSeconds": 77.88313716036926,
+        "meanTrueCycleSeconds": 77.95563282413369,
+        "maeSeconds": 1.262982564116038
+      },
+      {
+        "visitIndexSinceIncident": 168,
+        "n": 94,
+        "meanPredictedCycleSeconds": 77.34769421456886,
+        "meanTrueCycleSeconds": 77.40029656270796,
+        "maeSeconds": 1.2477861329706084
+      },
+      {
+        "visitIndexSinceIncident": 169,
+        "n": 92,
+        "meanPredictedCycleSeconds": 77.42863385962113,
+        "meanTrueCycleSeconds": 77.5319100103503,
+        "maeSeconds": 1.1821097578319057
+      },
+      {
+        "visitIndexSinceIncident": 170,
+        "n": 92,
+        "meanPredictedCycleSeconds": 77.47734965371747,
+        "meanTrueCycleSeconds": 77.77573837066555,
+        "maeSeconds": 1.3019518473512042
+      },
+      {
+        "visitIndexSinceIncident": 171,
+        "n": 91,
+        "meanPredictedCycleSeconds": 77.38341946936384,
+        "meanTrueCycleSeconds": 77.5020784594446,
+        "maeSeconds": 1.3826449534927507
+      },
+      {
+        "visitIndexSinceIncident": 172,
+        "n": 91,
+        "meanPredictedCycleSeconds": 77.626516028145,
+        "meanTrueCycleSeconds": 77.49127840535245,
+        "maeSeconds": 1.297952436296093
+      },
+      {
+        "visitIndexSinceIncident": 173,
+        "n": 91,
+        "meanPredictedCycleSeconds": 77.52567159834304,
+        "meanTrueCycleSeconds": 77.6543211046156,
+        "maeSeconds": 1.0153387300266008
+      },
+      {
+        "visitIndexSinceIncident": 174,
+        "n": 91,
+        "meanPredictedCycleSeconds": 77.67796156621174,
+        "meanTrueCycleSeconds": 77.6876095554249,
+        "maeSeconds": 1.269039848871037
+      },
+      {
+        "visitIndexSinceIncident": 175,
+        "n": 90,
+        "meanPredictedCycleSeconds": 77.34007784371055,
+        "meanTrueCycleSeconds": 77.60836728825751,
+        "maeSeconds": 1.4021951946545845
+      },
+      {
+        "visitIndexSinceIncident": 176,
+        "n": 90,
+        "meanPredictedCycleSeconds": 77.5882383287209,
+        "meanTrueCycleSeconds": 77.60140383727848,
+        "maeSeconds": 1.1692987508739885
+      },
+      {
+        "visitIndexSinceIncident": 177,
+        "n": 90,
+        "meanPredictedCycleSeconds": 77.6471744129345,
+        "meanTrueCycleSeconds": 77.76834153340509,
+        "maeSeconds": 1.0963045393525228
+      },
+      {
+        "visitIndexSinceIncident": 178,
+        "n": 90,
+        "meanPredictedCycleSeconds": 77.37191168298969,
+        "meanTrueCycleSeconds": 77.68235803145087,
+        "maeSeconds": 1.3042908202133274
+      },
+      {
+        "visitIndexSinceIncident": 179,
+        "n": 90,
+        "meanPredictedCycleSeconds": 77.38427063665871,
+        "meanTrueCycleSeconds": 77.65628137619545,
+        "maeSeconds": 1.179666278107371
+      },
+      {
+        "visitIndexSinceIncident": 180,
+        "n": 90,
+        "meanPredictedCycleSeconds": 77.21029591460346,
+        "meanTrueCycleSeconds": 77.66617561139994,
+        "maeSeconds": 1.2949281159476362
+      },
+      {
+        "visitIndexSinceIncident": 181,
+        "n": 90,
+        "meanPredictedCycleSeconds": 77.36528754065273,
+        "meanTrueCycleSeconds": 77.51839845302618,
+        "maeSeconds": 1.4270209684979196
+      },
+      {
+        "visitIndexSinceIncident": 182,
+        "n": 88,
+        "meanPredictedCycleSeconds": 77.76984943103629,
+        "meanTrueCycleSeconds": 77.67203136872162,
+        "maeSeconds": 1.394328025810806
+      },
+      {
+        "visitIndexSinceIncident": 183,
+        "n": 87,
+        "meanPredictedCycleSeconds": 77.37048833605128,
+        "meanTrueCycleSeconds": 77.43741376276246,
+        "maeSeconds": 1.286909847135109
+      },
+      {
+        "visitIndexSinceIncident": 184,
+        "n": 86,
+        "meanPredictedCycleSeconds": 77.83875856735139,
+        "meanTrueCycleSeconds": 77.92536380763578,
+        "maeSeconds": 1.1677906506120124
+      },
+      {
+        "visitIndexSinceIncident": 185,
+        "n": 86,
+        "meanPredictedCycleSeconds": 77.63763131633566,
+        "meanTrueCycleSeconds": 77.70966032190725,
+        "maeSeconds": 1.3004374632103013
+      },
+      {
+        "visitIndexSinceIncident": 186,
+        "n": 85,
+        "meanPredictedCycleSeconds": 77.77203245122769,
+        "meanTrueCycleSeconds": 77.755320743318,
+        "maeSeconds": 1.2672477664880257
+      },
+      {
+        "visitIndexSinceIncident": 187,
+        "n": 84,
+        "meanPredictedCycleSeconds": 77.45249454374049,
+        "meanTrueCycleSeconds": 77.65374388013568,
+        "maeSeconds": 1.2388482339651137
+      },
+      {
+        "visitIndexSinceIncident": 188,
+        "n": 84,
+        "meanPredictedCycleSeconds": 77.2763307272258,
+        "meanTrueCycleSeconds": 77.39899081643671,
+        "maeSeconds": 1.2277519817203857
+      },
+      {
+        "visitIndexSinceIncident": 189,
+        "n": 83,
+        "meanPredictedCycleSeconds": 77.32680483566523,
+        "meanTrueCycleSeconds": 77.45027891589126,
+        "maeSeconds": 1.4245714106744967
+      },
+      {
+        "visitIndexSinceIncident": 190,
+        "n": 82,
+        "meanPredictedCycleSeconds": 77.38080121884859,
+        "meanTrueCycleSeconds": 77.56109636033908,
+        "maeSeconds": 1.2369738523158336
+      },
+      {
+        "visitIndexSinceIncident": 191,
+        "n": 81,
+        "meanPredictedCycleSeconds": 77.2854852982247,
+        "meanTrueCycleSeconds": 77.33815408153114,
+        "maeSeconds": 1.255994528612332
+      },
+      {
+        "visitIndexSinceIncident": 192,
+        "n": 79,
+        "meanPredictedCycleSeconds": 77.58244906848621,
+        "meanTrueCycleSeconds": 77.4822004722502,
+        "maeSeconds": 1.1244478522060624
+      },
+      {
+        "visitIndexSinceIncident": 193,
+        "n": 78,
+        "meanPredictedCycleSeconds": 77.49619630572546,
+        "meanTrueCycleSeconds": 77.58873065112111,
+        "maeSeconds": 1.5194318459935867
+      },
+      {
+        "visitIndexSinceIncident": 194,
+        "n": 78,
+        "meanPredictedCycleSeconds": 77.49935420495214,
+        "meanTrueCycleSeconds": 77.40825668708064,
+        "maeSeconds": 1.3588102942117364
+      },
+      {
+        "visitIndexSinceIncident": 195,
+        "n": 78,
+        "meanPredictedCycleSeconds": 77.92110882645765,
+        "meanTrueCycleSeconds": 77.7315090443127,
+        "maeSeconds": 1.2696001243102712
+      },
+      {
+        "visitIndexSinceIncident": 196,
+        "n": 77,
+        "meanPredictedCycleSeconds": 77.74659638842864,
+        "meanTrueCycleSeconds": 78.00561136853966,
+        "maeSeconds": 1.2762192651965092
+      },
+      {
+        "visitIndexSinceIncident": 197,
+        "n": 77,
+        "meanPredictedCycleSeconds": 77.22866711081653,
+        "meanTrueCycleSeconds": 77.65243568399606,
+        "maeSeconds": 1.1927407801097896
+      },
+      {
+        "visitIndexSinceIncident": 198,
+        "n": 77,
+        "meanPredictedCycleSeconds": 77.70056248969362,
+        "meanTrueCycleSeconds": 77.75243403053807,
+        "maeSeconds": 1.4859481381711575
+      },
+      {
+        "visitIndexSinceIncident": 199,
+        "n": 76,
+        "meanPredictedCycleSeconds": 76.82022899172573,
+        "meanTrueCycleSeconds": 77.36947830151276,
+        "maeSeconds": 1.3464067159473185
+      },
+      {
+        "visitIndexSinceIncident": 200,
+        "n": 75,
+        "meanPredictedCycleSeconds": 77.96583554690093,
+        "meanTrueCycleSeconds": 77.78220746661226,
+        "maeSeconds": 1.397359678325595
+      },
+      {
+        "visitIndexSinceIncident": 201,
+        "n": 75,
+        "meanPredictedCycleSeconds": 77.48212392775666,
+        "meanTrueCycleSeconds": 77.67932951380809,
+        "maeSeconds": 1.3812978047766815
+      },
+      {
+        "visitIndexSinceIncident": 202,
+        "n": 75,
+        "meanPredictedCycleSeconds": 77.43204642447118,
+        "meanTrueCycleSeconds": 77.65926689125598,
+        "maeSeconds": 1.2073461675099193
+      },
+      {
+        "visitIndexSinceIncident": 203,
+        "n": 74,
+        "meanPredictedCycleSeconds": 77.41746712179273,
+        "meanTrueCycleSeconds": 77.58962264279458,
+        "maeSeconds": 1.254961532281171
+      },
+      {
+        "visitIndexSinceIncident": 204,
+        "n": 74,
+        "meanPredictedCycleSeconds": 77.41967369702266,
+        "meanTrueCycleSeconds": 77.73333107891517,
+        "maeSeconds": 1.398858654921983
+      },
+      {
+        "visitIndexSinceIncident": 205,
+        "n": 73,
+        "meanPredictedCycleSeconds": 77.85996437653412,
+        "meanTrueCycleSeconds": 77.97884449860311,
+        "maeSeconds": 1.208600231529439
+      },
+      {
+        "visitIndexSinceIncident": 206,
+        "n": 73,
+        "meanPredictedCycleSeconds": 77.22717757840672,
+        "meanTrueCycleSeconds": 77.70736928289271,
+        "maeSeconds": 1.3335581762225635
+      },
+      {
+        "visitIndexSinceIncident": 207,
+        "n": 73,
+        "meanPredictedCycleSeconds": 77.48886223533941,
+        "meanTrueCycleSeconds": 77.81885863304751,
+        "maeSeconds": 1.2253375616213518
+      },
+      {
+        "visitIndexSinceIncident": 208,
+        "n": 73,
+        "meanPredictedCycleSeconds": 77.76519786936534,
+        "meanTrueCycleSeconds": 77.79958012342861,
+        "maeSeconds": 1.1164028973244495
+      },
+      {
+        "visitIndexSinceIncident": 209,
+        "n": 71,
+        "meanPredictedCycleSeconds": 77.64494387258006,
+        "meanTrueCycleSeconds": 77.41258857270677,
+        "maeSeconds": 1.3799560023609536
+      },
+      {
+        "visitIndexSinceIncident": 210,
+        "n": 71,
+        "meanPredictedCycleSeconds": 77.82797114932168,
+        "meanTrueCycleSeconds": 77.46982420860252,
+        "maeSeconds": 1.3324952572777966
+      },
+      {
+        "visitIndexSinceIncident": 211,
+        "n": 71,
+        "meanPredictedCycleSeconds": 77.18472297585292,
+        "meanTrueCycleSeconds": 77.42036145820585,
+        "maeSeconds": 1.4178790552221128
+      },
+      {
+        "visitIndexSinceIncident": 212,
+        "n": 69,
+        "meanPredictedCycleSeconds": 77.25187778854517,
+        "meanTrueCycleSeconds": 77.8184893152312,
+        "maeSeconds": 1.3408178645276407
+      },
+      {
+        "visitIndexSinceIncident": 213,
+        "n": 69,
+        "meanPredictedCycleSeconds": 77.5213834672748,
+        "meanTrueCycleSeconds": 77.56668748220672,
+        "maeSeconds": 1.2244043004721616
+      },
+      {
+        "visitIndexSinceIncident": 214,
+        "n": 69,
+        "meanPredictedCycleSeconds": 77.33520270951904,
+        "meanTrueCycleSeconds": 77.57352698807591,
+        "maeSeconds": 1.3466728338105847
+      },
+      {
+        "visitIndexSinceIncident": 215,
+        "n": 69,
+        "meanPredictedCycleSeconds": 77.77988272874576,
+        "meanTrueCycleSeconds": 77.72026820677885,
+        "maeSeconds": 1.2309624491921611
+      },
+      {
+        "visitIndexSinceIncident": 216,
+        "n": 69,
+        "meanPredictedCycleSeconds": 77.83871073714046,
+        "meanTrueCycleSeconds": 77.7730613036648,
+        "maeSeconds": 1.4260732227754356
+      },
+      {
+        "visitIndexSinceIncident": 217,
+        "n": 68,
+        "meanPredictedCycleSeconds": 77.75824271656326,
+        "meanTrueCycleSeconds": 77.69412289880326,
+        "maeSeconds": 1.4215661586894226
+      },
+      {
+        "visitIndexSinceIncident": 218,
+        "n": 66,
+        "meanPredictedCycleSeconds": 77.28869649021614,
+        "meanTrueCycleSeconds": 77.64408625334953,
+        "maeSeconds": 1.3081327523465693
+      },
+      {
+        "visitIndexSinceIncident": 219,
+        "n": 66,
+        "meanPredictedCycleSeconds": 77.18965991530419,
+        "meanTrueCycleSeconds": 77.22875976415746,
+        "maeSeconds": 1.3776928020121109
+      },
+      {
+        "visitIndexSinceIncident": 220,
+        "n": 65,
+        "meanPredictedCycleSeconds": 77.62018123605627,
+        "meanTrueCycleSeconds": 77.75768691252631,
+        "maeSeconds": 1.188875719754602
+      },
+      {
+        "visitIndexSinceIncident": 221,
+        "n": 64,
+        "meanPredictedCycleSeconds": 77.68079207014424,
+        "meanTrueCycleSeconds": 78.0695301918895,
+        "maeSeconds": 1.1813342255872994
+      },
+      {
+        "visitIndexSinceIncident": 222,
+        "n": 62,
+        "meanPredictedCycleSeconds": 77.86659108212342,
+        "meanTrueCycleSeconds": 77.88378789597341,
+        "maeSeconds": 1.2603342161582307
+      },
+      {
+        "visitIndexSinceIncident": 223,
+        "n": 60,
+        "meanPredictedCycleSeconds": 77.31666643621473,
+        "meanTrueCycleSeconds": 77.51032552604254,
+        "maeSeconds": 1.1856895188050696
+      },
+      {
+        "visitIndexSinceIncident": 224,
+        "n": 58,
+        "meanPredictedCycleSeconds": 76.89667271368123,
+        "meanTrueCycleSeconds": 77.33116343334831,
+        "maeSeconds": 1.325154639542062
+      },
+      {
+        "visitIndexSinceIncident": 225,
+        "n": 58,
+        "meanPredictedCycleSeconds": 77.94250831757128,
+        "meanTrueCycleSeconds": 77.57522611551244,
+        "maeSeconds": 1.2834035932567782
+      },
+      {
+        "visitIndexSinceIncident": 226,
+        "n": 58,
+        "meanPredictedCycleSeconds": 77.5141590698573,
+        "meanTrueCycleSeconds": 77.66178789731629,
+        "maeSeconds": 1.2534719969531933
+      },
+      {
+        "visitIndexSinceIncident": 227,
+        "n": 57,
+        "meanPredictedCycleSeconds": 77.28355646246179,
+        "meanTrueCycleSeconds": 77.63421902468984,
+        "maeSeconds": 1.4077542994672627
+      },
+      {
+        "visitIndexSinceIncident": 228,
+        "n": 57,
+        "meanPredictedCycleSeconds": 77.8993585618932,
+        "meanTrueCycleSeconds": 77.55805246440465,
+        "maeSeconds": 1.3231187225778813
+      },
+      {
+        "visitIndexSinceIncident": 229,
+        "n": 55,
+        "meanPredictedCycleSeconds": 77.46943477852193,
+        "meanTrueCycleSeconds": 77.52932838052511,
+        "maeSeconds": 1.4277336067993789
+      },
+      {
+        "visitIndexSinceIncident": 230,
+        "n": 55,
+        "meanPredictedCycleSeconds": 77.26100948592567,
+        "meanTrueCycleSeconds": 77.60922679149292,
+        "maeSeconds": 1.3373978084418159
+      },
+      {
+        "visitIndexSinceIncident": 231,
+        "n": 55,
+        "meanPredictedCycleSeconds": 77.56307540162774,
+        "meanTrueCycleSeconds": 77.71489203650165,
+        "maeSeconds": 1.3874159174163159
+      },
+      {
+        "visitIndexSinceIncident": 232,
+        "n": 55,
+        "meanPredictedCycleSeconds": 77.50224410611474,
+        "meanTrueCycleSeconds": 77.64145746766167,
+        "maeSeconds": 1.4336722842170702
+      },
+      {
+        "visitIndexSinceIncident": 233,
+        "n": 55,
+        "meanPredictedCycleSeconds": 77.40417560250386,
+        "meanTrueCycleSeconds": 77.42631909430705,
+        "maeSeconds": 1.0492575631922814
+      },
+      {
+        "visitIndexSinceIncident": 234,
+        "n": 54,
+        "meanPredictedCycleSeconds": 77.58853249921631,
+        "meanTrueCycleSeconds": 77.8834888998212,
+        "maeSeconds": 1.4525424463526457
+      },
+      {
+        "visitIndexSinceIncident": 235,
+        "n": 54,
+        "meanPredictedCycleSeconds": 77.28479874509883,
+        "meanTrueCycleSeconds": 77.46722331239532,
+        "maeSeconds": 1.1783452454193895
+      },
+      {
+        "visitIndexSinceIncident": 236,
+        "n": 54,
+        "meanPredictedCycleSeconds": 77.55188967121036,
+        "meanTrueCycleSeconds": 77.34586129206474,
+        "maeSeconds": 1.3536632503138728
+      },
+      {
+        "visitIndexSinceIncident": 237,
+        "n": 54,
+        "meanPredictedCycleSeconds": 77.84557938903038,
+        "meanTrueCycleSeconds": 77.55191509943042,
+        "maeSeconds": 1.1436163499308731
+      },
+      {
+        "visitIndexSinceIncident": 238,
+        "n": 54,
+        "meanPredictedCycleSeconds": 77.43573897810226,
+        "meanTrueCycleSeconds": 77.66901264857087,
+        "maeSeconds": 1.4129673543490495
+      },
+      {
+        "visitIndexSinceIncident": 239,
+        "n": 53,
+        "meanPredictedCycleSeconds": 77.74897902902285,
+        "meanTrueCycleSeconds": 77.82731239409802,
+        "maeSeconds": 1.1013260436566223
+      },
+      {
+        "visitIndexSinceIncident": 240,
+        "n": 50,
+        "meanPredictedCycleSeconds": 77.54909126947308,
+        "meanTrueCycleSeconds": 77.47595052361488,
+        "maeSeconds": 1.27609731772159
+      },
+      {
+        "visitIndexSinceIncident": 241,
+        "n": 49,
+        "meanPredictedCycleSeconds": 77.03991388369,
+        "meanTrueCycleSeconds": 77.55197064327646,
+        "maeSeconds": 1.2962539754397018
+      },
+      {
+        "visitIndexSinceIncident": 242,
+        "n": 49,
+        "meanPredictedCycleSeconds": 77.22382941109035,
+        "meanTrueCycleSeconds": 77.65591980235614,
+        "maeSeconds": 1.3151363702621255
+      },
+      {
+        "visitIndexSinceIncident": 243,
+        "n": 49,
+        "meanPredictedCycleSeconds": 77.86851346534681,
+        "meanTrueCycleSeconds": 78.05501021843936,
+        "maeSeconds": 1.115007138790708
+      },
+      {
+        "visitIndexSinceIncident": 244,
+        "n": 49,
+        "meanPredictedCycleSeconds": 77.48673223146345,
+        "meanTrueCycleSeconds": 77.43767195392628,
+        "maeSeconds": 1.4994506044197229
+      },
+      {
+        "visitIndexSinceIncident": 245,
+        "n": 49,
+        "meanPredictedCycleSeconds": 77.81349748333758,
+        "meanTrueCycleSeconds": 77.61685429475442,
+        "maeSeconds": 1.190530096764405
+      },
+      {
+        "visitIndexSinceIncident": 246,
+        "n": 49,
+        "meanPredictedCycleSeconds": 78.08154602145271,
+        "meanTrueCycleSeconds": 78.0448611009942,
+        "maeSeconds": 1.134201585695691
+      },
+      {
+        "visitIndexSinceIncident": 247,
+        "n": 48,
+        "meanPredictedCycleSeconds": 77.1824796053359,
+        "meanTrueCycleSeconds": 77.4244927163624,
+        "maeSeconds": 1.5943148725434189
+      },
+      {
+        "visitIndexSinceIncident": 248,
+        "n": 47,
+        "meanPredictedCycleSeconds": 77.49939625000299,
+        "meanTrueCycleSeconds": 77.60932399673348,
+        "maeSeconds": 1.2480615976789542
+      },
+      {
+        "visitIndexSinceIncident": 249,
+        "n": 47,
+        "meanPredictedCycleSeconds": 77.14905425312722,
+        "meanTrueCycleSeconds": 77.4191443637172,
+        "maeSeconds": 1.2493853267590345
+      },
+      {
+        "visitIndexSinceIncident": 250,
+        "n": 45,
+        "meanPredictedCycleSeconds": 77.29792034777637,
+        "meanTrueCycleSeconds": 77.73119435086846,
+        "maeSeconds": 1.1164423538671369
+      },
+      {
+        "visitIndexSinceIncident": 251,
+        "n": 45,
+        "meanPredictedCycleSeconds": 77.34754798836333,
+        "meanTrueCycleSeconds": 77.54957870629927,
+        "maeSeconds": 1.3121408230924376
+      },
+      {
+        "visitIndexSinceIncident": 252,
+        "n": 44,
+        "meanPredictedCycleSeconds": 77.43247576651736,
+        "meanTrueCycleSeconds": 77.4221917190589,
+        "maeSeconds": 1.1902142929893542
+      },
+      {
+        "visitIndexSinceIncident": 253,
+        "n": 43,
+        "meanPredictedCycleSeconds": 78.245626971311,
+        "meanTrueCycleSeconds": 77.64716512692529,
+        "maeSeconds": 1.2439448277845437
+      },
+      {
+        "visitIndexSinceIncident": 254,
+        "n": 43,
+        "meanPredictedCycleSeconds": 77.17924815497304,
+        "meanTrueCycleSeconds": 77.59544867056228,
+        "maeSeconds": 1.2783295169206674
+      },
+      {
+        "visitIndexSinceIncident": 255,
+        "n": 43,
+        "meanPredictedCycleSeconds": 77.08475656743683,
+        "meanTrueCycleSeconds": 77.34213872058967,
+        "maeSeconds": 1.2962086630609782
+      },
+      {
+        "visitIndexSinceIncident": 256,
+        "n": 43,
+        "meanPredictedCycleSeconds": 77.97116552812852,
+        "meanTrueCycleSeconds": 77.70999076031148,
+        "maeSeconds": 0.9997456757218236
+      },
+      {
+        "visitIndexSinceIncident": 257,
+        "n": 42,
+        "meanPredictedCycleSeconds": 77.59982705033403,
+        "meanTrueCycleSeconds": 77.45981692150235,
+        "maeSeconds": 1.4448626770741277
+      },
+      {
+        "visitIndexSinceIncident": 258,
+        "n": 42,
+        "meanPredictedCycleSeconds": 77.04035495062479,
+        "meanTrueCycleSeconds": 77.45770092348435,
+        "maeSeconds": 1.2590860300931188
+      },
+      {
+        "visitIndexSinceIncident": 259,
+        "n": 42,
+        "meanPredictedCycleSeconds": 76.96905254647079,
+        "meanTrueCycleSeconds": 77.49894981640612,
+        "maeSeconds": 1.4799229970060157
+      },
+      {
+        "visitIndexSinceIncident": 260,
+        "n": 42,
+        "meanPredictedCycleSeconds": 77.68140044297841,
+        "meanTrueCycleSeconds": 77.45518438557961,
+        "maeSeconds": 1.4638382637920782
+      },
+      {
+        "visitIndexSinceIncident": 261,
+        "n": 42,
+        "meanPredictedCycleSeconds": 77.42646387046636,
+        "meanTrueCycleSeconds": 77.58322970351826,
+        "maeSeconds": 1.179454580227659
+      },
+      {
+        "visitIndexSinceIncident": 262,
+        "n": 41,
+        "meanPredictedCycleSeconds": 77.70671946143105,
+        "meanTrueCycleSeconds": 77.81114371307194,
+        "maeSeconds": 1.1496032615537495
+      },
+      {
+        "visitIndexSinceIncident": 263,
+        "n": 41,
+        "meanPredictedCycleSeconds": 77.4017215160716,
+        "meanTrueCycleSeconds": 77.49183249555347,
+        "maeSeconds": 1.3743863783037742
+      },
+      {
+        "visitIndexSinceIncident": 264,
+        "n": 39,
+        "meanPredictedCycleSeconds": 77.39531370342984,
+        "meanTrueCycleSeconds": 77.76173205864735,
+        "maeSeconds": 1.27640868526154
+      },
+      {
+        "visitIndexSinceIncident": 265,
+        "n": 39,
+        "meanPredictedCycleSeconds": 78.07908531982658,
+        "meanTrueCycleSeconds": 77.7479943390458,
+        "maeSeconds": 1.0422181792162222
+      },
+      {
+        "visitIndexSinceIncident": 266,
+        "n": 39,
+        "meanPredictedCycleSeconds": 77.43602653729323,
+        "meanTrueCycleSeconds": 77.51829375574987,
+        "maeSeconds": 1.3689786771826142
+      },
+      {
+        "visitIndexSinceIncident": 267,
+        "n": 38,
+        "meanPredictedCycleSeconds": 77.51173965038657,
+        "meanTrueCycleSeconds": 77.33713626778244,
+        "maeSeconds": 1.165203383352848
+      },
+      {
+        "visitIndexSinceIncident": 268,
+        "n": 38,
+        "meanPredictedCycleSeconds": 76.99531445004939,
+        "meanTrueCycleSeconds": 77.48868824639602,
+        "maeSeconds": 1.2797501211358715
+      },
+      {
+        "visitIndexSinceIncident": 269,
+        "n": 38,
+        "meanPredictedCycleSeconds": 77.47010755575542,
+        "meanTrueCycleSeconds": 77.76770844624231,
+        "maeSeconds": 1.2877305903606422
+      },
+      {
+        "visitIndexSinceIncident": 270,
+        "n": 37,
+        "meanPredictedCycleSeconds": 77.49058808168316,
+        "meanTrueCycleSeconds": 77.77086165708465,
+        "maeSeconds": 1.2440018598539262
+      },
+      {
+        "visitIndexSinceIncident": 271,
+        "n": 36,
+        "meanPredictedCycleSeconds": 77.429139709379,
+        "meanTrueCycleSeconds": 77.72992967436504,
+        "maeSeconds": 1.220705116326695
+      },
+      {
+        "visitIndexSinceIncident": 272,
+        "n": 36,
+        "meanPredictedCycleSeconds": 77.236204909421,
+        "meanTrueCycleSeconds": 77.66006574577962,
+        "maeSeconds": 1.434842236427397
+      },
+      {
+        "visitIndexSinceIncident": 273,
+        "n": 36,
+        "meanPredictedCycleSeconds": 77.71646669901239,
+        "meanTrueCycleSeconds": 77.74161088011331,
+        "maeSeconds": 0.9709239616733044
+      },
+      {
+        "visitIndexSinceIncident": 274,
+        "n": 35,
+        "meanPredictedCycleSeconds": 77.55643709267481,
+        "meanTrueCycleSeconds": 77.79869487211108,
+        "maeSeconds": 1.1491434341370959
+      },
+      {
+        "visitIndexSinceIncident": 275,
+        "n": 35,
+        "meanPredictedCycleSeconds": 77.40695246027477,
+        "meanTrueCycleSeconds": 77.86706846558621,
+        "maeSeconds": 1.0933387251229416
+      },
+      {
+        "visitIndexSinceIncident": 276,
+        "n": 35,
+        "meanPredictedCycleSeconds": 78.09870370180275,
+        "meanTrueCycleSeconds": 77.61570491311805,
+        "maeSeconds": 1.3752896618284098
+      },
+      {
+        "visitIndexSinceIncident": 277,
+        "n": 35,
+        "meanPredictedCycleSeconds": 77.52958311477983,
+        "meanTrueCycleSeconds": 77.73008129820228,
+        "maeSeconds": 1.2663299808254689
+      },
+      {
+        "visitIndexSinceIncident": 278,
+        "n": 35,
+        "meanPredictedCycleSeconds": 77.03225597949893,
+        "meanTrueCycleSeconds": 77.56559889997754,
+        "maeSeconds": 1.3410082638332215
+      },
+      {
+        "visitIndexSinceIncident": 279,
+        "n": 34,
+        "meanPredictedCycleSeconds": 77.27527973374801,
+        "meanTrueCycleSeconds": 77.38255085960469,
+        "maeSeconds": 1.0252419928716199
+      },
+      {
+        "visitIndexSinceIncident": 280,
+        "n": 33,
+        "meanPredictedCycleSeconds": 77.73877877790493,
+        "meanTrueCycleSeconds": 77.5213363423492,
+        "maeSeconds": 1.1365827927577494
+      },
+      {
+        "visitIndexSinceIncident": 281,
+        "n": 33,
+        "meanPredictedCycleSeconds": 77.39871540747039,
+        "meanTrueCycleSeconds": 77.41722081285535,
+        "maeSeconds": 1.5127215740483968
+      },
+      {
+        "visitIndexSinceIncident": 282,
+        "n": 32,
+        "meanPredictedCycleSeconds": 77.96998742397136,
+        "meanTrueCycleSeconds": 78.13243298896123,
+        "maeSeconds": 1.3229742009742007
+      },
+      {
+        "visitIndexSinceIncident": 283,
+        "n": 31,
+        "meanPredictedCycleSeconds": 77.18509136483564,
+        "meanTrueCycleSeconds": 77.36032503747171,
+        "maeSeconds": 1.7420782951622813
+      },
+      {
+        "visitIndexSinceIncident": 284,
+        "n": 31,
+        "meanPredictedCycleSeconds": 77.4900517047308,
+        "meanTrueCycleSeconds": 77.29376708265514,
+        "maeSeconds": 1.4556246177996264
+      },
+      {
+        "visitIndexSinceIncident": 285,
+        "n": 31,
+        "meanPredictedCycleSeconds": 77.95926993140158,
+        "meanTrueCycleSeconds": 77.63347417897275,
+        "maeSeconds": 1.3707499471261708
+      },
+      {
+        "visitIndexSinceIncident": 286,
+        "n": 30,
+        "meanPredictedCycleSeconds": 77.69136259160922,
+        "meanTrueCycleSeconds": 77.73337043070545,
+        "maeSeconds": 1.4350824439055287
+      },
+      {
+        "visitIndexSinceIncident": 287,
+        "n": 29,
+        "meanPredictedCycleSeconds": 78.17194490436047,
+        "meanTrueCycleSeconds": 78.53331543203315,
+        "maeSeconds": 0.9908527015973109
+      },
+      {
+        "visitIndexSinceIncident": 288,
+        "n": 29,
+        "meanPredictedCycleSeconds": 77.5598636686275,
+        "meanTrueCycleSeconds": 77.79590071801995,
+        "maeSeconds": 1.1206912998179481
+      },
+      {
+        "visitIndexSinceIncident": 289,
+        "n": 28,
+        "meanPredictedCycleSeconds": 78.08561277526732,
+        "meanTrueCycleSeconds": 77.47377527498507,
+        "maeSeconds": 1.5724593389386068
+      },
+      {
+        "visitIndexSinceIncident": 290,
+        "n": 26,
+        "meanPredictedCycleSeconds": 77.59479651369355,
+        "meanTrueCycleSeconds": 77.5804238866728,
+        "maeSeconds": 1.2209604957536027
+      },
+      {
+        "visitIndexSinceIncident": 291,
+        "n": 26,
+        "meanPredictedCycleSeconds": 78.2415423432081,
+        "meanTrueCycleSeconds": 77.94094319784871,
+        "maeSeconds": 1.349366873614021
+      },
+      {
+        "visitIndexSinceIncident": 292,
+        "n": 25,
+        "meanPredictedCycleSeconds": 77.05888595748314,
+        "meanTrueCycleSeconds": 77.33747373439371,
+        "maeSeconds": 1.307086787801063
+      },
+      {
+        "visitIndexSinceIncident": 293,
+        "n": 25,
+        "meanPredictedCycleSeconds": 77.369197694284,
+        "meanTrueCycleSeconds": 78.03767493508757,
+        "maeSeconds": 1.0889472897572636
+      },
+      {
+        "visitIndexSinceIncident": 294,
+        "n": 24,
+        "meanPredictedCycleSeconds": 77.69326385180045,
+        "meanTrueCycleSeconds": 77.88885395702285,
+        "maeSeconds": 1.338055259117482
+      },
+      {
+        "visitIndexSinceIncident": 295,
+        "n": 23,
+        "meanPredictedCycleSeconds": 77.12548919648282,
+        "meanTrueCycleSeconds": 77.34842175399156,
+        "maeSeconds": 1.5464234424805343
+      },
+      {
+        "visitIndexSinceIncident": 296,
+        "n": 23,
+        "meanPredictedCycleSeconds": 77.21281928949759,
+        "meanTrueCycleSeconds": 77.5934851632818,
+        "maeSeconds": 1.5306595351891144
+      },
+      {
+        "visitIndexSinceIncident": 297,
+        "n": 23,
+        "meanPredictedCycleSeconds": 77.3562311702932,
+        "meanTrueCycleSeconds": 77.43749865176885,
+        "maeSeconds": 1.0803292006806522
+      },
+      {
+        "visitIndexSinceIncident": 298,
+        "n": 23,
+        "meanPredictedCycleSeconds": 77.00579656924906,
+        "meanTrueCycleSeconds": 77.59289079191892,
+        "maeSeconds": 1.2778937622026958
+      },
+      {
+        "visitIndexSinceIncident": 299,
+        "n": 22,
+        "meanPredictedCycleSeconds": 77.44824642357335,
+        "meanTrueCycleSeconds": 77.32598677150567,
+        "maeSeconds": 1.7182874982858651
+      },
+      {
+        "visitIndexSinceIncident": 300,
+        "n": 22,
+        "meanPredictedCycleSeconds": 77.18940673795018,
+        "meanTrueCycleSeconds": 77.71483673443171,
+        "maeSeconds": 1.2517046622620072
+      },
+      {
+        "visitIndexSinceIncident": 301,
+        "n": 22,
+        "meanPredictedCycleSeconds": 77.11049409903138,
+        "meanTrueCycleSeconds": 77.57475589308888,
+        "maeSeconds": 1.2529663811374974
+      },
+      {
+        "visitIndexSinceIncident": 302,
+        "n": 20,
+        "meanPredictedCycleSeconds": 77.51272784261269,
+        "meanTrueCycleSeconds": 77.2359709655866,
+        "maeSeconds": 1.50677820182976
+      },
+      {
+        "visitIndexSinceIncident": 303,
+        "n": 19,
+        "meanPredictedCycleSeconds": 77.99527361853913,
+        "meanTrueCycleSeconds": 77.4969841687891,
+        "maeSeconds": 0.9422381704083801
+      },
+      {
+        "visitIndexSinceIncident": 304,
+        "n": 19,
+        "meanPredictedCycleSeconds": 76.89600682671612,
+        "meanTrueCycleSeconds": 77.361235684078,
+        "maeSeconds": 1.4869718424394562
+      },
+      {
+        "visitIndexSinceIncident": 305,
+        "n": 18,
+        "meanPredictedCycleSeconds": 77.98876471937605,
+        "meanTrueCycleSeconds": 78.12481564066063,
+        "maeSeconds": 1.1237608738010505
+      },
+      {
+        "visitIndexSinceIncident": 306,
+        "n": 18,
+        "meanPredictedCycleSeconds": 78.21175257829479,
+        "meanTrueCycleSeconds": 78.10425309257374,
+        "maeSeconds": 1.355112398085197
+      },
+      {
+        "visitIndexSinceIncident": 307,
+        "n": 18,
+        "meanPredictedCycleSeconds": 77.23833346870883,
+        "meanTrueCycleSeconds": 77.273651573807,
+        "maeSeconds": 1.5147594224661711
+      },
+      {
+        "visitIndexSinceIncident": 308,
+        "n": 18,
+        "meanPredictedCycleSeconds": 77.76252904918937,
+        "meanTrueCycleSeconds": 78.09095855067588,
+        "maeSeconds": 0.8885976777076396
+      },
+      {
+        "visitIndexSinceIncident": 309,
+        "n": 16,
+        "meanPredictedCycleSeconds": 77.73176049131771,
+        "meanTrueCycleSeconds": 77.3265465311706,
+        "maeSeconds": 1.5192960832723763
+      },
+      {
+        "visitIndexSinceIncident": 310,
+        "n": 15,
+        "meanPredictedCycleSeconds": 78.08761056223621,
+        "meanTrueCycleSeconds": 77.73275109964112,
+        "maeSeconds": 1.465834703816384
+      },
+      {
+        "visitIndexSinceIncident": 311,
+        "n": 14,
+        "meanPredictedCycleSeconds": 77.02006606371877,
+        "meanTrueCycleSeconds": 77.21073511788356,
+        "maeSeconds": 1.7773370821548247
+      },
+      {
+        "visitIndexSinceIncident": 312,
+        "n": 14,
+        "meanPredictedCycleSeconds": 77.30820394684451,
+        "meanTrueCycleSeconds": 77.70311118502703,
+        "maeSeconds": 1.3953275941594174
+      },
+      {
+        "visitIndexSinceIncident": 313,
+        "n": 14,
+        "meanPredictedCycleSeconds": 77.6423789000002,
+        "meanTrueCycleSeconds": 77.94694559076535,
+        "maeSeconds": 1.0939884206457344
+      },
+      {
+        "visitIndexSinceIncident": 314,
+        "n": 12,
+        "meanPredictedCycleSeconds": 76.86333033286333,
+        "meanTrueCycleSeconds": 77.41225193953142,
+        "maeSeconds": 1.5557908657364148
+      },
+      {
+        "visitIndexSinceIncident": 315,
+        "n": 12,
+        "meanPredictedCycleSeconds": 77.21530556481896,
+        "meanTrueCycleSeconds": 77.16435935193051,
+        "maeSeconds": 1.3421557722727009
+      },
+      {
+        "visitIndexSinceIncident": 316,
+        "n": 12,
+        "meanPredictedCycleSeconds": 77.93885713623115,
+        "meanTrueCycleSeconds": 77.22644496072705,
+        "maeSeconds": 1.7713460825212255
+      },
+      {
+        "visitIndexSinceIncident": 317,
+        "n": 12,
+        "meanPredictedCycleSeconds": 77.32951477213923,
+        "meanTrueCycleSeconds": 77.49347431243707,
+        "maeSeconds": 1.0969801309729708
+      },
+      {
+        "visitIndexSinceIncident": 318,
+        "n": 11,
+        "meanPredictedCycleSeconds": 76.47841916396463,
+        "meanTrueCycleSeconds": 76.63298857364465,
+        "maeSeconds": 2.0122718565786513
+      },
+      {
+        "visitIndexSinceIncident": 319,
+        "n": 10,
+        "meanPredictedCycleSeconds": 77.15948834926466,
+        "meanTrueCycleSeconds": 77.54210441615433,
+        "maeSeconds": 1.7756056817689398
+      },
+      {
+        "visitIndexSinceIncident": 320,
+        "n": 8,
+        "meanPredictedCycleSeconds": 76.67506644547343,
+        "meanTrueCycleSeconds": 76.9579023362603,
+        "maeSeconds": 1.2021943265455732
+      },
+      {
+        "visitIndexSinceIncident": 321,
+        "n": 8,
+        "meanPredictedCycleSeconds": 78.473025472567,
+        "meanTrueCycleSeconds": 78.04267304181121,
+        "maeSeconds": 1.1770230851577033
+      },
+      {
+        "visitIndexSinceIncident": 322,
+        "n": 4,
+        "meanPredictedCycleSeconds": 77.17406219160775,
+        "meanTrueCycleSeconds": 77.26318753464147,
+        "maeSeconds": 1.3463960302713645
+      }
+    ]
+  },
+  "calibration": [
+    {
+      "confidenceBucketLow": 0.55,
+      "confidenceBucketHigh": 0.65,
+      "meanPredictedConfidence": 0.5796035375835532,
+      "observedAccuracy": 0.5751695751695751,
+      "n": 47619
+    },
+    {
+      "confidenceBucketLow": 0.65,
+      "confidenceBucketHigh": 0.72,
+      "meanPredictedConfidence": 0.6785950856313918,
+      "observedAccuracy": 0.6843301853795033,
+      "n": 5718
+    },
+    {
+      "confidenceBucketLow": 0.72,
+      "confidenceBucketHigh": 0.78,
+      "meanPredictedConfidence": 0.7431167043994032,
+      "observedAccuracy": 0.7687088018611865,
+      "n": 5158
+    },
+    {
+      "confidenceBucketLow": 0.78,
+      "confidenceBucketHigh": 0.83,
+      "meanPredictedConfidence": 0.8096086791960895,
+      "observedAccuracy": 0.8060825052694971,
+      "n": 3321
+    }
+  ],
+  "perTier": {
+    "blind": {
+      "n": 36935,
+      "maeSeconds": 1.287472119573122,
+      "meanConfidence": 0.6092520536965205,
+      "medianConfidence": 0.5673438883968114
+    },
+    "partial": {
+      "n": 24881,
+      "maeSeconds": 1.3021373745577363,
+      "meanConfidence": 0.6229383600921535,
+      "medianConfidence": 0.5816279069767442
+    }
+  }
+}

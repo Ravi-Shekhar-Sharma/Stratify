@@ -151,6 +151,23 @@ Constraint the optimiser must respect: plants permit instrumentation changes
 only during a small number of scheduled maintenance windows per year, so sensor
 additions batch into those windows rather than arriving continuously.
 
+## ML modelling choices
+
+These numbers are engineering decisions the training/simulation pipeline
+depends on, not figures derived from the line description above. Each is
+marked explicitly: modelling choice, not industry-sourced. They are the
+single source of truth for these two numbers — `src/engine/assumptions.ts`
+mirrors them for TypeScript, and `ml/generate.py`/`ml/validate.py` read them
+from there (via `src/engine/ml/printMlConstants.ts`) rather than
+hardcoding a second copy. If either changes, change it here first.
+
+| Parameter | Value | Status |
+| --- | --- | --- |
+| Cycle-time jitter | 5% of nominal cycle, applied per station-visit | Modelling choice, not industry-sourced. A noiseless simulation makes "predict the true cycle time" trivially easy from neighbourhood timing alone, so some noise floor is necessary for the soft-sensor evaluation to mean anything; 5% was picked once, before any model was trained, and has not been adjusted based on results. |
+| Bottleneck alert multiplier | 1.15x nominal cycle | Modelling choice, not industry-sourced. A station is "alerting" when its cycle time exceeds nominal by this fraction. |
+| Marginal incident severity band | 1.10x-1.25x nominal | Modelling choice, not industry-sourced. Deliberately close to the alert multiplier so classifying it is a real test, not a trivially separable one. |
+| Easy incident severity band | 1.3x-2.0x nominal | Modelling choice, not industry-sourced. Clearly separable from steady-state jitter. |
+
 ## What is simulated and what is not
 
 Simulated: the line, all station cycle times, all sensor readings, all events,

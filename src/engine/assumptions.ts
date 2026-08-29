@@ -20,3 +20,11 @@ export const S6_DEGRADED_CYCLE_SECONDS = 80;
 
 // ## Buffers and work in progress — "elsewhere", i.e. not the two named buffers
 export const INTER_STATION_CAPACITY = 2;
+
+// ## ML modelling choices — engineering decisions, not industry-sourced.
+// Single source of truth for these two numbers: Python reads them via
+// src/engine/ml/printMlConstants.ts rather than hardcoding a second copy.
+export const CYCLE_TIME_JITTER_FRACTION = 0.05;
+export const ALERT_MULTIPLIER = 1.15;
+export const MARGINAL_SEVERITY_MULTIPLIER_RANGE: readonly [number, number] = [1.1, 1.25];
+export const EASY_SEVERITY_MULTIPLIER_RANGE: readonly [number, number] = [1.3, 2.0];
