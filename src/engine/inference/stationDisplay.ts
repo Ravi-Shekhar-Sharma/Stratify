@@ -1,9 +1,12 @@
 import type { StationSpec } from '../types';
 import { STATIONS } from '../stations';
 import { ALERT_MULTIPLIER } from '../assumptions';
-import type { VisitTracker } from './liveVisits';
+import type { VisitTracker, ObservableVisit } from './liveVisits';
 import { buildFeatureVector } from './liveFeatures';
-import { predictSoftSensor, CONFIDENCE_FLOOR } from './softSensor';
+import { predictSoftSensor, CONFIDENCE_FLOOR, type SoftSensorPrediction } from './softSensor';
+import { resolveConfidenceRegimeSequence, DEFAULT_HYSTERESIS_CONFIG } from './confidenceHysteresis';
+import { resolveAlertSequence } from './alertSignal';
+import { heldConfidence } from './confidenceDisplay';
 
 /**
  * The four states this product's whole trust model is built on
@@ -92,6 +95,46 @@ function classifySensored(station: StationSpec, tracker: VisitTracker): StationD
   return { kind: 'measured', cycleSeconds, trend };
 }
 
+// Every inferable visit's prediction is invariant once its neighbours have
+// completed — memoized per visit object (stable identity, never mutated
+// after VisitTracker pushes it) so a long-running playback doesn't
+// recompute predictions for old visits on every tick as history grows.
+const predictionCache = new WeakMap<ObservableVisit, SoftSensorPrediction>();
+
+function predictFor(
+  station: StationSpec,
+  stationIdx: number,
+  target: ObservableVisit,
+  upstream: ObservableVisit,
+  downstream: ObservableVisit,
+): SoftSensorPrediction {
+  const cached = predictionCache.get(target);
+  if (cached) return cached;
+  const prediction = predictSoftSensor(buildFeatureVector(station, stationIdx, target, upstream, downstream));
+  predictionCache.set(target, prediction);
+  return prediction;
+}
+
+/** Every inferable visit's prediction for a station, oldest first — the
+ *  full sequence the confidence-hysteresis regime is resolved from. */
+function inferablePredictions(
+  station: StationSpec,
+  stationIdx: number,
+  tracker: VisitTracker,
+  upstreamId: string,
+  downstreamId: string,
+): SoftSensorPrediction[] {
+  const predictions: SoftSensorPrediction[] = [];
+  for (const visit of tracker.completedVisits(station.id)) {
+    const downstream = tracker.completedForVehicle(downstreamId, visit.vehicleId);
+    if (!downstream) continue;
+    const upstream = tracker.completedForVehicle(upstreamId, visit.vehicleId);
+    if (!upstream) continue;
+    predictions.push(predictFor(station, stationIdx, visit, upstream, downstream));
+  }
+  return predictions;
+}
+
 function classifyInferred(station: StationSpec, tracker: VisitTracker, idx: StationIndex): StationDisplayState {
   if (isBlindAdjacentPair(station, idx)) {
     return {
@@ -108,59 +151,79 @@ function classifyInferred(station: StationSpec, tracker: VisitTracker, idx: Stat
   // rather than risking a crash if the station table is ever edited.
   if (!upstreamId || !downstreamId) return { kind: 'pending' };
 
-  const targetVisit = tracker.lastInferableVisit(station.id, downstreamId);
-  if (!targetVisit) return { kind: 'pending' };
+  const predictions = inferablePredictions(station, stationIdx, tracker, upstreamId, downstreamId);
+  if (predictions.length === 0) return { kind: 'pending' };
 
-  const upstreamVisit = tracker.completedForVehicle(upstreamId, targetVisit.vehicleId);
-  const downstreamVisit = tracker.completedForVehicle(downstreamId, targetVisit.vehicleId);
-  if (!upstreamVisit || !downstreamVisit) return { kind: 'pending' };
+  const latest = predictions[predictions.length - 1];
+  const previous = predictions.length > 1 ? predictions[predictions.length - 2] : undefined;
+  const trend = trendOf(latest.cycleTimeSeconds, previous?.cycleTimeSeconds);
 
-  const prediction = predictSoftSensor(
-    buildFeatureVector(station, stationIdx, targetVisit, upstreamVisit, downstreamVisit),
-  );
+  const cycleSeq = predictions.map((p) => p.cycleTimeSeconds);
+  const confSeq = predictions.map((p) => p.confidence);
 
-  if (prediction.confidence < CONFIDENCE_FLOOR) {
-    return {
-      kind: 'abstained',
-      reason: `Calibrated confidence ${(prediction.confidence * 100).toFixed(0)}% is below the ${(
-        CONFIDENCE_FLOOR * 100
-      ).toFixed(0)}% floor documented in docs/assumptions.md — declining to report rather than guess.`,
-    };
-  }
+  // The bottleneck/degrading alert — the SAME trigger the evidence's S6->S9
+  // lead-time metric uses (predicted cycle >= nominal*ALERT_MULTIPLIER, a
+  // light debounce only, no confidence gate anywhere). This must fire and
+  // resolve independently of the confidence-trust regime below: gating it
+  // on confidence hysteresis previously delayed the on-screen warning by
+  // ~6 minutes relative to the ~455-500s lead time the evidence claims —
+  // measured directly, see measureDemoScenario.ts's "Cycle-time alert
+  // signal" section.
+  const alertThreshold = station.nominalCycleSeconds * ALERT_MULTIPLIER;
+  const alertSeq = resolveAlertSequence(cycleSeq, alertThreshold);
+  const alertActive = alertSeq[alertSeq.length - 1];
 
-  // Trend: compare against the previous VISIT that was itself inferable
-  // (same same-vehicle-neighbour rule), not just the previous completed
-  // visit, so the comparison is always apples-to-apples.
-  const history = tracker.completedVisits(station.id);
-  const targetPos = history.indexOf(targetVisit);
-  let trend: Trend = 'flat';
-  for (let i = targetPos - 1; i >= 0; i--) {
-    const candidate = history[i];
-    const candUp = tracker.completedForVehicle(upstreamId, candidate.vehicleId);
-    const candDown = tracker.completedForVehicle(downstreamId, candidate.vehicleId);
-    if (candUp && candDown) {
-      const candPrediction = predictSoftSensor(
-        buildFeatureVector(station, stationIdx, candidate, candUp, candDown),
-      );
-      trend = trendOf(prediction.cycleTimeSeconds, candPrediction.cycleTimeSeconds);
-      break;
-    }
-  }
+  // Confidence-hysteresis regime — used ONLY to decide Abstained vs
+  // Inferred at rest (never to gate the alert above). Confidence alone
+  // flickers across the 0.60 floor almost every other visit even at
+  // genuine rest — measured directly, see measureDemoScenario.ts.
+  // resolveConfidenceRegime debounces that DISPLAY transition (dead band +
+  // minimum consecutive hold); it never changes CONFIDENCE_FLOOR itself or
+  // what an individual visit's own confidence is.
+  const regimeSeq = resolveConfidenceRegimeSequence(confSeq, DEFAULT_HYSTERESIS_CONFIG);
+  const trustRegime = regimeSeq[regimeSeq.length - 1];
 
-  if (prediction.cycleTimeSeconds >= station.nominalCycleSeconds * ALERT_MULTIPLIER) {
+  // Whatever a viewer would consider "a number worth showing" at each past
+  // point — either the alert is active, or the trust regime has committed
+  // to Inferred. heldConfidence rides the running max of confidence over
+  // the current unbroken run of this, so the displayed number reads as
+  // stable/rising through an episode instead of bouncing across the raw
+  // isotonic-calibration plateaus (display-only — never changes the
+  // stored per-visit confidence itself).
+  const isNumericSeq = alertSeq.map((active, i) => active || regimeSeq[i] === 'inferred');
+
+  if (alertActive) {
     return {
       kind: 'degrading',
-      cycleSeconds: prediction.cycleTimeSeconds,
+      cycleSeconds: latest.cycleTimeSeconds,
       trend: trend === 'down' ? 'down' : 'up',
       basis: 'inferred',
-      confidence: prediction.confidence,
+      confidence: heldConfidence(confSeq, isNumericSeq),
     };
+  }
+
+  if (trustRegime === 'abstained') {
+    const floorPct = (CONFIDENCE_FLOOR * 100).toFixed(0);
+    const latestPct = (latest.confidence * 100).toFixed(0);
+    // The latest single visit's confidence can be ABOVE the floor while the
+    // DISPLAY still reads Abstained — the hold requirement (see
+    // confidenceHysteresis.ts) hasn't yet seen enough consecutive
+    // above-floor visits to commit the display to Inferred. Saying so
+    // honestly here matters: claiming "confidence 81% is below the 60%
+    // floor" would be a false, confusing statement the moment this can
+    // happen, and it does happen (measured directly during the demo
+    // incident's approach to onset).
+    const reason =
+      latest.confidence >= CONFIDENCE_FLOOR
+        ? `Calibrated confidence just crossed above the ${floorPct}% floor (currently ${latestPct}%) but hasn't held for ${DEFAULT_HYSTERESIS_CONFIG.minHold} consecutive visits yet — waiting for a sustained signal before reporting.`
+        : `Calibrated confidence ${latestPct}% is below the ${floorPct}% floor documented in docs/assumptions.md — declining to report rather than guess.`;
+    return { kind: 'abstained', reason };
   }
 
   return {
     kind: 'inferred',
-    cycleSeconds: prediction.cycleTimeSeconds,
-    confidence: prediction.confidence,
+    cycleSeconds: latest.cycleTimeSeconds,
+    confidence: heldConfidence(confSeq, isNumericSeq),
     trend,
   };
 }

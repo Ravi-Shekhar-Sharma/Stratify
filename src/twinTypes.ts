@@ -46,11 +46,12 @@ export interface TwinSnapshot {
   /** Trim-chassis buffer fill level (units), most recent last — real
    *  samples from the engine, one per playback step, capped in length. */
   trimBufferHistory: number[];
-  /** Seconds until the trim-chassis buffer empties at its CURRENT drain
-   *  rate (last two samples), or null if it isn't currently draining. A
-   *  live instantaneous estimate, not the fixed worked example in
-   *  docs/assumptions.md — it will differ from "about 7 minutes" whenever
-   *  the live severity differs from that derivation's 80s canonical case. */
+  /** Seconds until the trim-chassis buffer empties, from a smoothed
+   *  drain-rate estimate (see src/engine/inference/bufferRisk.ts), or null
+   *  if it isn't currently draining. A live, per-tick estimate — not a
+   *  copy of docs/assumptions.md's fixed worked example, and not the
+   *  offline S6->S9 evidence lead time either; it will move with whatever
+   *  the live severity and playback speed actually produce. */
   trimBufferSecondsToEmpty: number | null;
   events: EventLine[];
   recommendation: Recommendation;

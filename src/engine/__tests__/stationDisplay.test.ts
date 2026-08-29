@@ -6,6 +6,10 @@ import { classifyStation } from '../inference/stationDisplay';
 import { STATIONS, STATIONS_BY_ID, TAKT_SECONDS } from '../stations';
 import { ALERT_MULTIPLIER } from '../assumptions';
 import type { StationSpec } from '../types';
+import { DEMO_INCIDENT, DEMO_SEED, DEMO_DURATION_SECONDS } from '../demoScenario';
+import { buildFeatureVector } from '../inference/liveFeatures';
+import { predictSoftSensor } from '../inference/softSensor';
+import { resolveConfidenceRegime, DEFAULT_HYSTERESIS_CONFIG } from '../inference/confidenceHysteresis';
 
 function trackerThrough(seed: number, durationSeconds: number, incidents: Parameters<typeof buildGroundTruthStream>[0]['incidents'] = []) {
   const gt = buildGroundTruthStream({ durationSeconds, seed, jitterFraction: 0.05, incidents });
@@ -100,6 +104,24 @@ describe('classifyStation', () => {
     }
   });
 
+  it("abstained reason says 'crossed above' rather than 'is below' when the latest visit's own confidence already cleared the floor", () => {
+    // Reproduces a real state, caught live in the browser during the demo
+    // incident: hysteresis can still be displaying Abstained (hold count
+    // not yet met) even though the most recent inferable visit's confidence
+    // has already crossed above CONFIDENCE_FLOOR (0.60). Duration verified
+    // directly against classifyStation's own output (S6 sits at 73%
+    // confidence here, still one visit short of the 3-in-a-row hold) — the
+    // reason string used to say "confidence 81% is below the 60% floor" in
+    // an equivalent case, which is false, since 81 is not below 60.
+    const tracker = trackerThrough(DEMO_SEED, 1900, [DEMO_INCIDENT]);
+    const state = classifyStation(STATIONS_BY_ID['S6'], tracker);
+    expect(state.kind).toBe('abstained');
+    if (state.kind === 'abstained') {
+      expect(state.reason).toMatch(/crossed above/);
+      expect(state.reason).not.toMatch(/is below the \d+% floor/);
+    }
+  });
+
   it('abstains an adjacent blind pair on a synthetic table, even though the real table has none', () => {
     // The real 42-station table has no two adjacent blind stations (verified
     // by inspection — see stationDisplay.ts's comment), so this rule is
@@ -123,5 +145,81 @@ describe('classifyStation', () => {
     for (const s of STATIONS) {
       expect(s.nominalCycleSeconds).toBe(TAKT_SECONDS);
     }
+  });
+
+  it('Degrading fires from the cycle-time alert, decoupled from confidence hysteresis — the bug this session fixed', () => {
+    // Before the fix: the demo incident's tile only reached Degrading once
+    // the CONFIDENCE-hysteresis regime committed to Inferred, ~492s after
+    // onset (measured), by which point S9 had already starved (+500s) —
+    // an ~8s effective warning. The alert must instead fire on the raw
+    // cycle-time threshold crossing, with only its own light debounce.
+    // Measured directly (src/engine/measureDemoScenario.ts, "ONE-AXIS
+    // TIMELINE"): with ALERT_MIN_HOLD=2 the tile now commits at tick 1925,
+    // +259s after onset — replay through just past that tick and confirm
+    // Degrading has already fired, well before starvation.
+    const tracker = trackerThrough(DEMO_SEED, DEMO_INCIDENT.atTick + 260, [DEMO_INCIDENT]);
+    const state = classifyStation(STATIONS_BY_ID['S6'], tracker);
+    expect(state.kind).toBe('degrading');
+  });
+
+  it('Degrading can fire even while the confidence-hysteresis regime alone, computed independently, would still read Abstained', () => {
+    // Direct proof of decoupling, not just a duration pulled from
+    // measurement: independently recompute the confidence-hysteresis
+    // regime from the same visit history classifyStation sees, and confirm
+    // it is STILL 'abstained' at a tick where the tile has already
+    // committed to Degrading. If the two mechanisms were still coupled,
+    // this combination could not exist.
+    const tracker = trackerThrough(DEMO_SEED, DEMO_INCIDENT.atTick + 270, [DEMO_INCIDENT]);
+    const state = classifyStation(STATIONS_BY_ID['S6'], tracker);
+    expect(state.kind).toBe('degrading');
+
+    const s6 = STATIONS_BY_ID['S6'];
+    const idx = STATIONS.findIndex((s) => s.id === 'S6');
+    const upstreamId = STATIONS[idx - 1].id;
+    const downstreamId = STATIONS[idx + 1].id;
+    const confidences: number[] = [];
+    for (const visit of tracker.completedVisits('S6')) {
+      const downstream = tracker.completedForVehicle(downstreamId, visit.vehicleId);
+      const upstream = tracker.completedForVehicle(upstreamId, visit.vehicleId);
+      if (!downstream || !upstream) continue;
+      confidences.push(
+        predictSoftSensor(buildFeatureVector(s6, idx, visit, upstream, downstream)).confidence,
+      );
+    }
+    expect(resolveConfidenceRegime(confidences, DEFAULT_HYSTERESIS_CONFIG)).toBe('abstained');
+  });
+
+  it('no blind/partial station ever shows Degrading during a genuine no-incident run (rest flicker on the alert signal is zero, not just on confidence)', () => {
+    const tracker = trackerThrough(DEMO_SEED, DEMO_DURATION_SECONDS, []);
+    for (const station of STATIONS.filter((s) => s.tier !== 'sensored')) {
+      const state = classifyStation(station, tracker);
+      expect(state.kind).not.toBe('degrading');
+    }
+  });
+
+  it("the displayed confidence during a Degrading episode never decreases tick over tick (held/monotonic display, not the raw bouncing value)", () => {
+    const gt = buildGroundTruthStream({
+      durationSeconds: DEMO_DURATION_SECONDS,
+      seed: DEMO_SEED,
+      jitterFraction: 0.05,
+      incidents: [DEMO_INCIDENT],
+    });
+    const obs = deriveObservableStream(gt);
+    const tracker = new VisitTracker();
+
+    let lastDegradingConfidence: number | null = null;
+    let sawDegrading = false;
+    for (const tick of obs) {
+      tracker.applyTick(tick);
+      const state = classifyStation(STATIONS_BY_ID['S6'], tracker);
+      if (state.kind === 'degrading' && state.confidence !== undefined) {
+        sawDegrading = true;
+        if (lastDegradingConfidence !== null) {
+          expect(state.confidence).toBeGreaterThanOrEqual(lastDegradingConfidence);
+        }
+        lastDegradingConfidence = state.confidence;
+      }
+    }
+    expect(sawDegrading).toBe(true);
   });
 });
