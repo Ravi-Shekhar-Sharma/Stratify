@@ -32,7 +32,7 @@ Partial stations: S8, S21 in final assembly, P7 and P8 in paint.
 
 This matches the Round 2 brief's own framing of a majority of stations well
 instrumented with a meaningful minority reliant on manual checks. It does not
-match Round 1's claim that final assembly has almost no sensor data, and the
+match Round 1's claim that final assembly has almost 24% blind/partial, and the
 brief's version is the one we use.
 
 Scope note for honesty: a real automotive final assembly line runs roughly 200
@@ -94,7 +94,7 @@ Confidence floor for reporting an estimate: 0.60. Below that, abstain.
 | Vehicles at risk | about 14 |
 | Defect path 1 | Torque drift at S2 Cockpit, would otherwise surface at end of line after about 30 vehicles |
 | Defect path 2 | Paint booth humidity drift at P3 Basecoat, surfaces at paint inspection |
-| Recommendation | Move one operator to S6, and add one sensor to raise achievable confidence from 0.86 to 0.97 |
+| Recommendation | Move one operator to S6, and add one sensor to raise achievable confidence from 0.81 to 0.99 |
 
 ### Derivation of the 7 minute lead time
 
