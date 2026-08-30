@@ -127,7 +127,7 @@ def load_features(csv_path: Path) -> tuple[pd.DataFrame, np.ndarray, pd.DataFram
     X = df[FEATURES].astype(float)
     y = df[LABEL].astype(float).to_numpy()
     meta = df[[
-        "shiftSeed", "stationId", "tier", "vehicleId", "entryTick",
+        "shiftSeed", "stationId", "tier", "vehicleId", "entryTick", "exitTick",
         "nominalCycleSeconds", "trueIncidentActive", "severityBand",
     ]].copy()
     meta["s9StarvedTick"] = pd.to_numeric(df["s9StarvedTick"], errors="coerce")

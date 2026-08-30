@@ -556,6 +556,65 @@ def compute_s6_tracking(artifact: dict) -> dict:
     }
 
 
+def compute_station_shift_operations(meta: pd.DataFrame, y_true: np.ndarray, shift_seconds: float) -> list[dict]:
+    """Per (station, shift) operational summary for the plant-manager
+    weekly-horizon view: a recurring-bottleneck rate and two of ISO
+    22400-2's three OEE factors, computed only from timing this engine
+    already produces (entry/exit ticks, nominal cycle time) - no new
+    simulation logic.
+
+    Ground truth (y_true), not the model's prediction: this view reports
+    what actually happened on the (simulated) floor, not the soft sensor's
+    inferred estimate of it - the model-confidence story belongs to the
+    Trust view, not this one.
+
+    bottleneckRate: fraction of this station's visits in this shift whose
+    true cycle time exceeded nominal x ALERT_MULTIPLIER - the same
+    threshold used everywhere else in this codebase for "this station is
+    running hot."
+
+    availability = Operating Time / Planned Production Time (ISO 22400-2).
+    Operating Time is this station's own visit durations (exitTick -
+    entryTick) summed over the shift; Planned Production Time is the full
+    shift (shift_seconds).
+
+    performance = (Ideal Cycle Time x Total Count) / Operating Time
+    (ISO 22400-2), using each station's own nominalCycleSeconds (a per-row
+    CSV column, not a single global constant) and its visit count.
+
+    Quality (ISO 22400-2's third OEE factor) is deliberately NOT computed
+    here - there is no defect/scrap signal anywhere in this engine (defect
+    correlation was never implemented; 'defect_count' in stations.ts is an
+    unrealized signal label, not a simulated value). oeeAvailabilityTimesPerformance
+    is exactly that product, stated as such, never called plain "OEE"
+    without the caveat travelling with it."""
+    df = meta.copy()
+    df["_true"] = y_true
+    rows = []
+    for (sid, seed), group in df.groupby(["stationId", "shiftSeed"]):
+        n = len(group)
+        operating_seconds = float((group["exitTick"] - group["entryTick"]).sum())
+        nominal = float(group["nominalCycleSeconds"].iloc[0])
+        threshold = nominal * ALERT_MULTIPLIER
+        bottleneck_rate = float((group["_true"] > threshold).mean())
+        availability = operating_seconds / shift_seconds if shift_seconds > 0 else None
+        performance = (nominal * n) / operating_seconds if operating_seconds > 0 else None
+        oee_ap = availability * performance if (availability is not None and performance is not None) else None
+        rows.append({
+            "stationId": str(sid),
+            "shiftSeed": int(seed),
+            "tier": str(group["tier"].iloc[0]),
+            "n": int(n),
+            "bottleneckRate": bottleneck_rate,
+            "operatingSeconds": operating_seconds,
+            "availability": availability,
+            "performance": performance,
+            "oeeAvailabilityTimesPerformance": oee_ap,
+        })
+    rows.sort(key=lambda r: (r["stationId"], r["shiftSeed"]))
+    return rows
+
+
 def compute_calibration(confidence: np.ndarray, is_correct: np.ndarray) -> list[dict]:
     edges = [0.0, 0.3, 0.45, 0.55, 0.65, 0.72, 0.78, 0.83, 0.87, 0.90, 1.0]
     points = []
@@ -643,6 +702,42 @@ def main() -> None:
             "medianConfidence": float(np.median(val_confidence[idx])),
         }
 
+    # Per-STATION confidence (perTier above pools all 6 blind / 4 partial
+    # stations together) — added specifically so a station-specific
+    # instrumentation-lift figure (e.g. "S6, if promoted from blind to
+    # partial") can be derived from a real empirical number for THAT
+    # station, not a pooled tier average standing in for it.
+    per_station_breakdown = {}
+    for sid, idx in meta_val.groupby("stationId").groups.items():
+        idx = np.array(idx)
+        per_station_breakdown[str(sid)] = {
+            "tier": str(meta_val.loc[idx[0], "tier"]),
+            "n": int(len(idx)),
+            "maeSeconds": float(mean_absolute_error(y_val[idx], val_pred[idx])),
+            "meanConfidence": float(np.mean(val_confidence[idx])),
+            "medianConfidence": float(np.median(val_confidence[idx])),
+        }
+
+    # Confidence ceilings by tier: blind/partial from the trained artifact
+    # itself (ml/model.py's CONFIDENCE_CEILING, baked in at train time, per
+    # docs/assumptions.md's "Observability tiers" table); sensored from
+    # src/engine/assumptions.ts's SENSORED_CONFIDENCE_CEILING (the same
+    # table's 0.99) — sensored stations never run through the soft sensor,
+    # so this number has no artifact-baked home and is read via the same
+    # TS-constants bridge as alertMultiplier etc. rather than a second,
+    # hardcoded copy here.
+    confidence_ceilings = {
+        "blind": artifact["confidenceCeiling"],
+        "partial": artifact["confidenceCeiling"],
+        "sensored": sensor.ml_constants()["sensoredConfidenceCeiling"],
+    }
+
+    # Plant-manager weekly-horizon view: recurring bottleneck rate +
+    # Availability/Performance per (station, shift), ground truth only.
+    station_shift_operations = compute_station_shift_operations(
+        meta_val, y_val, sensor.ml_constants()["shiftSeconds"]
+    )
+
     metrics = {
         "validationRows": len(X_val),
         "trainRows": len(X_train),
@@ -658,6 +753,9 @@ def main() -> None:
         "s6Tracking": s6_tracking,
         "calibration": calibration,
         "perTier": tier_breakdown,
+        "perStation": per_station_breakdown,
+        "confidenceCeilings": confidence_ceilings,
+        "stationShiftOperations": station_shift_operations,
     }
 
     METRICS_PATH.write_text(json.dumps(metrics, indent=2, default=str))
@@ -761,6 +859,33 @@ def main() -> None:
     print("\n=== Per-tier breakdown ===")
     for tier, v in tier_breakdown.items():
         print(f"  {tier}: n={v['n']} MAE={v['maeSeconds']:.2f}s meanConfidence={v['meanConfidence']:.3f}")
+
+    print("\n=== Per-station confidence (for instrumentation-lift figures) ===")
+    for sid in sorted(per_station_breakdown):
+        v = per_station_breakdown[sid]
+        print(f"  {sid} ({v['tier']}): n={v['n']} meanConfidence={v['meanConfidence']:.3f} medianConfidence={v['medianConfidence']:.3f}")
+
+    print(f"\nConfidence ceilings: blind={confidence_ceilings['blind']:.2f} "
+          f"partial={confidence_ceilings['partial']:.2f} sensored={confidence_ceilings['sensored']:.2f}")
+    s6 = per_station_breakdown.get("S6")
+    if s6:
+        lift_to_partial_ceiling = confidence_ceilings["partial"] - s6["meanConfidence"]
+        lift_to_sensored_ceiling = confidence_ceilings["sensored"] - s6["meanConfidence"]
+        print(f"S6 instrumentation lift: current meanConfidence={s6['meanConfidence']:.3f} "
+              f"-> partial/blind ceiling {confidence_ceilings['partial']:.2f} "
+              f"(+{lift_to_partial_ceiling:.3f}) -> sensored ceiling {confidence_ceilings['sensored']:.2f} "
+              f"(+{lift_to_sensored_ceiling:.3f})")
+
+    print(f"\n=== Station x shift operations ({len(station_shift_operations)} rows, "
+          f"{len(set(r['stationId'] for r in station_shift_operations))} stations x "
+          f"{len(set(r['shiftSeed'] for r in station_shift_operations))} shifts) ===")
+    by_station: dict[str, list[float]] = {}
+    for r in station_shift_operations:
+        by_station.setdefault(r["stationId"], []).append(r["bottleneckRate"])
+    for sid in sorted(by_station):
+        rates = by_station[sid]
+        print(f"  {sid}: meanBottleneckRate={np.mean(rates):.3f} "
+              f"minRate={np.min(rates):.3f} maxRate={np.max(rates):.3f} (n={len(rates)} shifts)")
 
 
 if __name__ == "__main__":

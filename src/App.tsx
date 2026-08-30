@@ -10,10 +10,13 @@ import { RecommendedAction } from '@/components/RecommendedAction';
 import { Controls } from '@/components/Controls';
 import { Skeleton } from '@/components/Skeleton';
 import { FlowDiagram } from '@/components/FlowDiagram';
+import { TrustView } from '@/components/trust/TrustView';
+import { OpsView } from '@/components/ops/OpsView';
+import { InvestmentView } from '@/components/invest/InvestmentView';
 import { NAMED_BUFFERS } from '@/engine/topology';
 import type { BufferViewModel, Recommendation, StationViewModel } from '@/twinTypes';
 
-type View = 'twin' | 'flow';
+type View = 'twin' | 'flow' | 'trust' | 'ops' | 'invest';
 
 function pickInferenceTarget(stations: StationViewModel[], recommendation: Recommendation): StationViewModel | null {
   if ('stationId' in recommendation) {
@@ -27,9 +30,39 @@ function App() {
   const { phase, snapshot, runIncident, reset } = useEngineTwin();
   const [view, setView] = useState<View>('twin');
 
+  // Trust, Ops and Investment all read build-time artifacts/topology, not
+  // the live engine — reachable even while the twin is still connecting.
+  if (view === 'trust') {
+    return (
+      <div className="min-h-screen bg-bg text-ink-primary">
+        <ViewToggle view={view} setView={setView} />
+        <TrustView />
+      </div>
+    );
+  }
+
+  if (view === 'ops') {
+    return (
+      <div className="min-h-screen bg-bg text-ink-primary">
+        <ViewToggle view={view} setView={setView} />
+        <OpsView />
+      </div>
+    );
+  }
+
+  if (view === 'invest') {
+    return (
+      <div className="min-h-screen bg-bg text-ink-primary">
+        <ViewToggle view={view} setView={setView} />
+        <InvestmentView />
+      </div>
+    );
+  }
+
   if (phase === 'connecting' || !snapshot) {
     return (
       <div className="min-h-screen bg-bg">
+        <ViewToggle view={view} setView={setView} />
         <Skeleton />
       </div>
     );
@@ -119,6 +152,9 @@ function ViewToggle({ view, setView }: { view: View; setView: (v: View) => void 
       <span className="mr-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-secondary">View</span>
       <ToggleButton active={view === 'twin'} onClick={() => setView('twin')} label="Twin" />
       <ToggleButton active={view === 'flow'} onClick={() => setView('flow')} label="Pipeline" />
+      <ToggleButton active={view === 'trust'} onClick={() => setView('trust')} label="Trust" />
+      <ToggleButton active={view === 'ops'} onClick={() => setView('ops')} label="Plant" />
+      <ToggleButton active={view === 'invest'} onClick={() => setView('invest')} label="Invest" />
     </div>
   );
 }

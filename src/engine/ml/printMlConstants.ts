@@ -14,6 +14,8 @@ import {
   EASY_SEVERITY_MULTIPLIER_RANGE,
   S6_NOMINAL_CYCLE_SECONDS,
   S6_DEGRADED_CYCLE_SECONDS,
+  SENSORED_CONFIDENCE_CEILING,
+  SHIFT_SECONDS,
 } from '../assumptions';
 import { TAKT_SECONDS } from '../stations';
 import { ALERT_MIN_HOLD } from '../inference/alertSignal';
@@ -33,5 +35,10 @@ console.log(
     taktSeconds: TAKT_SECONDS,
     s6NominalCycleSeconds: S6_NOMINAL_CYCLE_SECONDS,
     s6DegradedCycleSeconds: S6_DEGRADED_CYCLE_SECONDS,
+    sensoredConfidenceCeiling: SENSORED_CONFIDENCE_CEILING,
+    // For the plant-manager view's Availability calc (Operating Time /
+    // Planned Production Time, ISO 22400-2) — the denominator is the full
+    // simulated shift, not re-derived in Python from anything else.
+    shiftSeconds: SHIFT_SECONDS,
   }),
 );

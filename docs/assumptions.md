@@ -151,6 +151,11 @@ Constraint the optimiser must respect: plants permit instrumentation changes
 only during a small number of scheduled maintenance windows per year, so sensor
 additions batch into those windows rather than arriving continuously.
 
+Maintenance windows per year: 4 (quarterly). Not derived or industry-sourced —
+confirmed directly by the user on 2026-08-30, absent a plant-specific figure,
+specifically to unblock the investment-case rollout path. Treat as a stated
+assumption, not a measurement.
+
 ## ML modelling choices
 
 These numbers are engineering decisions the training/simulation pipeline
