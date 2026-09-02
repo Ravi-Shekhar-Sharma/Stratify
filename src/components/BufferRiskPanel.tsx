@@ -1,109 +1,141 @@
+import { motion, AnimatePresence } from 'motion/react';
+import { STATE_TRANSITION, VALUE_CHANGE, DRAW_IN } from '@/motion';
+import { AnimatedNumber } from './AnimatedNumber';
+import { Panel } from './Panel';
 import { PanelTitle } from './PanelTitle';
 import { TRIM_CHASSIS_BUFFER } from '@/engine/topology';
 
 interface Props {
-  history: number[];
+  bufferHistory: number[];
   secondsToEmpty: number | null;
 }
 
+const EMPTY_EPSILON = 0.05;
 const W = 300;
-const H = 80;
+const H = 90;
 
-function formatDuration(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = Math.round(seconds % 60);
-  return m > 0 ? `${m}m ${s}s` : `${s}s`;
+function formatDuration(seconds: number): { value: number; unit: string } {
+  if (seconds < 90) return { value: Math.round(seconds), unit: 's' };
+  return { value: Math.round(seconds / 60), unit: 'min' };
 }
 
 /**
- * The trim-to-chassis buffer's real fill history (trailing samples, from
- * the engine) and a live drain-rate estimate — not a scripted forecast.
- * This project's architecture has a forward-simulation component on its
- * roadmap (see CLAUDE.md); until that exists, this panel shows only what
- * the engine has actually observed, plus the one number a straight-line
- * extrapolation of the last two samples can honestly support.
+ * The only buffer on this line with real capacity to observe (see
+ * docs/assumptions.md's derivation of the 7-minute lead time) — the panel
+ * that turns that headroom into a legible drain story: a live "time to
+ * starvation" projection, current vs nominal fill, and a real sparkline.
  */
-const EMPTY_EPSILON = 0.05;
-
-export function BufferRiskPanel({ history, secondsToEmpty }: Props) {
+export function BufferRiskPanel({ bufferHistory, secondsToEmpty }: Props) {
   const capacity = TRIM_CHASSIS_BUFFER.capacity;
-  const current = history.length > 0 ? history[history.length - 1] : TRIM_CHASSIS_BUFFER.nominalFill;
-  // A drained buffer floors at 0 and stays flat there, which reads as "no
-  // slope" to the smoothed estimator — genuinely different from "stable at
-  // nominal" and worth saying so rather than reporting both as "stable."
+  const nominal = TRIM_CHASSIS_BUFFER.nominalFill;
+  const current = bufferHistory.length > 0 ? bufferHistory[bufferHistory.length - 1] : nominal;
   const empty = current <= EMPTY_EPSILON;
   const draining = !empty && secondsToEmpty !== null;
   const critical = empty || draining;
+  const fillPct = Math.max(0, Math.min(100, (current / capacity) * 100));
+  const nominalPct = Math.max(0, Math.min(100, (nominal / capacity) * 100));
 
   const points =
-    history.length >= 2
-      ? history.map((v, i) => {
-          const x = (i / (history.length - 1)) * W;
+    bufferHistory.length >= 2
+      ? bufferHistory.map((v, i) => {
+          const x = (i / (bufferHistory.length - 1)) * W;
           const y = H - (v / capacity) * H;
           return [x, y] as const;
         })
       : [];
   const line = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
-  const lineColor = critical ? '#E45B4A' : '#56B6E0';
+  const lineColor = critical ? '#FB7185' : '#22D3EE';
+  const countdown = draining && secondsToEmpty !== null ? formatDuration(secondsToEmpty) : null;
 
-  const headline = empty
-    ? 'Empty — drained; downstream is not receiving supply from this buffer'
-    : draining && secondsToEmpty !== null
-      ? `Draining — empties in ~${formatDuration(secondsToEmpty)} at current rate`
-      : 'Stable — inflow matches outflow';
+  const trend = bufferHistory.length >= 2 ? bufferHistory[bufferHistory.length - 1] - bufferHistory[bufferHistory.length - 2] : 0;
+  const trendWord = empty ? 'Empty' : trend < -0.01 ? 'Draining' : trend > 0.01 ? 'Refilling' : 'Stable';
 
   return (
-    <div className="flex h-full flex-col">
-      <PanelTitle title="Buffer Risk" subtitle="Trim → Chassis" />
-      <div className="flex flex-1 flex-col px-4 pb-4 pt-3">
-        <div
-          className={`flex items-start gap-2 border px-3 py-2.5 ${
-            critical ? 'border-starved/50 bg-starved/10' : 'border-line bg-panel-raised'
-          }`}
-          style={{ borderRadius: 0 }}
-        >
-          <span className={`mt-1.5 h-2 w-2 shrink-0 ${critical ? 'bg-starved' : 'bg-measured'}`} />
-          <p className={`text-[12.5px] font-semibold leading-snug ${critical ? 'text-starved' : 'text-ink-secondary'}`}>
-            {headline}
-          </p>
-        </div>
-
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <Stat label="Current fill" value={`${current.toFixed(1)} / ${capacity}`} />
-          <Stat label="Nominal fill" value={`${TRIM_CHASSIS_BUFFER.nominalFill}`} />
-        </div>
-
-        <div className="mt-4">
-          <div className="mb-1.5 flex items-center justify-between">
-            <span className="text-[9px] font-semibold uppercase tracking-[0.14em] text-ink-secondary">
-              Fill level
-            </span>
-            <span className="font-mono text-[9px] tabular-nums text-ink-secondary">units</span>
-          </div>
-
-          {points.length > 0 ? (
-            <svg viewBox={`0 0 ${W} ${H}`} className="h-[80px] w-full" preserveAspectRatio="none">
-              {[0.25, 0.5, 0.75].map((f) => (
-                <line key={f} x1="0" x2={W} y1={H * f} y2={H * f} stroke="#161D24" strokeWidth="1" />
-              ))}
-              <path d={line} fill="none" stroke={lineColor} strokeWidth="1.25" strokeLinejoin="round" />
-            </svg>
+    <Panel elevation="raised" className="flex h-full flex-col overflow-hidden">
+      <PanelTitle title="Buffer Risk" subtitle="Effect" />
+      <div className="flex flex-1 flex-col gap-5 px-7 py-6">
+        <AnimatePresence mode="wait" initial={false}>
+          {countdown ? (
+            <motion.div
+              key="countdown"
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={STATE_TRANSITION}
+              className="flex items-baseline gap-3"
+            >
+              <span className="font-mono text-[13px] font-medium uppercase tracking-[0.06em] text-white/50">
+                Starves in ~
+              </span>
+              <span className="font-mono text-[34px] font-bold leading-none tabular-nums text-starved">
+                <AnimatedNumber value={countdown.value} format={(v) => v.toFixed(0)} />
+                <span className="ml-1 text-[15px] font-semibold text-starved/70">{countdown.unit}</span>
+              </span>
+            </motion.div>
           ) : (
-            <div className="flex h-[80px] items-center justify-center border border-line-soft" style={{ borderRadius: 0 }}>
-              <span className="font-mono text-[10px] text-ink-muted">— insufficient history yet —</span>
-            </div>
+            <motion.div
+              key="headline"
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={STATE_TRANSITION}
+              className={`text-[16px] font-semibold leading-[1.4] ${empty ? 'text-starved' : 'text-ink-primary'}`}
+            >
+              {empty ? 'Empty. Downstream is not receiving supply.' : 'Stable. No starvation projected.'}
+            </motion.div>
           )}
+        </AnimatePresence>
+
+        <div className="flex items-center gap-2">
+          <span
+            className={`h-1.5 w-1.5 rounded-full ${critical ? 'bg-starved' : 'bg-cyan'}`}
+            aria-hidden
+          />
+          <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-white/50">{trendWord}</span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-6">
+          <Stat label="Current fill" value={current} unit="units" tone={critical ? 'text-starved' : 'text-ink-primary'} />
+          <Stat label="Nominal fill" value={nominal} unit="units" tone="text-white/72" />
+        </div>
+
+        <svg viewBox={`0 0 ${W} ${H}`} className="h-[70px] w-full" preserveAspectRatio="none">
+          <line x1="0" y1={H - nominalPct * (H / 100)} x2={W} y2={H - nominalPct * (H / 100)} stroke="#3A4046" strokeWidth="1" strokeDasharray="3 4" />
+          {points.length > 0 && (
+            <motion.path
+              d={line}
+              fill="none"
+              stroke={lineColor}
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: DRAW_IN.duration, ease: DRAW_IN.ease }}
+            />
+          )}
+        </svg>
+
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-panel-inset">
+          <motion.div
+            className={`h-full rounded-full ${critical ? 'bg-starved' : 'bg-cyan'}`}
+            animate={{ width: `${fillPct}%` }}
+            transition={VALUE_CHANGE}
+          />
         </div>
       </div>
-    </div>
+    </Panel>
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value, unit, tone }: { label: string; value: number; unit: string; tone: string }) {
   return (
-    <div className="border border-line bg-panel-raised px-2.5 py-2" style={{ borderRadius: 0 }}>
-      <div className="text-[9px] font-semibold uppercase tracking-[0.14em] text-ink-secondary">{label}</div>
-      <div className="font-mono text-[15px] font-bold tabular-nums text-ink-primary">{value}</div>
+    <div className="flex flex-col gap-1">
+      <span className="font-mono text-[12px] uppercase tracking-[0.08em] text-white/50">{label}</span>
+      <span className={`font-mono text-[22px] font-bold tabular-nums leading-none ${tone}`}>
+        <AnimatedNumber value={value} format={(v) => v.toFixed(1)} />
+        <span className="ml-1 text-[12px] font-medium text-white/50">{unit}</span>
+      </span>
     </div>
   );
 }

@@ -1,3 +1,9 @@
+import { motion, AnimatePresence } from 'motion/react';
+import { STATE_TRANSITION, VALUE_CHANGE } from '@/motion';
+import { Panel } from './Panel';
+import { PanelTitle } from './PanelTitle';
+import { CONFIDENCE_CEILING } from '@/engine/inference/softSensor';
+import { SENSORED_CONFIDENCE_CEILING } from '@/engine/assumptions';
 import type { Recommendation } from '@/twinTypes';
 
 interface Props {
@@ -5,80 +11,107 @@ interface Props {
 }
 
 /**
- * Exactly one recommendation, never a list — a supervisor with a line
- * running does not read a list. If more than one station needs attention,
- * this still shows only the single worst one (see
- * useEngineTwin.ts's computeRecommendation); the events feed carries the
- * rest.
+ * The one place this product tells a person what to do — and the one place
+ * it reminds them it never does it for them. At rest it still shows the
+ * confidence-lift instrument (the system's own blind/partial ceiling vs.
+ * what adding a sensor would buy), scaled to real constants rather than
+ * collapsing to a single sentence — the same "idling instrument, not an
+ * empty box" treatment as Inference Detail.
  */
 export function RecommendedAction({ recommendation }: Props) {
-  if (recommendation.kind === 'nominal') {
-    return (
-      <div className="border border-line bg-panel px-5 py-4" style={{ borderRadius: 0 }}>
-        <div className="flex items-center gap-2.5">
-          <span className="h-2 w-2 bg-measured" />
-          <h3 className="text-[12px] font-bold uppercase tracking-[0.18em] text-ink-primary">Recommended Action</h3>
-          <span className="ml-auto font-mono text-[10px] uppercase tracking-wider text-ink-secondary">
-            line nominal
-          </span>
-        </div>
-        <p className="mt-2.5 text-[12.5px] text-ink-secondary">
-          No action required. All measured and inferred cycle times are within takt.
-        </p>
-      </div>
-    );
-  }
-
-  if (recommendation.kind === 'degrading') {
-    const overPct = (recommendation.cycleSeconds / recommendation.nominalCycleSeconds - 1) * 100;
-    const action =
-      recommendation.basis === 'inferred' && recommendation.confidence !== undefined
-        ? `Move one operator to ${recommendation.stationId}. Adding a cycle sensor there would raise achievable confidence from ${(
-            recommendation.confidence * 100
-          ).toFixed(0)}% to ${(recommendation.confidenceCeiling * 100).toFixed(0)}%.`
-        : `Move one operator to ${recommendation.stationId} to restore takt.`;
-
-    return (
-      <div className="border border-slowing/40 bg-panel px-5 py-4" style={{ borderRadius: 0 }}>
-        <div className="flex items-center gap-2.5">
-          <span className="h-2 w-2 bg-slowing" />
-          <h3 className="text-[12px] font-bold uppercase tracking-[0.18em] text-ink-primary">Recommended Action</h3>
-        </div>
-        <div className="mt-3 border border-line bg-panel-raised px-3.5 py-3" style={{ borderRadius: 0 }}>
-          <span className="font-mono text-[9px] uppercase tracking-wider text-ink-secondary">
-            {recommendation.stationId} · {recommendation.stationName} · +{overPct.toFixed(0)}% over nominal
-          </span>
-          <p className="mt-1 text-[13px] font-semibold leading-snug text-ink-primary">{action}</p>
-        </div>
-        <Note />
-      </div>
-    );
-  }
+  const key =
+    recommendation.kind === 'nominal' ? 'nominal' : `${recommendation.kind}:${recommendation.stationId}`;
+  const nominal = recommendation.kind === 'nominal';
 
   return (
-    <div className="border border-line-soft bg-panel px-5 py-4" style={{ borderRadius: 0 }}>
-      <div className="flex items-center gap-2.5">
-        <span className="h-2 w-2 bg-ink-muted" />
-        <h3 className="text-[12px] font-bold uppercase tracking-[0.18em] text-ink-primary">Recommended Action</h3>
-      </div>
-      <div className="mt-3 border border-line bg-panel-raised px-3.5 py-3" style={{ borderRadius: 0 }}>
-        <span className="font-mono text-[9px] uppercase tracking-wider text-ink-secondary">
-          {recommendation.stationId} · {recommendation.stationName} · abstained
-        </span>
-        <p className="mt-1 text-[13px] font-semibold leading-snug text-ink-primary">
-          {recommendation.reason} Add direct instrumentation at {recommendation.stationId} to restore an estimate.
+    <Panel elevation="raised" className="flex h-full flex-col overflow-hidden">
+      <PanelTitle title="Recommended Action" subtitle="Action" />
+      <div className="flex flex-1 flex-col gap-4 px-7 py-6">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={key}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={STATE_TRANSITION}
+            className="flex flex-col gap-4"
+          >
+            <div className="flex items-center gap-2">
+              <span className={`h-1.5 w-1.5 rounded-full ${nominal ? 'bg-measured' : recommendation.kind === 'degrading' ? 'bg-cyan' : 'bg-ink-faint'}`} />
+              <span className="font-mono text-caption uppercase tracking-[0.08em] text-white/50">
+                {nominal ? 'Nominal' : recommendation.kind === 'degrading' ? 'Move one operator' : 'Add instrumentation'}
+              </span>
+            </div>
+
+            <p className="text-[16px] leading-[1.6] text-ink-primary">
+              {nominal
+                ? 'Within takt. No action pending.'
+                : recommendation.kind === 'degrading'
+                  ? (
+                    <>
+                      Move one operator to <span className="font-semibold">{recommendation.stationId}</span> to
+                      restore takt.
+                    </>
+                  )
+                  : (
+                    <>
+                      {recommendation.reason} Add a sensor at{' '}
+                      <span className="font-semibold">{recommendation.stationId}</span> to restore an estimate.
+                    </>
+                  )}
+            </p>
+          </motion.div>
+        </AnimatePresence>
+
+        <ConfidenceLift
+          from={!nominal && 'confidence' in recommendation ? recommendation.confidence : undefined}
+          to={!nominal && 'confidenceCeiling' in recommendation ? recommendation.confidenceCeiling : undefined}
+          resting={nominal}
+        />
+
+        <p className="mt-auto border-t border-line-soft pt-3 text-[12px] italic text-white/50">
+          Stratify never stops the line. A person decides.
         </p>
       </div>
-      <Note />
-    </div>
+    </Panel>
   );
 }
 
-function Note() {
+function ConfidenceLift({ from, to, resting }: { from: number | undefined; to: number | undefined; resting: boolean }) {
+  // At rest there is no specific station to project a lift for, so the
+  // instrument shows the system's own two real ceilings instead of nothing:
+  // the blind/partial soft-sensor cap vs. the sensored-tier cap a sensor
+  // would buy anywhere on the line — both real constants, never fabricated.
+  const fromPct = Math.round((from ?? CONFIDENCE_CEILING) * 100);
+  const toPct = Math.round((to ?? SENSORED_CONFIDENCE_CEILING) * 100);
+
   return (
-    <div className="mt-3 flex items-center gap-2 border-t border-line-soft pt-2.5">
-      <span className="h-1.5 w-1.5 rounded-full bg-ink-secondary" />
-      <p className="text-[11px] italic text-ink-secondary">Stratify never stops the line. A person decides.</p>
+    <div className="flex flex-col gap-2 rounded-lg border border-line-soft bg-panel-inset/60 px-4 py-3">
+      <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-white/50">
+        {resting ? 'A sensor anywhere raises achievable confidence' : 'A sensor there raises achievable confidence'}
+      </span>
+      <div className="flex items-center gap-3">
+        <span className={`font-mono text-[15px] font-semibold tabular-nums ${resting ? 'text-ink-muted' : 'text-inferred'}`}>
+          {fromPct}%
+        </span>
+        <div className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-panel-raised">
+          <motion.div
+            className={`absolute inset-y-0 left-0 rounded-full ${resting ? 'bg-ink-faint' : 'bg-inferred/50'}`}
+            initial={{ width: 0 }}
+            animate={{ width: `${fromPct}%` }}
+            transition={VALUE_CHANGE}
+          />
+          <motion.div
+            className={`absolute inset-y-0 left-0 rounded-full ${resting ? 'bg-line-strong' : 'bg-measured'}`}
+            initial={{ width: 0 }}
+            animate={{ width: `${toPct}%` }}
+            transition={{ ...VALUE_CHANGE, delay: 0.15 }}
+          />
+        </div>
+        <span className={`font-mono text-[15px] font-semibold tabular-nums ${resting ? 'text-ink-secondary' : 'text-measured'}`}>
+          {toPct}%
+        </span>
+      </div>
     </div>
   );
 }

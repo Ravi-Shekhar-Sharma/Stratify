@@ -32,7 +32,17 @@ export type StationDisplayState =
       basis: 'measured' | 'inferred';
       confidence?: number;
     }
-  | { kind: 'abstained'; reason: string };
+  | {
+      kind: 'abstained';
+      reason: string;
+      /** What the soft sensor actually predicted — never used as a
+       *  reported value (that's the whole point of abstaining), but real
+       *  model output, shown so the withheld estimate and its uncertainty
+       *  band are inspectable rather than a bare refusal. Absent only when
+       *  no prediction exists yet at all (e.g. an adjacent-blind-pair
+       *  abstention, which has no soft-sensor call behind it). */
+      withheld?: { cycleSeconds: number; lowSeconds: number; highSeconds: number; confidence: number };
+    };
 
 function trendOf(current: number, previous: number | undefined): Trend {
   if (previous === undefined) return 'flat';
@@ -140,7 +150,7 @@ function classifyInferred(station: StationSpec, tracker: VisitTracker, idx: Stat
     return {
       kind: 'abstained',
       reason:
-        'Adjacent to another blind station — the observed dwell across the pair is a sum and the split between them is unidentifiable from timing alone.',
+        'Adjacent to another blind station - the observed dwell across the pair is a sum and the split between them is unidentifiable from timing alone.',
     };
   }
 
@@ -215,9 +225,18 @@ function classifyInferred(station: StationSpec, tracker: VisitTracker, idx: Stat
     // incident's approach to onset).
     const reason =
       latest.confidence >= CONFIDENCE_FLOOR
-        ? `Calibrated confidence just crossed above the ${floorPct}% floor (currently ${latestPct}%) but hasn't held for ${DEFAULT_HYSTERESIS_CONFIG.minHold} consecutive visits yet — waiting for a sustained signal before reporting.`
-        : `Calibrated confidence ${latestPct}% is below the ${floorPct}% floor documented in docs/assumptions.md — declining to report rather than guess.`;
-    return { kind: 'abstained', reason };
+        ? `Confidence just crossed ${floorPct}% (now ${latestPct}%) - holding for ${DEFAULT_HYSTERESIS_CONFIG.minHold} steady visits before reporting.`
+        : `Confidence ${latestPct}%, below the ${floorPct}% floor. Not guessing.`;
+    return {
+      kind: 'abstained',
+      reason,
+      withheld: {
+        cycleSeconds: latest.cycleTimeSeconds,
+        lowSeconds: latest.intervalLowSeconds,
+        highSeconds: latest.intervalHighSeconds,
+        confidence: latest.confidence,
+      },
+    };
   }
 
   return {

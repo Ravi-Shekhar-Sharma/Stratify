@@ -14,9 +14,11 @@ body,
 
 body {
   margin: 0;
-  background-color: #0a0d11;
-  color: #d4dbe3;
-  font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  background-color: #0e1012;
+  color: #f3f4f6;
+  font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  font-size: 17px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -24,9 +26,9 @@ body {
 
 /* Cyan keyboard focus rings */
 :focus-visible {
-  outline: 2px solid #56b6e0;
+  outline: 2px solid #22d3ee;
   outline-offset: 2px;
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
 button {
@@ -48,11 +50,22 @@ button {
   background: transparent;
 }
 .thin-scroll::-webkit-scrollbar-thumb {
-  background: #1e2730;
-  border-radius: 2px;
+  background: #2a2f34;
+  border-radius: 4px;
 }
 .thin-scroll::-webkit-scrollbar-thumb:hover {
-  background: #283340;
+  background: #3a4046;
+}
+
+/* The production line has its own custom scroll-position indicator bar
+   (ScrollOverview) plus drag-to-pan — a native scrollbar directly above it
+   reads as a second, redundant scrollbar. Scrolling itself stays fully
+   functional; only the native track/thumb paint is suppressed. */
+.no-native-scrollbar {
+  scrollbar-width: none;
+}
+.no-native-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

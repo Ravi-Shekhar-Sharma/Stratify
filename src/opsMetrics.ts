@@ -111,6 +111,32 @@ export function shiftVariationByStation(m = METRICS): ShiftVariation[] {
   return result.sort((a, b) => a.stationId.localeCompare(b.stationId));
 }
 
+/** How many of the tracked blind/partial stations have bottlenecked in AT
+ *  LEAST ONE held-out shift — the real number behind "the same bottlenecks
+ *  recur," used as a Plant-view hero proof number. The raw heatmap shows
+ *  bottleneck events are sparse and rotate across the fleet rather than
+ *  pinning to one station every shift, so "recurs" is honestly a fleet-wide
+ *  claim (most of the tracked stations show up at some point across held-out
+ *  shifts, not just one) rather than a single-station-every-week claim a
+ *  majority threshold would have overstated. */
+export function recurringBottleneckCount(m = METRICS): { count: number; total: number } {
+  const heatmap = bottleneckHeatmap(m);
+  let count = 0;
+  for (const stationId of heatmap.stationIds) {
+    const everElevated = heatmap.shiftSeeds.some((seed) => (heatmap.rate(stationId, seed) ?? 0) > 0);
+    if (everElevated) count++;
+  }
+  return { count, total: heatmap.stationIds.length };
+}
+
+/** Mean OEE (Availability x Performance) across every tracked station and
+ *  shift — the single plant-wide number for the Plant-view hero. */
+export function meanPlantOee(m = METRICS): number {
+  const rows = stationAvailabilityOee(m);
+  if (rows.length === 0) return 0;
+  return rows.reduce((s, r) => s + r.meanOee, 0) / rows.length;
+}
+
 export interface StationAvailabilityOee {
   stationId: string;
   tier: ObservabilityTier;

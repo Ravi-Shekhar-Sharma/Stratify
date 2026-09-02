@@ -20,9 +20,9 @@ function pts(x: number): string {
  */
 export function SensorLiftCallout({ lift }: Props) {
   return (
-    <div className="flex flex-col gap-3 border border-line bg-panel px-6 py-5" style={{ borderRadius: 0 }}>
-      <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-ink-primary">
-        {lift.stationId} instrumentation lift — the real replacement for the old "86% → 97%" figure
+    <div className="flex flex-col gap-3.5 px-5 py-4">
+      <span className="text-caption font-bold uppercase tracking-[0.16em] text-ink-primary">
+        {lift.stationId} instrumentation lift - what full sensoring would buy
       </span>
       <div className="flex flex-wrap items-stretch gap-3">
         <LiftStep
@@ -33,8 +33,8 @@ export function SensorLiftCallout({ lift }: Props) {
         />
         <Arrow />
         <LiftStep
-          label={`If promoted to sensored, ${lift.tier}→partial ceiling`}
-          value={lift.tierCeiling !== null ? `${(lift.tierCeiling * 100).toFixed(0)}%` : '—'}
+          label={`Ceiling at current (${lift.tier}) tier`}
+          value={lift.tierCeiling !== null ? `${(lift.tierCeiling * 100).toFixed(0)}%` : '-'}
           sub={lift.liftToTierCeiling !== null ? pts(lift.liftToTierCeiling) : ''}
           tone="ceiling"
         />
@@ -46,13 +46,14 @@ export function SensorLiftCallout({ lift }: Props) {
           tone="ceiling"
         />
       </div>
-      <p className="text-[10px] leading-snug text-ink-muted">
-        "Current" is empirically measured. Both ceilings are declared maxima from
-        docs/assumptions.md's Observability tiers table, not separately measured outcomes — blind and
-        partial share the same 0.90 ceiling in the trained artifact; 0.99 for sensored has no empirical
-        confidence distribution behind it here, since sensored stations report ground truth directly and
-        never run through the soft sensor.
-      </p>
+      <div>
+        <p className="text-[15px] leading-[1.55] text-white/72">
+          "Current" is empirically measured. Both ceilings are declared maxima, not separately measured
+          outcomes: blind and partial share the same 90% ceiling in the trained artifact, and 99% for
+          sensored has no empirical confidence distribution behind it here, since a sensored station reports
+          ground truth directly and never runs through the soft sensor.
+        </p>
+      </div>
     </div>
   );
 }
@@ -64,16 +65,15 @@ function Arrow() {
 function LiftStep({ label, value, sub, tone }: { label: string; value: string; sub: string; tone: 'current' | 'ceiling' }) {
   return (
     <div
-      className={`flex min-w-[150px] flex-1 flex-col gap-1 border px-3.5 py-3 ${
+      className={`flex min-w-[150px] flex-1 flex-col gap-1.5 rounded border px-4 py-3.5 shadow-panel ${
         tone === 'current' ? 'border-slowing/40 bg-slowing/5' : 'border-inferred/40 bg-inferred/5'
       }`}
-      style={{ borderRadius: 0 }}
     >
-      <span className="text-[9px] font-semibold uppercase tracking-[0.12em] text-ink-secondary">{label}</span>
+      <span className="text-caption font-semibold uppercase tracking-[0.12em] text-ink-secondary">{label}</span>
       <span className={`font-mono text-[24px] font-bold tabular-nums ${tone === 'current' ? 'text-slowing' : 'text-inferred'}`}>
         {value}
       </span>
-      <span className="font-mono text-[10px] text-ink-secondary">{sub}</span>
+      <span className="font-mono text-[12px] text-ink-secondary">{sub}</span>
     </div>
   );
 }

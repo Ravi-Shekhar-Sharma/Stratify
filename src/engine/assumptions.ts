@@ -17,6 +17,13 @@ export const DAILY_VOLUME_TARGET = 1000;
  */
 export const S6_NOMINAL_CYCLE_SECONDS = 55;
 export const S6_DEGRADED_CYCLE_SECONDS = 80;
+/**
+ * docs/assumptions.md's "Derivation of the 7 minute lead time": net drain
+ * rate 1/54 - 1/80 = 0.006019 units/s against the trim-to-chassis buffer's
+ * 2.5-unit nominal fill -> 415s, "reported as about 7 minutes." The warning
+ * window the demo incident actually delivers before the line would stop.
+ */
+export const DEMO_LEAD_TIME_SECONDS = 415;
 
 // ## Buffers and work in progress — "elsewhere", i.e. not the two named buffers
 export const INTER_STATION_CAPACITY = 2;

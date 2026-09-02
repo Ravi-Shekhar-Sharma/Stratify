@@ -117,8 +117,8 @@ describe('classifyStation', () => {
     const state = classifyStation(STATIONS_BY_ID['S6'], tracker);
     expect(state.kind).toBe('abstained');
     if (state.kind === 'abstained') {
-      expect(state.reason).toMatch(/crossed above/);
-      expect(state.reason).not.toMatch(/is below the \d+% floor/);
+      expect(state.reason).toMatch(/just crossed/);
+      expect(state.reason).not.toMatch(/below the \d+% floor/);
     }
   });
 

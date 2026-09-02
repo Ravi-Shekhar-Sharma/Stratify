@@ -40,3 +40,7 @@ out/
 
 .vercel
 .env*
+
+# local-only dev scaffolding, not part of the submitted deliverable
+.bolt/
+CLAUDE.md

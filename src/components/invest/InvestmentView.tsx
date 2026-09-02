@@ -1,15 +1,18 @@
 import { RankedInvestmentTable } from './RankedInvestmentTable';
 import { BudgetTierCards } from './BudgetTierCards';
 import { RolloutTimeline } from './RolloutTimeline';
-import { PaybackNotice } from './PaybackNotice';
-import { rankedSensorInvestments, budgetTiers, rolloutPath, PAYBACK_STATUS } from '@/investmentMetrics';
-import { METRICS } from '@/trustMetrics';
+import { Panel } from '../Panel';
+import { Reveal } from '../Reveal';
+import { ViewHero } from '../ViewHero';
+import { ProvenanceStrip } from '../ProvenanceStrip';
+import { rankedSensorInvestments, budgetTiers, rolloutPath } from '@/investmentMetrics';
+import { MAINTENANCE_WINDOWS_PER_YEAR } from '@/engine/assumptions';
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-2 px-6 pt-5 pb-1">
+    <div className="flex items-center gap-2 px-6 pt-10 pb-3 sm:px-8">
       <span className="h-3 w-0.5 bg-inferred" />
-      <h2 className="text-[10.5px] font-bold uppercase tracking-[0.18em] text-ink-secondary">{children}</h2>
+      <h2 className="font-mono text-caption font-bold uppercase tracking-[0.18em] text-ink-secondary">{children}</h2>
     </div>
   );
 }
@@ -24,61 +27,59 @@ export function InvestmentView() {
   const tiers = budgetTiers();
   const allStationIds = ranked.map((r) => r.stationId);
   const steps = rolloutPath(allStationIds);
+  const top = ranked[0];
 
   return (
     <div className="min-h-screen bg-bg text-ink-primary">
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-bg px-6 py-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center border border-line bg-panel" style={{ borderRadius: 0 }}>
-            <span className="h-2.5 w-2.5 bg-inferred" />
-          </div>
-          <div className="leading-tight">
-            <div className="text-[15px] font-bold tracking-[0.14em] text-ink-primary">INVESTMENT CASE</div>
-            <div className="text-[10.5px] font-medium uppercase tracking-[0.2em] text-ink-secondary">
-              Sensor additions, ranked by confidence gained per dollar
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-5 font-mono text-[10px] tabular-nums text-ink-muted">
-          <span>
-            validate.csv seeds {METRICS.validationShiftSeeds[0]}-{METRICS.validationShiftSeeds[1]}
-          </span>
-          <span>ml/artifacts/metrics.json + docs/assumptions.md</span>
-        </div>
-      </header>
+      <div className="relative z-10">
+      <ViewHero
+        eyebrow="Investment Case"
+        headline="Instrumentation budget follows confidence gained per dollar - and lands a few windows a year."
+        subtitle="Every station on this page is ranked the same way: how much confidence one more sensor buys, per dollar spent, scheduled into the maintenance windows the plant actually has."
+        proofs={
+          top
+            ? [
+                { value: top.costMidUsd, suffix: ' usd', label: `Cost to instrument ${top.stationId}, the top-ranked station`, tone: 'text-cyan' },
+                { value: top.confidenceGain * 100, decimals: 1, suffix: ' pts', label: 'Confidence gained by that spend', tone: 'text-measured' },
+                { value: MAINTENANCE_WINDOWS_PER_YEAR, suffix: '/ year', label: 'Maintenance windows available to install in', tone: 'text-starved' },
+              ]
+            : [
+                { value: 0, label: 'No candidate stations', tone: 'text-ink-muted' },
+                { value: 0, label: 'No candidate stations', tone: 'text-ink-muted' },
+                { value: MAINTENANCE_WINDOWS_PER_YEAR, suffix: '/ year', label: 'Maintenance windows available to install in', tone: 'text-starved' },
+              ]
+        }
+      />
 
-      <SectionLabel>Ranked Table</SectionLabel>
-      <section className="px-6 pb-1">
-        <div className="min-h-[360px] border border-line bg-panel">
+      <SectionLabel>Ranked by Gain</SectionLabel>
+      <Reveal className="px-6 pb-3 sm:px-8">
+        <Panel elevation="raised" className="min-h-[560px]">
           <RankedInvestmentTable ranked={ranked} />
-        </div>
-      </section>
+        </Panel>
+      </Reveal>
 
       <SectionLabel>Three Budget Levels</SectionLabel>
-      <section className="px-6 pb-1">
-        <div className="min-h-[220px] border border-line bg-panel">
+      <Reveal className="px-6 pb-3 sm:px-8">
+        <Panel className="min-h-[560px]">
           <BudgetTierCards tiers={tiers} />
-        </div>
-      </section>
+        </Panel>
+      </Reveal>
 
       <SectionLabel>Rollout Path</SectionLabel>
-      <section className="px-6 pb-1">
-        <div className="min-h-[260px] border border-line bg-panel">
+      <Reveal className="px-6 pb-10 sm:px-8">
+        <Panel className="min-h-[320px]">
           <RolloutTimeline steps={steps} />
-        </div>
-      </section>
+        </Panel>
+      </Reveal>
 
-      <SectionLabel>Payback</SectionLabel>
-      <section className="px-6 pb-6">
-        <PaybackNotice status={PAYBACK_STATUS} />
-      </section>
-
-      <footer className="flex items-center justify-between border-t border-line-soft px-6 py-3">
-        <span className="font-mono text-[9px] uppercase tracking-wider text-ink-muted">
-          stratify · investment case · static report, no live budget control
-        </span>
-        <span className="font-mono text-[9px] tabular-nums text-ink-muted">{ranked.length} candidate stations</span>
+      <footer className="border-t border-line-soft px-6 py-5 sm:px-8">
+        <p className="text-[15px] leading-[1.55] text-white/72">
+          We do not claim a payback period: it needs a verified downtime-cost or cost-of-poor-quality figure, and
+          neither is verified yet. Ranking above is based on confidence gained per unit spend instead.
+        </p>
+        <ProvenanceStrip>{ranked.length} candidate stations</ProvenanceStrip>
       </footer>
+      </div>
     </div>
   );
 }

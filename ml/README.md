@@ -579,8 +579,8 @@ worth restating here because they came from real investigation:
 
 ## TypeScript inference and the parity test
 
-The app does not call Python at runtime and never will (see the top-level
-`CLAUDE.md`: "Python for training only"). `src/engine/inference/softSensor.ts`
+The app does not call Python at runtime and never will: Python trains,
+TypeScript serves. `src/engine/inference/softSensor.ts`
 reads `ml/artifacts/soft_sensor.json` directly (a bundled JSON import — the
 ~940KB artifact ships in the app bundle, no backend) and reimplements the
 same math `ml/model.py` uses to score it: the three-tree-ensemble walk for

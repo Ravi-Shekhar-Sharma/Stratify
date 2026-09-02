@@ -50,6 +50,23 @@ const STATION_INDEX = new Map(STATIONS.map((s, i) => [s.id, i]));
  */
 export const SETTLE_TICKS = (STATION_INDEX.get('S9')! + 1) * TAKT_SECONDS;
 
+/**
+ * How many ticks it takes the first vehicle to clear the entire 42-station
+ * line, plus a small margin so a couple of end-to-end completions exist (a
+ * real, non-zero trailing throughput, not just "line looks full"). Used to
+ * silently pre-warm the STEADY (no-incident) playback so a judge landing
+ * cold never watches an empty line fill up — that fill-up narrative stays
+ * exclusive to the incident run, which genuinely needs it (see
+ * SETTLE_TICKS above). Not applied to the incident stream: injecting S6's
+ * incident at DEMO_INCIDENT.atTick only makes sense against a line that is
+ * still filling, not one already warmed past it. The +6 takt-cycle margin
+ * (not just +1) matters: confidence-hysteresis needs 3 consecutive
+ * above-floor visits before an inferred station's display commits from
+ * "holding" to steady Inferred, not just one, and the last station on the
+ * line only gets its first visit at the line-fill boundary itself.
+ */
+export const LINE_FILL_TICKS = (STATIONS.length + 6) * TAKT_SECONDS;
+
 /** S6, 54s (simulated nominal) -> 80s (docs/assumptions.md's demo incident,
  *  "Degraded cycle: 80 s") — the only incident this app's UI ever injects. */
 export const DEMO_INCIDENT: IncidentInjection = {

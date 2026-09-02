@@ -2,14 +2,27 @@ import { CoverageMap } from './CoverageMap';
 import { BottleneckHeatmap } from './BottleneckHeatmap';
 import { ShiftVariationPanel } from './ShiftVariationPanel';
 import { AvailabilityOeeTable } from './AvailabilityOeeTable';
-import { coverageByShop, bottleneckHeatmap, shiftVariationByStation, stationAvailabilityOee } from '@/opsMetrics';
-import { METRICS } from '@/trustMetrics';
+import { Panel } from '../Panel';
+import { Reveal } from '../Reveal';
+import { ViewHero } from '../ViewHero';
+import { ProvenanceStrip } from '../ProvenanceStrip';
+import { ChapterNav } from '../ChapterNav';
+import type { View } from '../TopNav';
+import {
+  coverageByShop,
+  bottleneckHeatmap,
+  shiftVariationByStation,
+  stationAvailabilityOee,
+  recurringBottleneckCount,
+  meanPlantOee,
+} from '@/opsMetrics';
+import { STATIONS } from '@/engine/stations';
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-2 px-6 pt-5 pb-1">
+    <div className="flex items-center gap-2 px-6 pt-10 pb-3 sm:px-8">
       <span className="h-3 w-0.5 bg-slowing" />
-      <h2 className="text-[10.5px] font-bold uppercase tracking-[0.18em] text-ink-secondary">{children}</h2>
+      <h2 className="font-mono text-caption font-bold uppercase tracking-[0.18em] text-ink-secondary">{children}</h2>
     </div>
   );
 }
@@ -18,74 +31,76 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
  * Plant-manager weekly-horizon report: static, read-only, no controls.
  * Every number reads from src/engine/stations.ts (topology) or
  * ml/artifacts/metrics.json via src/opsMetrics.ts — nothing is entered or
- * simulated live. Deliberately simpler than the floor Twin view: four flat
- * sections, no animation beyond what the design system permits (there is
- * no live state here to animate against).
+ * simulated live.
  */
-export function OpsView() {
+export function OpsView({ onNavigate }: { onNavigate: (view: View) => void }) {
   const shops = coverageByShop();
   const heatmap = bottleneckHeatmap();
   const variation = shiftVariationByStation();
   const availability = stationAvailabilityOee();
+  const recurring = recurringBottleneckCount();
+  const oee = meanPlantOee();
+  const blindPartial = STATIONS.filter((s) => s.tier !== 'sensored').length;
 
   return (
     <div className="min-h-screen bg-bg text-ink-primary">
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-bg px-6 py-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center border border-line bg-panel" style={{ borderRadius: 0 }}>
-            <span className="h-2.5 w-2.5 bg-slowing" />
-          </div>
-          <div className="leading-tight">
-            <div className="text-[15px] font-bold tracking-[0.14em] text-ink-primary">PLANT MANAGER</div>
-            <div className="text-[10.5px] font-medium uppercase tracking-[0.2em] text-ink-secondary">
-              Weekly horizon · read-only report
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-5 font-mono text-[10px] tabular-nums text-ink-muted">
-          <span>
-            validate.csv seeds {METRICS.validationShiftSeeds[0]}-{METRICS.validationShiftSeeds[1]}
-          </span>
-          <span>ml/artifacts/metrics.json + src/engine/stations.ts</span>
-        </div>
-      </header>
+      <div className="relative z-10">
+      <ViewHero
+        eyebrow="Plant Manager"
+        headline="The same bottlenecks recur. This second's value doesn't show you that."
+        subtitle="A live dashboard shows one instant. This report is the pattern across held-out shifts - which stations actually cost you, again and again, not just once."
+        proofs={[
+          {
+            value: recurring.count,
+            suffix: `of ${recurring.total}`,
+            label: 'Tracked stations bottleneck more than once',
+            tone: 'text-starved',
+          },
+          { value: oee * 100, decimals: 1, suffix: '%', label: 'Mean OEE, availability x performance', tone: 'text-measured' },
+          {
+            value: blindPartial,
+            suffix: `of ${STATIONS.length}`,
+            label: 'Stations still dark to conventional systems',
+            tone: 'text-cyan',
+          },
+        ]}
+      />
 
       <SectionLabel>Coverage</SectionLabel>
-      <section className="px-6 pb-1">
-        <div className="min-h-[280px] border border-line bg-panel">
+      <Reveal className="px-6 pb-3 sm:px-8">
+        <Panel elevation="raised" className="min-h-[460px]">
           <CoverageMap shops={shops} />
-        </div>
-      </section>
+        </Panel>
+      </Reveal>
 
       <SectionLabel>Recurring Bottlenecks</SectionLabel>
-      <section className="px-6 pb-1">
-        <div className="min-h-[360px] border border-line bg-panel">
+      <Reveal className="px-6 pb-3 sm:px-8">
+        <Panel elevation="raised" className="min-h-[560px]">
           <BottleneckHeatmap heatmap={heatmap} />
-        </div>
-      </section>
+        </Panel>
+      </Reveal>
 
       <SectionLabel>Shift Variation</SectionLabel>
-      <section className="px-6 pb-1">
-        <div className="min-h-[300px] border border-line bg-panel">
+      <Reveal className="px-6 pb-3 sm:px-8">
+        <Panel className="min-h-[440px]">
           <ShiftVariationPanel variation={variation} />
-        </div>
-      </section>
+        </Panel>
+      </Reveal>
 
       <SectionLabel>Availability &amp; OEE</SectionLabel>
-      <section className="px-6 pb-6">
-        <div className="min-h-[300px] border border-line bg-panel">
+      <Reveal className="px-6 pb-10 sm:px-8">
+        <Panel className="min-h-[340px]">
           <AvailabilityOeeTable rows={availability} />
-        </div>
-      </section>
+        </Panel>
+      </Reveal>
 
-      <footer className="flex items-center justify-between border-t border-line-soft px-6 py-3">
-        <span className="font-mono text-[9px] uppercase tracking-wider text-ink-muted">
-          stratify · plant manager · static report, no controls
-        </span>
-        <span className="font-mono text-[9px] tabular-nums text-ink-muted">
+      <footer className="border-t border-line-soft px-6 py-5 sm:px-8">
+        <ProvenanceStrip bare>
           {heatmap.stationIds.length} tracked stations · {heatmap.shiftSeeds.length} shifts
-        </span>
+        </ProvenanceStrip>
       </footer>
+      <ChapterNav targetView="invest" targetLabel="Invest" description="what to spend next" onNavigate={onNavigate} />
+      </div>
     </div>
   );
 }

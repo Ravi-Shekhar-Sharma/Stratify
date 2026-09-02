@@ -109,6 +109,24 @@ export interface ConfidenceCeilings {
   sensored: number;
 }
 
+export interface NominalCycleBaseline {
+  maeSeconds: { overallSeconds: number };
+  skillScore: { overall: number };
+}
+
+export interface Baselines {
+  nominalCycleBaseline: NominalCycleBaseline;
+}
+
+export interface RegimeMae {
+  overallSeconds: number;
+}
+
+export interface RegimeDecomposition {
+  trainMae: RegimeMae;
+  heldOutMae: RegimeMae;
+}
+
 export interface StationShiftOperation {
   stationId: string;
   shiftSeed: number;
@@ -135,9 +153,45 @@ export interface Metrics {
   perStation: Record<string, StationBreakdown>;
   confidenceCeilings: ConfidenceCeilings;
   stationShiftOperations: StationShiftOperation[];
+  baselines: Baselines;
+  regimeDecomposition: RegimeDecomposition;
 }
 
 export const METRICS = raw as unknown as Metrics;
+
+/**
+ * The single-number answer to "when Stratify says X% confident, is it right
+ * X% of the time?" — the n-weighted mean absolute gap between stated
+ * confidence and observed accuracy across calibration buckets, in
+ * percentage points. Used as one of the Trust view's hero proof numbers;
+ * computed from the same points the calibration chart draws, never a
+ * separate hand-picked figure.
+ */
+export function meanCalibrationErrorPts(points: CalibrationPoint[]): number {
+  if (points.length === 0) return 0;
+  const totalN = points.reduce((sum, p) => sum + p.n, 0);
+  if (totalN === 0) return 0;
+  const weightedError = points.reduce(
+    (sum, p) => sum + Math.abs(p.meanPredictedConfidence - p.observedAccuracy) * p.n,
+    0,
+  );
+  return (weightedError / totalN) * 100;
+}
+
+/**
+ * A 95% confidence interval on a calibration bucket's observed accuracy,
+ * normal approximation to the binomial (p +/- 1.96 * sqrt(p(1-p)/n)) —
+ * the standard interval for a proportion estimated from n trials. Real
+ * uncertainty, not a decorative error bar: the lowest bucket (n=47,408)
+ * gets a tight interval, the highest (n=3,658) a visibly wider one,
+ * exactly reflecting how much evidence backs each point on the curve.
+ */
+export function calibrationCI95(point: CalibrationPoint): { low: number; high: number } {
+  const p = point.observedAccuracy;
+  const se = Math.sqrt(Math.max(0, (p * (1 - p)) / Math.max(1, point.n)));
+  const margin = 1.96 * se;
+  return { low: Math.max(0, p - margin), high: Math.min(1, p + margin) };
+}
 
 /** The real range the calibration curve actually covers — never assumed. */
 export function calibrationRange(points: CalibrationPoint[]): { min: number; max: number } {
@@ -197,7 +251,7 @@ export function buildLedgerRows(m: Metrics = METRICS): LedgerRow[] {
             ? we.leadTimeSeconds >= 0
               ? 'WARNED IN TIME'
               : 'WARNED LATE'
-            : 'PHYSICAL HEADROOM — reference only',
+            : 'PHYSICAL HEADROOM - reference only',
       });
     }
   }
@@ -214,7 +268,7 @@ export function buildLedgerRows(m: Metrics = METRICS): LedgerRow[] {
         alertTick: r.alertTick,
         starvedTick: r.naivePairedStarvationTick,
         leadTimeSeconds: r.naiveLeadTimeSeconds,
-        outcome: 'PHYSICAL HEADROOM — reference only',
+        outcome: 'PHYSICAL HEADROOM - reference only',
       });
     });
   }

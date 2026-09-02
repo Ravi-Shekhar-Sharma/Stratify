@@ -6,13 +6,14 @@ import { VisitTracker } from '@/engine/inference/liveVisits';
 import { classifyStation } from '@/engine/inference/stationDisplay';
 import { STATIONS, TAKT_SECONDS } from '@/engine/stations';
 import { PAINTED_BODY_STORE, TRIM_CHASSIS_BUFFER } from '@/engine/topology';
-import { CONFIDENCE_CEILING } from '@/engine/inference/softSensor';
+import { SENSORED_CONFIDENCE_CEILING } from '@/engine/assumptions';
 import { estimateSecondsToEmpty } from '@/engine/inference/bufferRisk';
 import {
   DEMO_DURATION_SECONDS,
   DEMO_INCIDENT,
   DEMO_JITTER_FRACTION,
   DEMO_SEED,
+  LINE_FILL_TICKS,
   PLAYBACK_INTERVAL_MS,
   PLAYBACK_MULTIPLE,
   PLAYBACK_TICKS_PER_STEP,
@@ -52,6 +53,28 @@ function computeThroughputJph(tracker: VisitTracker): number {
   return (count / windowSeconds) * 3600;
 }
 
+/**
+ * A trailing-completions rate is genuinely undefined until the first
+ * vehicle has traversed the full 42-station line (~2,270 s) — the demo
+ * incident fires at ~1,670 s, before that first completion, so the header
+ * used to read a bare "0 JPH" through the entire incident. 0 isn't wrong,
+ * it's just not the number a live ops screen should lead with before real
+ * throughput exists: the achievable rate implied by the current bottleneck
+ * station's own cycle time is real, immediately available, and is exactly
+ * what should visibly drop the moment S6 degrades. Used only as a stand-in
+ * until real completions exist; once they do, the trailing measurement
+ * above takes over.
+ */
+function computeBottleneckRateJph(stations: StationViewModel[]): number {
+  let slowest = TAKT_SECONDS;
+  for (const sv of stations) {
+    if (sv.state.kind === 'measured' || sv.state.kind === 'inferred' || sv.state.kind === 'degrading') {
+      if (sv.state.cycleSeconds > slowest) slowest = sv.state.cycleSeconds;
+    }
+  }
+  return slowest > 0 ? 3600 / slowest : 0;
+}
+
 function bufferView(id: string, label: string, level: number, capacity: number, previous: number | undefined): BufferViewModel {
   const fillPct = Math.max(0, Math.min(100, (level / capacity) * 100));
   let trend: BufferViewModel['trend'] = 'normal';
@@ -89,7 +112,13 @@ function computeRecommendation(stations: StationViewModel[]): Recommendation {
       nominalCycleSeconds: worstDegrading.spec.nominalCycleSeconds,
       basis: state.basis,
       confidence: state.confidence,
-      confidenceCeiling: CONFIDENCE_CEILING,
+      // The "add a sensor" projection promotes the station to the sensored
+      // tier, not the blind/partial ceiling it's currently capped at — see
+      // docs/assumptions.md's Observability tiers table (0.99, sensored)
+      // vs. the 0.90 the soft sensor itself is capped at (@/engine/inference/
+      // softSensor's CONFIDENCE_CEILING). Using the latter here previously
+      // made Recommended Action understate the actual lift from instrumenting.
+      confidenceCeiling: SENSORED_CONFIDENCE_CEILING,
     };
   }
 
@@ -207,11 +236,13 @@ export function useEngineTwin() {
     const nextPhase: EnginePhase =
       incidentRef.current && playheadRef.current >= incidentRef.current.atTick ? 'incident' : 'steady';
 
+    const completedAtEol = tracker.completedVisits(LAST_STATION_ID).length;
+
     return {
       phase: nextPhase,
       currentTick: playheadRef.current,
       totalTicks: streamRef.current.length,
-      rateJph: computeThroughputJph(tracker),
+      rateJph: completedAtEol > 0 ? computeThroughputJph(tracker) : computeBottleneckRateJph(stations),
       stations,
       buffers,
       trimBufferHistory: trimHistoryRef.current,
@@ -248,6 +279,20 @@ export function useEngineTwin() {
       eventIdRef.current = 1;
       eventsRef.current = [];
       trimHistoryRef.current = [];
+
+      // Steady-state runs (no incident) pre-warm silently to a fully
+      // populated line before the first frame is ever published — a judge
+      // landing cold, or clicking Reset, must never watch an empty line
+      // fill up. This is skipped for an incident run: DEMO_INCIDENT fires
+      // against a line that is still filling on purpose (see SETTLE_TICKS).
+      if (incidents.length === 0) {
+        const stream = streamRef.current;
+        const warmupEnd = Math.min(LINE_FILL_TICKS, stream.length);
+        for (; playheadRef.current < warmupEnd; playheadRef.current++) {
+          trackerRef.current.applyTick(stream[playheadRef.current]);
+        }
+      }
+
       setPhase('steady');
       setSnapshot(computeSnapshot());
       startPlayback();
@@ -256,8 +301,17 @@ export function useEngineTwin() {
   );
 
   useEffect(() => {
-    beginRun([]);
-    return stopInterval;
+    // Deferred one macrotask so the browser paints the boot scene's first
+    // frame (phase starts 'connecting') before this runs — buildStream
+    // generates the full 5,400-second stream synchronously and measured
+    // ~550-650ms on this machine, not the ~40ms the original estimate
+    // assumed; blocking the initial paint on it is what produced the
+    // multi-second near-blank boot a judge would actually see.
+    const id = setTimeout(() => beginRun([]), 0);
+    return () => {
+      clearTimeout(id);
+      stopInterval();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

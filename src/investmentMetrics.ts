@@ -125,5 +125,6 @@ export function rolloutPath(stationIds: string[], m = METRICS): RolloutStep[] {
 export const PAYBACK_STATUS = {
   available: false,
   reason:
-    "docs/assumptions.md marks automotive unplanned-downtime cost and cost-of-poor-quality as unverified/pending (owned by teammate 2) - payback requires one of those to convert a confidence-point gain into a dollar benefit.",
+    'Converting a confidence-point gain into a dollar benefit needs a verified downtime-cost or cost-of-poor-quality figure. Neither is verified yet, so payback is not claimed.',
+  source: 'docs/assumptions.md',
 } as const;

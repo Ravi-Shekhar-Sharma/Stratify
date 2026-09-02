@@ -4,15 +4,156 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Stratify · Final Assembly Twin</title>
+    <meta
+      name="description"
+      content="A live digital twin of a car assembly line that keeps estimating on the stations nobody instrumented - measured where sensored, inferred with confidence where not, honest when it can't clear the confidence floor."
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Stratify" />
+    <meta property="og:title" content="Stratify - Final Assembly Twin" />
+    <meta
+      property="og:description"
+      content="Most twins go blind on the stations nobody instrumented. Stratify keeps estimating there anyway, and always says how confident it is."
+    />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image:width" content="1500" />
+    <meta property="og:image:height" content="788" />
+    <meta property="og:url" content="https://stratify-mu-topaz.vercel.app" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Stratify - Final Assembly Twin" />
+    <meta
+      name="twitter:description"
+      content="Most twins go blind on the stations nobody instrumented. Stratify keeps estimating there anyway, and always says how confident it is."
+    />
+    <meta name="twitter:image" content="/og-image.png" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Non-render-blocking font load: a <link rel="stylesheet"> in <head>
+         is render-blocking by default, which was directly adding to the
+         boot's time-to-first-paint. This preload+swap pattern fetches the
+         font CSS without holding up the first paint; the noscript fallback
+         covers JS-disabled clients. The shell below uses the same
+         system-font fallback stack as the real app (see index.css), so the
+         swap to IBM Plex causes no layout shift. -->
+    <!-- Space Grotesk replaces IBM Plex Sans as the body/descriptive-copy
+         face (house style, 2026-08-31) — IBM Plex Mono stays untouched for
+         every headline, numeric, station label, timestamp, and mono
+         readout. This swaps one 4-weight family for another in the same
+         request rather than adding a third alongside the existing two, so
+         it's close to a page-weight wash, not a new payload. -->
     <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      onload="this.onload=null;this.rel='stylesheet'"
     />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      />
+    </noscript>
+    <style>
+      /* Critical, inline shell CSS - a React SPA cannot itself guarantee a
+         sub-300ms first paint (network + JS download + parse + execute
+         always take longer than that on a cold load), so this paints a
+         real, on-brand frame the instant the HTML parses, with zero JS.
+         Uses the generic system-font fallback stack, same as the real
+         app's own fallback (index.css), so swapping in the real webfont
+         causes no layout shift here. React's own BootScene replaces this
+         shell seamlessly once the bundle is ready - same colours, same
+         layout language, no visible handoff. */
+      html, body, #root { height: 100%; }
+      body {
+        margin: 0;
+        background-color: #0e1012;
+        color: #f3f4f6;
+        font-family: system-ui, -apple-system, sans-serif;
+      }
+      .boot-shell-nav {
+        height: 64px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 32px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      .boot-shell-dot {
+        width: 8px;
+        height: 8px;
+        background: #22d3ee;
+        border-radius: 999px;
+        flex-shrink: 0;
+      }
+      .boot-shell-word {
+        font-family: 'IBM Plex Mono', ui-monospace, monospace;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+      .boot-shell-header { padding: 40px 32px 32px; }
+      .boot-shell-tag {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+      .boot-shell-tag-dot {
+        width: 6px;
+        height: 6px;
+        background: #22d3ee;
+        border-radius: 999px;
+      }
+      .boot-shell-tag-text {
+        font-family: 'IBM Plex Mono', ui-monospace, monospace;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #22d3ee;
+      }
+      .boot-shell-h1 {
+        font-family: 'IBM Plex Mono', ui-monospace, monospace;
+        font-size: 32px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        margin: 0;
+        line-height: 1.1;
+      }
+      .boot-shell-sub {
+        margin: 12px 0 0;
+        max-width: 640px;
+        font-size: 16px;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.72);
+      }
+      .boot-shell-line {
+        margin: 8px 32px 0;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.08);
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="boot-shell-nav">
+        <span class="boot-shell-dot" aria-hidden="true"></span>
+        <span class="boot-shell-word">STRATIFY</span>
+      </div>
+      <div class="boot-shell-header">
+        <div class="boot-shell-tag">
+          <span class="boot-shell-tag-dot" aria-hidden="true"></span>
+          <span class="boot-shell-tag-text">Initializing</span>
+        </div>
+        <h1 class="boot-shell-h1">Final Assembly Twin</h1>
+        <p class="boot-shell-sub">Connecting to the 42-station line.</p>
+      </div>
+      <div class="boot-shell-line" aria-hidden="true"></div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
