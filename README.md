@@ -395,24 +395,8 @@ above are not coincidental.
 - **Two adjacent blind stations are not separately identifiable from timing
   alone.** The twin abstains in this case rather than guessing, by design.
 
-## Security
-
-Static, client-side application. No backend, no database, no server-side
-code path. No authentication and no user accounts, because there is nothing
-to log into. No form anywhere collects user input, and no PII of any kind
-is stored or transmitted; the app makes zero runtime network calls (every
-number is bundled at build time from committed JSON). There is no write
-path to line control anywhere in the codebase, and there never will be:
-Stratify recommends, a person decides. A full-history search of this
-repository's git log for API keys, secrets, passwords, tokens, and private
-key blocks turned up nothing.
-
-This should be read as a small attack surface by design, a static
-client-side app with no server, no auth, and no user data, rather than as
-an exhaustive audit of a complex system. `npm audit --omit=dev` reports zero
-vulnerabilities in the three runtime dependencies.
 
 ## Demo video and live URL
 
-- Demo video: _[add before submission]_
-- Live URL: _[add before submission]_
+- [Demo video](https://drive.google.com/drive/u/2/folders/1bfHMx5jlHNaKPz15j95f2q5IcTVl9QqP)
+- [Live URL](https://stratify-mu-topaz.vercel.app/)
