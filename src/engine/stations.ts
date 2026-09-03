@@ -12,7 +12,7 @@ export const TAKT_SECONDS = 54;
  * docs/assumptions.md names only four of the 42 stations: S2 Cockpit,
  * S6 Seats, S9 Fluids, P3 Basecoat (all four are preserved exactly below).
  * The other 38 names are plausible standard automotive final-assembly/
- * paint/body-shop station names, assigned by Claude Code on 2026-08-28 so
+ * paint/body-shop station names, assigned on 2026-08-28 so
  * the engine has a station table to build against. Swap any of them freely —
  * stations are data, not code, so this is a one-line edit per station, not a
  * refactor.
