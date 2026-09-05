@@ -82,7 +82,7 @@ abstains and says so.
 - **Read-only by construction, not by policy.** There is no actuator
   client, no MES-write call, no code path anywhere in this repository that
   changes anything on a real or simulated line. Recommendations are text.
-  **Models:** The soft sensor is three GradientBoostingRegressor models 
+- **Models:** The soft sensor is three GradientBoostingRegressor models 
 (200 estimators, depth 3, learning rate 0.1, seed 1): one squared-error model 
 for the point estimate, and two quantile models at alpha 0.1 and 0.9 
 that produce a prediction interval. Interval width is the raw confidence signal,
