@@ -185,4 +185,3 @@ computed on held-out simulated data using standard methods rather than asserted.
 Not claimed: validation on real plant data. Any accuracy figure we publish is
 accuracy on our own simulation, and the README says so in its first section.
 
-```
