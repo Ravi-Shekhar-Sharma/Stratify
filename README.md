@@ -82,6 +82,13 @@ abstains and says so.
 - **Read-only by construction, not by policy.** There is no actuator
   client, no MES-write call, no code path anywhere in this repository that
   changes anything on a real or simulated line. Recommendations are text.
+  **Models:** The soft sensor is three GradientBoostingRegressor models 
+(200 estimators, depth 3, learning rate 0.1, seed 1): one squared-error model 
+for the point estimate, and two quantile models at alpha 0.1 and 0.9 
+that produce a prediction interval. Interval width is the raw confidence signal,
+which an IsotonicRegression then calibrates against observed correctness 
+on a held-out calibration split. All four are exported to ml/artifacts/soft_sensor.json 
+and evaluated in TypeScript at runtime, with a parity test asserting both paths agree to 1e-6.
 
 ## Solution architecture
 
@@ -102,14 +109,6 @@ src/engine/      Pure TypeScript: line simulation, signal layer, inference.
                    Python; feature engineering that needs topology
                    knowledge stays here so Python never re-implements
                    the line
-**Models:** The soft sensor is three GradientBoostingRegressor models 
-(200 estimators, depth 3, learning rate 0.1, seed 1): one squared-error model 
-for the point estimate, and two quantile models at alpha 0.1 and 0.9 
-that produce a prediction interval. Interval width is the raw confidence signal,
-which an IsotonicRegression then calibrates against observed correctness 
-on a held-out calibration split. All four are exported to ml/artifacts/soft_sensor.json 
-and evaluated in TypeScript at runtime, with a parity test asserting both paths agree to 1e-6.
-
 ml/              Python: training and validation only, never called by the
                  deployed app.
   generate.py      shells out to the TS exporter above (no re-simulated
