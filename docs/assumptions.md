@@ -185,14 +185,4 @@ computed on held-out simulated data using standard methods rather than asserted.
 Not claimed: validation on real plant data. Any accuracy figure we publish is
 accuracy on our own simulation, and the README says so in its first section.
 
-## Pending verification
-
-The following numbers are unverified as of 2026-08-25 and are owned by teammate
-2. Anything still unverified at submission is either labelled a stated
-assumption or removed.
-
-- Instrumentation cost ranges above.
-- Automotive unplanned downtime cost per minute.
-- Cost of poor quality as a percentage of revenue.
-- All claims about Accenture products, acquisitions and statements.
 ```
